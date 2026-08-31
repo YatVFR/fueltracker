@@ -499,6 +499,29 @@ button:hover{transform:translateY(-1px)}
 @media(max-width:700px){.section-separator{margin-left:16px;margin-right:16px}.period-panel{margin-left:16px;margin-right:16px}.period-grid{grid-template-columns:1fr 1fr}.market-price-grid{grid-template-columns:1fr 1fr}.period-tab{font-size:10px}.spending-pair{grid-template-columns:1fr 1fr}}
 @media(max-width:390px){.period-tabs{grid-template-columns:1fr 1fr}.spending-pair{grid-template-columns:1fr}.period-grid{grid-template-columns:1fr 1fr}.market-price-grid{grid-template-columns:1fr 1fr}}
 
+/* ===== Dashboard v11: monthly scrubber + monthly spending analytics ===== */
+.month-scrubber{display:none;align-items:center;justify-content:center;gap:12px;margin:-2px 0 14px;padding:10px;border:1px solid #28313a;border-radius:12px;background:#0f1418;touch-action:pan-y}
+.month-scrubber.show{display:flex}
+.month-nav{width:42px;height:42px;padding:0;border-radius:12px;background:#1a2128;color:#fff;border:1px solid #303a44;font-size:22px;line-height:1}
+.month-nav:disabled{opacity:.35}
+.month-center{min-width:160px;text-align:center}
+.month-label{font-size:16px;font-weight:850;letter-spacing:.04em;color:var(--text)}
+.month-hint{font-size:9px;color:#7f8994;margin-top:3px;text-transform:uppercase;letter-spacing:.06em}
+.monthly-summary-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:10px 0}
+.month-chart{margin-top:12px;background:#10151a;border:1px solid #29323a;border-radius:12px;padding:13px}
+.month-chart-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-end;margin-bottom:12px}
+.month-chart-title{font-size:11px;font-weight:850;text-transform:uppercase;letter-spacing:.08em}
+.month-chart-sub{font-size:9px;color:#7f8994}
+.month-bars{height:130px;display:flex;align-items:flex-end;gap:8px;border-bottom:1px solid #2c353d;padding:0 2px}
+.month-bar-wrap{flex:1;min-width:0;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:4px}
+.month-bar-value{font-size:8px;color:#aab3bd;white-space:nowrap}
+.month-bar{width:68%;min-width:12px;max-width:42px;border-radius:7px 7px 2px 2px;background:linear-gradient(180deg,var(--lightblue),var(--blue));min-height:2px;opacity:.55}
+.month-bar.selected{opacity:1;box-shadow:0 0 0 1px rgba(255,255,255,.16),0 0 18px rgba(0,163,224,.18)}
+.month-bar-label{font-size:8px;color:#7f8994;text-transform:uppercase}
+.month-bar-label.selected{color:#fff;font-weight:800}
+.month-compare.good{color:#63dc88}.month-compare.bad{color:#ff7b83}
+@media(max-width:700px){.monthly-summary-grid{grid-template-columns:1fr 1fr}.month-center{min-width:135px}.month-bars{gap:4px}.month-bar-value{font-size:7px}}
+
 </style>
 </head>
 <body>
@@ -566,6 +589,11 @@ button:hover{transform:translateY(-1px)}
       <button class="period-tab" type="button" data-mileage-period="year">Yearly</button>
       <button class="period-tab" type="button" data-mileage-period="all">All Time</button>
     </div>
+    <div class="month-scrubber" id="mileageMonthScrubber">
+      <button class="month-nav" type="button" data-month-shift="-1" aria-label="Previous month">‹</button>
+      <div class="month-center"><div class="month-label" id="mileageMonthLabel">—</div><div class="month-hint">Swipe left or right to change month</div></div>
+      <button class="month-nav" type="button" data-month-shift="1" aria-label="Next month">›</button>
+    </div>
     <div class="period-grid">
       <div class="period-card"><div class="k">Distance Travelled</div><div class="v" id="rangeDistance">—</div><div class="s" id="rangeDistanceSub">selected period</div></div>
       <div class="period-card"><div class="k">Average Economy</div><div class="v" id="rangeAvgEconomy">—</div><div class="s">weighted km/L</div></div>
@@ -584,6 +612,11 @@ button:hover{transform:translateY(-1px)}
       <button class="period-tab" type="button" data-spending-period="month">Monthly</button>
       <button class="period-tab" type="button" data-spending-period="year">Yearly</button>
       <button class="period-tab" type="button" data-spending-period="all">All Time</button>
+    </div>
+    <div class="month-scrubber" id="spendingMonthScrubber">
+      <button class="month-nav" type="button" data-month-shift="-1" aria-label="Previous month">‹</button>
+      <div class="month-center"><div class="month-label" id="spendingMonthLabel">—</div><div class="month-hint">Swipe left or right to change month</div></div>
+      <button class="month-nav" type="button" data-month-shift="1" aria-label="Next month">›</button>
     </div>
 
     <div class="spending-pair">
@@ -618,11 +651,23 @@ button:hover{transform:translateY(-1px)}
       </div>
     </div>
 
+    <div class="monthly-summary-grid">
+      <div class="period-card"><div class="k">Fuel Purchased</div><div class="v" id="spendFuelPurchased">0 L</div><div class="s">selected period</div></div>
+      <div class="period-card"><div class="k">Refuels</div><div class="v" id="spendRefuels">0</div><div class="s">selected period</div></div>
+      <div class="period-card"><div class="k">Average / Refuel</div><div class="v" id="spendAvgRefuel">—</div><div class="s">SGD equivalent</div></div>
+      <div class="period-card"><div class="k">Cost / 100 km</div><div class="v" id="spendCost100">—</div><div class="s">based on valid odo intervals</div></div>
+    </div>
+
     <div class="market-price-grid">
       <div class="period-card"><div class="k">SG Fuel Price</div><div class="v" id="sgFuelPrice">—</div><div class="s">average SGD/L</div></div>
       <div class="period-card"><div class="k">MY Fuel Price</div><div class="v" id="myFuelPrice">—</div><div class="s" id="myFuelPriceEquivalent">SGD equivalent</div></div>
       <div class="period-card"><div class="k">Savings / Litre</div><div class="v" id="fuelPriceSaving">—</div><div class="s">absolute SGD difference</div></div>
       <div class="period-card"><div class="k">Cheaper Market</div><div class="v" id="cheaperMarket">—</div><div class="s" id="spendComparisonSub">selected period</div></div>
+    </div>
+
+    <div class="month-chart" id="monthlySpendChart">
+      <div class="month-chart-head"><div><div class="month-chart-title">Monthly Spending</div><div class="month-chart-sub">Six-month total in SGD equivalent</div></div><div class="month-chart-sub" id="monthChartCaption">—</div></div>
+      <div class="month-bars" id="monthBars"></div>
     </div>
   </section>
 
@@ -1084,6 +1129,7 @@ function updateFuelConsumptionSinceRefuel(data){
 
 let mileagePeriod = '14';
 let spendingPeriod = '14';
+let selectedMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
 
 function validDate(value){
   const d = new Date(value);
@@ -1099,11 +1145,11 @@ function periodBounds(period, previous=false){
     return {start,end,label:previous?'Previous 14 Days':'Last 14 Days'};
   }
   if(period === 'month'){
-    const currentStart = new Date(now.getFullYear(), now.getMonth(), 1);
-    if(previous){
-      return {start:new Date(now.getFullYear(), now.getMonth()-1, 1),end:currentStart,label:'Previous Month'};
-    }
-    return {start:currentStart,end:new Date(now.getFullYear(), now.getMonth()+1, 1),label:'This Month'};
+    const base = new Date(selectedMonth.getFullYear(), selectedMonth.getMonth(), 1);
+    const start = previous ? new Date(base.getFullYear(), base.getMonth()-1, 1) : base;
+    const end = previous ? base : new Date(base.getFullYear(), base.getMonth()+1, 1);
+    const label = start.toLocaleDateString(undefined,{month:'long',year:'numeric'});
+    return {start,end,label};
   }
   if(period === 'year'){
     const currentStart = new Date(now.getFullYear(),0,1);
@@ -1156,6 +1202,44 @@ function setActivePeriodButtons(selector, period, attr){
   });
 }
 
+function monthLabel(date){
+  return date.toLocaleDateString(undefined,{month:'long',year:'numeric'});
+}
+
+function syncMonthScrubbers(){
+  const label=monthLabel(selectedMonth);
+  const ml=document.getElementById('mileageMonthLabel'); if(ml)ml.textContent=label;
+  const sl=document.getElementById('spendingMonthLabel'); if(sl)sl.textContent=label;
+  document.getElementById('mileageMonthScrubber')?.classList.toggle('show',mileagePeriod==='month');
+  document.getElementById('spendingMonthScrubber')?.classList.toggle('show',spendingPeriod==='month');
+  const nowStart=new Date(new Date().getFullYear(),new Date().getMonth(),1);
+  document.querySelectorAll('[data-month-shift="1"]').forEach(btn=>btn.disabled=selectedMonth>=nowStart);
+}
+
+function shiftSelectedMonth(delta){
+  const candidate=new Date(selectedMonth.getFullYear(),selectedMonth.getMonth()+delta,1);
+  const nowStart=new Date(new Date().getFullYear(),new Date().getMonth(),1);
+  if(candidate>nowStart) return;
+  selectedMonth=candidate;
+  syncMonthScrubbers();
+  const data=loadData();
+  if(mileagePeriod==='month') renderMileagePeriod(data);
+  if(spendingPeriod==='month') renderSpendingPeriod(data);
+}
+
+function attachMonthSwipe(id){
+  const el=document.getElementById(id); if(!el) return;
+  let startX=null;
+  el.addEventListener('touchstart',e=>{startX=e.changedTouches?.[0]?.clientX??null;},{passive:true});
+  el.addEventListener('touchend',e=>{
+    if(startX===null) return;
+    const endX=e.changedTouches?.[0]?.clientX??startX;
+    const dx=endX-startX; startX=null;
+    if(Math.abs(dx)<45) return;
+    shiftSelectedMonth(dx<0?1:-1);
+  },{passive:true});
+}
+
 function renderMileagePeriod(data){
   const bounds=periodBounds(mileagePeriod,false);
   const periodEntries=entriesForPeriod(data,mileagePeriod,false);
@@ -1175,6 +1259,7 @@ function renderMileagePeriod(data){
   put('rangeBestEconomy',best?best.toFixed(1)+' km/L':'—');
   put('rangeDistanceSub',bounds.label.toLowerCase());
   setActivePeriodButtons('[data-mileage-period]',mileagePeriod,'data-mileage-period');
+  syncMonthScrubbers();
 }
 
 function fallbackFxRate(){
@@ -1204,7 +1289,7 @@ function spendingSummary(data, period, previous=false){
       if(!(Number(e.fxRateSGDMYR)>0)) estimated++;
     }
   });
-  return {entries,sgd,myr,myrSgd,totalSgd:sgd+myrSgd,sgLitres,myLitres,estimated};
+  return {entries,sgd,myr,myrSgd,totalSgd:sgd+myrSgd,sgLitres,myLitres,totalLitres:sgLitres+myLitres,estimated};
 }
 
 function renderSpendingPeriod(data){
@@ -1234,6 +1319,12 @@ function renderSpendingPeriod(data){
   put('myFuelPriceEquivalent',myPriceSgd!==null?'≈ S$'+myPriceSgd.toFixed(2)+'/L':'SGD equivalent');
   put('fuelPriceSaving',saving!==null?'S$'+saving.toFixed(2):'—');
   put('cheaperMarket',cheaper);
+  put('spendFuelPurchased',s.totalLitres>0?s.totalLitres.toFixed(1)+' L':'0 L');
+  put('spendRefuels',String(s.entries.length));
+  put('spendAvgRefuel',s.entries.length?'S$'+(s.totalSgd/s.entries.length).toFixed(2):'—');
+  const spendBounds=periodBounds(spendingPeriod,false);
+  const spendDistance=economyIntervals(data).filter(x=>spendingPeriod==='all'||inBounds(x.date,spendBounds)).reduce((sum,x)=>sum+x.distance,0);
+  put('spendCost100',spendDistance>0?'S$'+(s.totalSgd/spendDistance*100).toFixed(2):'—');
   const label=periodBounds(spendingPeriod,false).label;
   let compare=label;
   if(prev && prev.totalSgd>0){
@@ -1241,6 +1332,10 @@ function renderSpendingPeriod(data){
     compare=label+' • '+(change>=0?'↑ ':'↓ ')+Math.abs(change).toFixed(1)+'% vs previous';
   }
   put('spendComparisonSub',compare);
+  const cmp=document.getElementById('spendComparisonSub');
+  if(cmp){cmp.classList.remove('good','bad'); if(prev&&prev.totalSgd>0){const change=(s.totalSgd-prev.totalSgd)/prev.totalSgd*100; cmp.classList.add(change<=0?'good':'bad');}}
+  renderMonthlySpendChart(data);
+  syncMonthScrubbers();
   const note=document.getElementById('combinedSpendNote');
   if(note){
     note.textContent=s.estimated>0
@@ -1248,6 +1343,33 @@ function renderSpendingPeriod(data){
       : 'MYR converted using the exchange rate saved with each refuel.';
   }
   setActivePeriodButtons('[data-spending-period]',spendingPeriod,'data-spending-period');
+}
+
+function renderMonthlySpendChart(data){
+  const bars=document.getElementById('monthBars'); if(!bars) return;
+  const base=spendingPeriod==='month'?selectedMonth:new Date(new Date().getFullYear(),new Date().getMonth(),1);
+  const months=[];
+  for(let i=5;i>=0;i--){
+    const d=new Date(base.getFullYear(),base.getMonth()-i,1);
+    const start=new Date(d.getFullYear(),d.getMonth(),1), end=new Date(d.getFullYear(),d.getMonth()+1,1);
+    let total=0;
+    data.forEach(e=>{
+      const dt=validDate(e.dateTime); if(!dt||dt<start||dt>=end) return;
+      const c=String(e.currency||'').toUpperCase();
+      if(c==='SGD') total+=Number(e.cost)||0;
+      else if(c==='MYR') total+=myrToSgd(e);
+    });
+    months.push({d,total});
+  }
+  const max=Math.max(1,...months.map(m=>m.total));
+  bars.innerHTML=months.map(m=>{
+    const selected=m.d.getFullYear()===selectedMonth.getFullYear()&&m.d.getMonth()===selectedMonth.getMonth();
+    const h=Math.max(2,m.total/max*92);
+    const value=m.total>0?'S$'+m.total.toFixed(0):'—';
+    const label=m.d.toLocaleDateString(undefined,{month:'short'});
+    return `<div class="month-bar-wrap"><div class="month-bar-value">${value}</div><div class="month-bar ${selected?'selected':''}" style="height:${h}px"></div><div class="month-bar-label ${selected?'selected':''}">${label}</div></div>`;
+  }).join('');
+  const cap=document.getElementById('monthChartCaption'); if(cap)cap.textContent=monthLabel(base);
 }
 
 function renderRangeDashboards(data){
@@ -1268,12 +1390,18 @@ function syncFxField(){
 
 document.querySelectorAll('[data-mileage-period]').forEach(btn=>btn.addEventListener('click',()=>{
   mileagePeriod=btn.getAttribute('data-mileage-period')||'14';
+  syncMonthScrubbers();
   renderMileagePeriod(loadData());
 }));
 document.querySelectorAll('[data-spending-period]').forEach(btn=>btn.addEventListener('click',()=>{
   spendingPeriod=btn.getAttribute('data-spending-period')||'14';
+  syncMonthScrubbers();
   renderSpendingPeriod(loadData());
 }));
+document.querySelectorAll('[data-month-shift]').forEach(btn=>btn.addEventListener('click',()=>shiftSelectedMonth(Number(btn.getAttribute('data-month-shift'))||0)));
+attachMonthSwipe('mileageMonthScrubber');
+attachMonthSwipe('spendingMonthScrubber');
+syncMonthScrubbers();
 document.getElementById('currency')?.addEventListener('change',syncFxField);
 
 function computeStats(data){
