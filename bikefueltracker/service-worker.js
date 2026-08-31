@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ridefuel-offline-v10';
+const CACHE_NAME = 'ridefuel-offline-v11';
 const APP_SHELL = [
   './',
   './index.html',

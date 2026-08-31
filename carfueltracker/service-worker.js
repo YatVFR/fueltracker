@@ -1,4 +1,4 @@
-const CACHE_NAME = 'astinafuel-offline-v10';
+const CACHE_NAME = 'astinafuel-offline-v11';
 const APP_SHELL = [
   './',
   './index.html',
