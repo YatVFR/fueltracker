@@ -1,4 +1,4 @@
-const CACHE_NAME = 'astinafuel-offline-v13';
+const CACHE_NAME = 'astinafuel-offline-v13-1';
 const APP_SHELL = [
   './',
   './index.html',
@@ -9,7 +9,7 @@ const APP_SHELL = [
   './dashboard-upgrade.css',
   './dashboard-upgrade.js',
   './app-settings.css',
-  './app-settings.js'
+  '../app-settings-v13.js'
 ];
 
 self.addEventListener('install', event => {
@@ -36,7 +36,7 @@ async function decorateHtmlResponse(response){
   if(!upgraded.includes('dashboard-upgrade.css')) upgraded=upgraded.replace('</head>','<link rel="stylesheet" href="./dashboard-upgrade.css">\n</head>');
   if(!upgraded.includes('app-settings.css')) upgraded=upgraded.replace('</head>','<link rel="stylesheet" href="./app-settings.css">\n</head>');
   if(!upgraded.includes('dashboard-upgrade.js')) upgraded=upgraded.replace('</body>','<script src="./dashboard-upgrade.js"></script>\n</body>');
-  if(!upgraded.includes('app-settings.js')) upgraded=upgraded.replace('</body>','<script src="./app-settings.js"></script>\n</body>');
+  if(!upgraded.includes('app-settings-v13.js')) upgraded=upgraded.replace('</body>','<script src="../app-settings-v13.js"></script>\n</body>');
   const headers=new Headers(response.headers);
   headers.set('Content-Type','text/html; charset=utf-8');
   return new Response(upgraded,{status:response.status,statusText:response.statusText,headers});
