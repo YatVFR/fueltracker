@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ridefuel-offline-v12-1';
+const CACHE_NAME = 'ridefuel-offline-v13';
 const APP_SHELL = [
   './',
   './index.html',
@@ -7,13 +7,13 @@ const APP_SHELL = [
   './icons/icon-192.png',
   './icons/icon-512.png',
   './dashboard-upgrade.css',
-  './dashboard-upgrade.js'
+  './dashboard-upgrade.js',
+  './app-settings.css',
+  './app-settings.js'
 ];
 
 self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL))
-  );
+  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL)));
   self.skipWaiting();
 });
 
@@ -33,12 +33,10 @@ async function decorateHtmlResponse(response){
   if(!response) return response;
   const html = await response.text();
   let upgraded = html;
-  if(!upgraded.includes('dashboard-upgrade.css')){
-    upgraded = upgraded.replace('</head>', '<link rel="stylesheet" href="./dashboard-upgrade.css">\n</head>');
-  }
-  if(!upgraded.includes('dashboard-upgrade.js')){
-    upgraded = upgraded.replace('</body>', '<script src="./dashboard-upgrade.js"></script>\n</body>');
-  }
+  if(!upgraded.includes('dashboard-upgrade.css')) upgraded = upgraded.replace('</head>', '<link rel="stylesheet" href="./dashboard-upgrade.css">\n</head>');
+  if(!upgraded.includes('app-settings.css')) upgraded = upgraded.replace('</head>', '<link rel="stylesheet" href="./app-settings.css">\n</head>');
+  if(!upgraded.includes('dashboard-upgrade.js')) upgraded = upgraded.replace('</body>', '<script src="./dashboard-upgrade.js"></script>\n</body>');
+  if(!upgraded.includes('app-settings.js')) upgraded = upgraded.replace('</body>', '<script src="./app-settings.js"></script>\n</body>');
   const headers = new Headers(response.headers);
   headers.set('Content-Type', 'text/html; charset=utf-8');
   return new Response(upgraded, {status: response.status,statusText: response.statusText,headers});
@@ -56,12 +54,20 @@ self.addEventListener('fetch', event => {
     event.respondWith((async()=>{
       try{
         const network=await fetch(request,{cache:'no-store'});
-        if(network&&network.ok){const copy=network.clone();const cache=await caches.open(CACHE_NAME);await cache.put('./index.html',copy);return decorateHtmlResponse(network);}
+        if(network&&network.ok){
+          const copy=network.clone();
+          const cache=await caches.open(CACHE_NAME);
+          await cache.put('./index.html',copy);
+          return decorateHtmlResponse(network);
+        }
       }catch(error){}
       const cached=await caches.match('./index.html');
       return cached?decorateHtmlResponse(cached):new Response('Fuel Tracker is unavailable offline until it has been opened once.',{status:503});
     })());
     return;
   }
-  event.respondWith(caches.match(request).then(cached=>cached||fetch(request).then(response=>{if(response&&response.ok){const copy=response.clone();caches.open(CACHE_NAME).then(cache=>cache.put(request,copy));}return response;})));
+  event.respondWith(caches.match(request).then(cached=>cached||fetch(request).then(response=>{
+    if(response&&response.ok){const copy=response.clone();caches.open(CACHE_NAME).then(cache=>cache.put(request,copy));}
+    return response;
+  })));
 });
