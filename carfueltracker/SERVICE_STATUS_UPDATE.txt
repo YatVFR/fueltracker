@@ -1,0 +1,25 @@
+Car Fuel Tracker — Live Service Status
+
+New status bar:
+  LOCAL SERVER ONLINE
+    = iSH/Python local server is reachable.
+      Use this state when installing or updating the app.
+
+  OFFLINE • CACHED
+    = local iSH server is not reachable.
+      The tracker is running from the installed PWA cache.
+      Normal fuel entry remains available.
+
+The check runs at launch and every 15 seconds.
+
+This status is intentionally based on the local tracker service, not on
+whether the iPhone has Wi-Fi/mobile Internet.
+
+After copying these files into the tracker's mounted folder:
+1. Run: fueltrackers start
+2. Open/reload the tracker in Safari.
+3. Confirm LOCAL SERVER ONLINE.
+4. Open the Home Screen tracker once.
+5. Run: fueltrackers stop
+6. Reopen the Home Screen tracker.
+7. Confirm OFFLINE • CACHED.

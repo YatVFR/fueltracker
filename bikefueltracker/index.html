@@ -1,0 +1,1667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RideFuel — Motorrad Inspired Tracker</title>
+
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0b0d10">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="RideFuel">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+
+<style>
+:root{
+  --bg:#0b0d10;
+  --panel:#14181d;
+  --panel-2:#1b2026;
+  --line:#2b3138;
+  --text:#f5f7fa;
+  --muted:#9ea7b3;
+  --blue:#0066b1;
+  --lightblue:#00a3e0;
+  --red:#e31b23;
+  --white:#ffffff;
+  --green:#22c55e;
+  --amber:#f59e0b;
+  --shadow:0 18px 50px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+  background:
+    radial-gradient(circle at top right,rgba(0,102,177,.12),transparent 30%),
+    linear-gradient(180deg,#090b0e 0%,#101419 100%);
+  color:var(--text);
+  min-height:100vh;
+  padding:18px;
+}
+.app{
+  max-width:980px;
+  margin:auto;
+  background:rgba(13,16,20,.95);
+  border:1px solid #20262c;
+  border-radius:22px;
+  overflow:hidden;
+  box-shadow:var(--shadow);
+}
+.hero{
+  position:relative;
+  padding:28px 26px 26px;
+  background:
+    linear-gradient(120deg,rgba(0,102,177,.23),transparent 48%),
+    linear-gradient(180deg,#171b20,#0f1216);
+  border-bottom:1px solid var(--line);
+}
+.hero::after{
+  content:"";
+  position:absolute;
+  right:-60px; top:-60px;
+  width:240px; height:240px;
+  border-radius:50%;
+  border:34px solid rgba(255,255,255,.025);
+}
+.brandline{
+  display:flex;align-items:center;gap:10px;margin-bottom:16px;
+  letter-spacing:.16em;text-transform:uppercase;font-size:11px;color:#cfd6de;font-weight:700
+}
+.stripes{display:flex;width:78px;height:7px;border-radius:999px;overflow:hidden}
+.stripes span:nth-child(1){background:#00a3e0;flex:1}
+.stripes span:nth-child(2){background:#0066b1;flex:1}
+.stripes span:nth-child(3){background:#e31b23;flex:1}
+.hero h1{font-size:clamp(30px,6vw,52px);line-height:1;font-weight:800;letter-spacing:-.04em}
+.hero p{margin-top:10px;color:var(--muted);font-size:14px}
+.hero-badge{
+  position:absolute;right:24px;bottom:24px;
+  border:1px solid #313943;background:#11161b;padding:8px 11px;border-radius:999px;
+  color:#c8d0d8;font-size:11px;font-weight:700;letter-spacing:.05em
+}
+.dashboard{
+  padding:22px;
+  display:grid;
+  grid-template-columns:repeat(6,1fr);
+  gap:12px;
+}
+.stat{
+  background:linear-gradient(180deg,#191e24,#14181d);
+  border:1px solid #252c33;
+  border-radius:14px;
+  padding:16px;
+  min-height:104px;
+}
+.stat .label{font-size:11px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);font-weight:700}
+.stat .value{font-size:26px;font-weight:800;margin-top:9px;letter-spacing:-.03em}
+.stat .sub{font-size:11px;color:#7f8994;margin-top:6px}
+.odo-update-btn{margin-top:7px;padding:7px 9px;border-radius:8px;font-size:9px;letter-spacing:.07em;background:#1b232b;color:#fff;border:1px solid #323c46;width:100%}
+.odo-update-btn:active{transform:none;opacity:.85}
+.content{display:grid;grid-template-columns:1.05fr .95fr;gap:18px;padding:0 22px 22px}
+.card{
+  background:var(--panel);
+  border:1px solid #262d34;
+  border-radius:16px;
+  overflow:hidden;
+}
+.card-head{
+  padding:16px 18px;border-bottom:1px solid var(--line);
+  display:flex;justify-content:space-between;align-items:center
+}
+.card-head h2{font-size:15px;letter-spacing:.02em}
+.card-head .hint{font-size:11px;color:var(--muted)}
+.form{padding:18px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.group{margin-bottom:13px}
+label{
+  display:block;font-size:11px;font-weight:800;letter-spacing:.07em;
+  text-transform:uppercase;color:#aeb7c2;margin-bottom:7px
+}
+input,select,textarea{
+  width:100%;background:#0f1317;color:var(--text);
+  border:1px solid #303840;border-radius:10px;padding:12px 13px;
+  font-size:14px;outline:none;transition:.2s
+}
+input:focus,select:focus,textarea:focus{
+  border-color:var(--lightblue);
+  box-shadow:0 0 0 3px rgba(0,163,224,.10)
+}
+textarea{resize:vertical;min-height:72px}
+.actions{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:9px;margin-top:8px}
+button{
+  border:none;border-radius:10px;padding:12px 10px;font-weight:800;cursor:pointer;
+  transition:.18s;font-size:12px;letter-spacing:.02em
+}
+button:hover{transform:translateY(-1px)}
+.primary{background:linear-gradient(135deg,var(--blue),var(--lightblue));color:white}
+.secondary{background:#1b232b;color:white;border:1px solid #323c46}
+.danger{background:#2a1719;color:#ff9aa0;border:1px solid #5d252b}
+.list{padding:10px 12px 14px;max-height:620px;overflow:auto}
+.entry{
+  border:1px solid #293139;background:#11161a;border-radius:12px;padding:13px;margin-top:10px
+}
+.entry-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.entry-date{font-size:12px;font-weight:800;color:#d7dde4}
+.pill{font-size:10px;font-weight:800;padding:5px 7px;border-radius:999px;background:#162b3e;color:#91d7ff}
+.entry-main{font-size:13px;margin-top:10px;color:#d6dce3;line-height:1.55}
+.entry-main strong{color:white}
+.entry-meta{margin-top:9px;display:flex;flex-wrap:wrap;gap:7px}
+.chip{font-size:10px;color:#aeb7c2;background:#1b2127;padding:5px 7px;border-radius:7px}
+.delete{margin-left:auto;color:#ff777f;cursor:pointer;font-size:11px;font-weight:800}
+.empty{padding:38px 18px;text-align:center;color:#78828d;font-size:13px}
+.message{
+  display:none;margin-bottom:13px;padding:10px 12px;border-radius:9px;
+  background:#0f2a1a;border:1px solid #1f6035;color:#8ef0aa;font-size:12px;font-weight:700
+}
+.footer{
+  border-top:1px solid #232a30;padding:14px 22px;color:#6f7882;font-size:10px;
+  display:flex;justify-content:space-between;gap:10px
+}
+.accent-line{height:4px;background:linear-gradient(90deg,var(--lightblue) 0 33%,var(--blue) 33% 66%,var(--red) 66% 100%)}
+
+.backup-panel{
+  margin:0 22px 18px;
+  background:linear-gradient(180deg,#161b20,#11161a);
+  border:1px solid #283039;
+  border-radius:14px;
+  padding:15px 16px;
+}
+.backup-head{
+  display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px
+}
+.backup-head h3{
+  font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#d9e0e7
+}
+.backup-state{
+  font-size:10px;font-weight:800;padding:5px 8px;border-radius:999px;
+  background:#262d34;color:#c2cad3
+}
+.backup-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px
+}
+.backup-item{
+  background:#0f1317;border:1px solid #242b31;border-radius:10px;padding:10px
+}
+.backup-item .k{
+  font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:#78828d;font-weight:800
+}
+.backup-item .v{
+  margin-top:5px;font-size:12px;color:#e8edf2;font-weight:700;word-break:break-word
+}
+.backup-actions{
+  display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px
+}
+.backup-actions button{
+  padding:10px;font-size:11px
+}
+.file-input{
+  display:none
+}
+@media(max-width:780px){
+  .backup-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:480px){
+  .backup-panel{margin:0 16px 16px}
+  .backup-grid{grid-template-columns:1fr}
+  .backup-actions{grid-template-columns:1fr}
+}
+
+@media(max-width:780px){
+  .dashboard{grid-template-columns:1fr 1fr}
+  .content{grid-template-columns:1fr}
+  .hero-badge{display:none}
+}
+@media(max-width:480px){
+  body{padding:0}
+  .app{border-radius:0;border-left:0;border-right:0;min-height:100vh}
+  .hero{padding:24px 18px}
+  .dashboard{padding:16px;gap:9px}
+  .content{padding:0 16px 16px}
+  .grid2{grid-template-columns:1fr}
+  .actions{grid-template-columns:1fr}
+  .stat{padding:13px;min-height:90px}
+  .stat .value{font-size:22px}
+}
+
+.install-panel{
+  margin:0 22px 18px;
+  background:linear-gradient(180deg,#14191e,#101419);
+  border:1px solid #26303a;
+  border-radius:14px;
+  padding:14px 16px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px
+}
+.install-copy strong{display:block;font-size:12px;letter-spacing:.05em}
+.install-copy span{display:block;margin-top:4px;color:#8e99a5;font-size:11px;line-height:1.4}
+.install-actions{display:flex;gap:8px;flex-wrap:wrap}
+.install-actions button{white-space:nowrap}
+@media(max-width:580px){
+  .install-panel{margin:0 16px 16px;display:block}
+  .install-actions{margin-top:10px}
+  .install-actions button{flex:1}
+}
+
+
+.connection-badge{
+  position:fixed;
+  right:14px;
+  bottom:14px;
+  z-index:9999;
+  padding:8px 11px;
+  border-radius:999px;
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.05em;
+  box-shadow:0 8px 30px rgba(0,0,0,.35);
+  border:1px solid #2d353d;
+  background:#13251a;
+  color:#8ef0aa;
+}
+.connection-badge.offline{
+  background:#2d2110;
+  color:#ffd58a;
+  border-color:#5a421d;
+}
+
+
+.service-status-bar{
+  margin:0 22px 18px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:11px 14px;
+  border:1px solid #2c343d;
+  border-radius:12px;
+  background:linear-gradient(180deg,#13171b,#0f1215);
+}
+.service-status-main{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  min-width:0;
+}
+.service-dot{
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  flex:0 0 auto;
+  background:#8a949e;
+}
+.service-status-text{
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:.055em;
+  color:#e7ebef;
+}
+.service-status-sub{
+  margin-top:2px;
+  font-size:10px;
+  color:#8d98a2;
+}
+.service-status-bar.online{
+  border-color:#245f38;
+  background:linear-gradient(180deg,#122419,#0f1813);
+}
+.service-status-bar.online .service-dot{
+  background:#58d47b;
+  box-shadow:0 0 0 4px rgba(88,212,123,.09);
+}
+.service-status-bar.offline{
+  border-color:#65501f;
+  background:linear-gradient(180deg,#28200f,#17130d);
+}
+.service-status-bar.offline .service-dot{
+  background:#f0b84f;
+  box-shadow:0 0 0 4px rgba(240,184,79,.09);
+}
+.service-cache{
+  font-size:10px;
+  font-weight:800;
+  color:#98a1a9;
+  white-space:nowrap;
+}
+@media(max-width:580px){
+  .service-status-bar{
+    margin:0 16px 16px;
+    align-items:flex-start;
+  }
+  .service-cache{white-space:normal;text-align:right}
+}
+
+
+.data-status-panel{
+  margin:0 22px 18px;
+  padding:14px;
+  border:1px solid #2c343d;
+  border-radius:12px;
+  background:linear-gradient(180deg,#12161a,#0e1114);
+}
+.data-status-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:10px;
+}
+.data-status-title{
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:.06em;
+  color:#e7ebef;
+}
+.data-status-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  padding:6px 9px;
+  border-radius:999px;
+  border:1px solid #245f38;
+  background:#122419;
+  color:#74e394;
+  font-size:10px;
+  font-weight:900;
+  white-space:nowrap;
+}
+.data-status-badge .dot{
+  width:8px;height:8px;border-radius:50%;background:#58d47b;
+}
+.data-status-grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;
+}
+.data-status-item{
+  padding:10px;
+  border:1px solid #232a31;
+  border-radius:10px;
+  background:#101419;
+  min-width:0;
+}
+.data-status-label{
+  font-size:9px;
+  text-transform:uppercase;
+  letter-spacing:.05em;
+  color:#7f8a94;
+  margin-bottom:5px;
+}
+.data-status-value{
+  font-size:12px;
+  font-weight:800;
+  color:#eef1f4;
+  word-break:break-word;
+}
+.data-status-value.warn{color:#f0b84f}
+.data-status-value.good{color:#74e394}
+@media(max-width:700px){.data-status-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:420px){.data-status-panel{margin:0 16px 16px}}
+
+
+.current-tank-consumption{margin:0 22px 22px;background:linear-gradient(180deg,#171c21,#11161a);border:1px solid #2a323a;border-radius:16px;padding:18px}
+.current-tank-consumption .ct-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:14px}
+.current-tank-consumption .ct-title{font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
+.current-tank-consumption .ct-note{font-size:10px;color:#7f8994;text-align:right}
+.current-tank-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.current-tank-item{background:#13181d;border:1px solid #252d35;border-radius:12px;padding:13px;min-width:0}
+.current-tank-label{font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+.current-tank-value{font-size:23px;font-weight:800;margin-top:7px;letter-spacing:-.03em}
+.current-tank-sub{font-size:10px;color:#7f8994;margin-top:5px}
+@media(max-width:700px){.current-tank-grid{grid-template-columns:1fr}.current-tank-consumption{margin:0 16px 16px}.current-tank-consumption .ct-head{display:block}.current-tank-consumption .ct-note{text-align:left;margin-top:6px}}
+
+
+/* ===== Dashboard v10: timeframe + spending comparison ===== */
+.section-separator{margin:4px 22px 14px;display:flex;align-items:center;gap:12px;color:#d8dee6;font-size:12px;font-weight:800;letter-spacing:.11em;text-transform:uppercase}
+.section-separator::before,.section-separator::after{content:"";height:1px;background:var(--line);flex:1}
+.period-panel{margin:0 22px 16px;background:linear-gradient(180deg,#171c21,#11161a);border:1px solid #2a323a;border-radius:16px;padding:16px}
+.period-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;background:#0e1216;border:1px solid #252d35;border-radius:12px;padding:5px;margin-bottom:14px}
+.period-tab{min-height:42px;border:0;border-radius:9px;background:transparent;color:#aab3bd;font-size:11px;font-weight:750;padding:8px 5px;cursor:pointer}
+.period-tab.active{background:linear-gradient(135deg,var(--blue),var(--lightblue));color:#fff}
+.period-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.period-card{background:#13181d;border:1px solid #252d35;border-radius:12px;padding:13px;min-width:0}
+.period-card .k{font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.07em}
+.period-card .v{font-size:22px;font-weight:800;margin-top:7px;letter-spacing:-.03em;overflow-wrap:anywhere}
+.period-card .s{font-size:10px;color:#7f8994;margin-top:4px}
+.spending-pair{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.spend-market{background:#13181d;border:1px solid #252d35;border-radius:12px;padding:14px}
+.spend-market .market{font-size:10px;color:var(--muted);font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.spend-market .amount{font-size:25px;font-weight:800;margin-top:7px}
+.spend-market .equiv,.spend-market .share{font-size:11px;color:#8e99a4;margin-top:5px}
+.combined-spend{background:#0e1318;border:1px solid #2d3740;border-radius:14px;padding:16px;text-align:center;margin-bottom:12px}
+.combined-spend .k{font-size:10px;color:var(--muted);font-weight:800;letter-spacing:.1em;text-transform:uppercase}
+.combined-spend .v{font-size:31px;font-weight:850;margin-top:5px}
+.combined-spend .s{font-size:10px;color:#7f8994;margin-top:5px}
+.compare-card{background:#13181d;border:1px solid #252d35;border-radius:12px;padding:14px;margin-bottom:10px}
+.compare-title{font-size:12px;font-weight:800;margin-bottom:12px}
+.compare-row{margin-top:10px}
+.compare-head{display:flex;justify-content:space-between;gap:10px;font-size:11px;color:#c3cad2;margin-bottom:5px}
+.compare-track{height:10px;background:#0c1014;border-radius:999px;overflow:hidden;border:1px solid #242c33}
+.compare-fill{height:100%;border-radius:999px;transition:width .2s ease}
+.compare-fill.sg{background:linear-gradient(90deg,#3f7bd8,#60a5fa)}
+.compare-fill.my{background:linear-gradient(90deg,#7c4bd8,#b17cff)}
+.market-price-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.fx-inline{display:none;margin-top:12px;background:#10151a;border:1px solid #29323a;border-radius:12px;padding:12px}
+.fx-inline.show{display:block}
+.fx-help{font-size:10px;color:#84909b;margin-top:5px;line-height:1.35}
+@media(max-width:700px){.section-separator{margin-left:16px;margin-right:16px}.period-panel{margin-left:16px;margin-right:16px}.period-grid{grid-template-columns:1fr 1fr}.market-price-grid{grid-template-columns:1fr 1fr}.period-tab{font-size:10px}.spending-pair{grid-template-columns:1fr 1fr}}
+@media(max-width:390px){.period-tabs{grid-template-columns:1fr 1fr}.spending-pair{grid-template-columns:1fr}.period-grid{grid-template-columns:1fr 1fr}.market-price-grid{grid-template-columns:1fr 1fr}}
+
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="accent-line"></div>
+
+  <section class="hero">
+    <div class="brandline">
+      <div class="stripes"><span></span><span></span><span></span></div>
+      RideFuel / Motorrad Concept
+    </div>
+    <h1>Fuel. Ride. Repeat.</h1>
+    <p>A premium motorcycle fuel log for every kilometre, litre and ride.</p>
+    <div class="hero-badge">RIDER DASHBOARD</div>
+  </section>
+
+  <section class="dashboard">
+    <div class="stat">
+      <div class="label">Current Odometer</div>
+      <div class="value" id="currentOdo">—</div>
+      <div class="sub" id="currentOdoSub">tap update to refresh</div>
+      <button class="odo-update-btn" type="button" onclick="updateCurrentOdometer()">UPDATE ODOMETER</button>
+    </div>
+    <div class="stat">
+      <div class="label">Latest Refuel Odo</div>
+      <div class="value" id="latestOdo">—</div>
+      <div class="sub">km at last refuel</div>
+    </div>
+    <div class="stat">
+      <div class="label">Distance Since Refuel</div>
+      <div class="value" id="distanceSinceRefuel">—</div>
+      <div class="sub" id="distanceSinceRefuelSub">current tank</div>
+    </div>
+    <div class="stat">
+      <div class="label">Fuel Lasted</div>
+      <div class="value" id="fuelLasted">—</div>
+      <div class="sub" id="fuelLastedSub">between last 2 refuels</div>
+    </div>
+  </section>
+
+  <div class="section-separator">Mileage &amp; Efficiency</div>
+<section class="current-tank-consumption" aria-live="polite">
+    <div class="ct-head"><div class="ct-title">Latest Fuel Consumption</div><div class="ct-note">(Current Odo − Previous Odo) ÷ Current Refuel Volume</div></div>
+    <div class="current-tank-grid">
+      <div class="current-tank-item"><div class="current-tank-label">Latest Fuel Economy</div><div class="current-tank-value" id="latestFuelEconomy">—</div><div class="current-tank-sub" id="latestFuelEconomySub">completed refuel interval</div></div>
+      <div class="current-tank-item"><div class="current-tank-label">Distance Travelled</div><div class="current-tank-value" id="latestEconomyDistance">—</div><div class="current-tank-sub">current odo − previous odo</div></div>
+      <div class="current-tank-item"><div class="current-tank-label">Current Refuel Volume</div><div class="current-tank-value" id="latestEconomyVolume">—</div><div class="current-tank-sub">litres used in formula</div></div>
+      <div class="current-tank-item"><div class="current-tank-label">Previous Odometer</div><div class="current-tank-value" id="latestEconomyPreviousOdo">—</div><div class="current-tank-sub">previous refuel</div></div>
+      <div class="current-tank-item"><div class="current-tank-label">Current Odometer</div><div class="current-tank-value" id="latestEconomyCurrentOdo">—</div><div class="current-tank-sub">current refuel</div></div>
+    </div>
+  </section>
+
+
+
+  <section class="period-panel" aria-live="polite">
+    <div class="period-tabs" id="mileageTabs" aria-label="Mileage timeframe">
+      <button class="period-tab active" type="button" data-mileage-period="14">14 Days</button>
+      <button class="period-tab" type="button" data-mileage-period="month">Monthly</button>
+      <button class="period-tab" type="button" data-mileage-period="year">Yearly</button>
+      <button class="period-tab" type="button" data-mileage-period="all">All Time</button>
+    </div>
+    <div class="period-grid">
+      <div class="period-card"><div class="k">Distance Travelled</div><div class="v" id="rangeDistance">—</div><div class="s" id="rangeDistanceSub">selected period</div></div>
+      <div class="period-card"><div class="k">Average Economy</div><div class="v" id="rangeAvgEconomy">—</div><div class="s">weighted km/L</div></div>
+      <div class="period-card"><div class="k">Latest Economy</div><div class="v" id="rangeLatestEconomy">—</div><div class="s">latest interval in period</div></div>
+      <div class="period-card"><div class="k">Fuel Purchased</div><div class="v" id="rangeFuel">0 L</div><div class="s">refuels in period</div></div>
+      <div class="period-card"><div class="k">Refuels</div><div class="v" id="rangeRefuels">0</div><div class="s">selected period</div></div>
+      <div class="period-card"><div class="k">Best Economy</div><div class="v" id="rangeBestEconomy">—</div><div class="s">best completed interval</div></div>
+    </div>
+  </section>
+
+  <div class="section-separator">Fuel Spending</div>
+
+  <section class="period-panel" aria-live="polite">
+    <div class="period-tabs" id="spendingTabs" aria-label="Spending timeframe">
+      <button class="period-tab active" type="button" data-spending-period="14">14 Days</button>
+      <button class="period-tab" type="button" data-spending-period="month">Monthly</button>
+      <button class="period-tab" type="button" data-spending-period="year">Yearly</button>
+      <button class="period-tab" type="button" data-spending-period="all">All Time</button>
+    </div>
+
+    <div class="spending-pair">
+      <div class="spend-market">
+        <div class="market">🇸🇬 Singapore • SGD Paid</div>
+        <div class="amount" id="spendSgd">S$0.00</div>
+        <div class="share" id="spendSgdShare">— of combined spend</div>
+      </div>
+      <div class="spend-market">
+        <div class="market">🇲🇾 Malaysia • MYR Paid</div>
+        <div class="amount" id="spendMyr">RM0.00</div>
+        <div class="equiv" id="spendMyrEquivalent">≈ S$0.00</div>
+        <div class="share" id="spendMyrShare">— of combined spend</div>
+      </div>
+    </div>
+
+    <div class="combined-spend">
+      <div class="k">Combined Spend in SGD</div>
+      <div class="v" id="combinedSpend">S$0.00</div>
+      <div class="s" id="combinedSpendNote">MYR uses the rate saved with each refuel; older entries use the fallback rate.</div>
+    </div>
+
+    <div class="compare-card">
+      <div class="compare-title">SGD vs MYR Spending</div>
+      <div class="compare-row">
+        <div class="compare-head"><span>🇸🇬 Singapore</span><span id="sgSharePct">0%</span></div>
+        <div class="compare-track"><div class="compare-fill sg" id="sgSpendBar" style="width:0%"></div></div>
+      </div>
+      <div class="compare-row">
+        <div class="compare-head"><span>🇲🇾 Malaysia → SGD equivalent</span><span id="mySharePct">0%</span></div>
+        <div class="compare-track"><div class="compare-fill my" id="mySpendBar" style="width:0%"></div></div>
+      </div>
+    </div>
+
+    <div class="market-price-grid">
+      <div class="period-card"><div class="k">SG Fuel Price</div><div class="v" id="sgFuelPrice">—</div><div class="s">average SGD/L</div></div>
+      <div class="period-card"><div class="k">MY Fuel Price</div><div class="v" id="myFuelPrice">—</div><div class="s" id="myFuelPriceEquivalent">SGD equivalent</div></div>
+      <div class="period-card"><div class="k">Savings / Litre</div><div class="v" id="fuelPriceSaving">—</div><div class="s">absolute SGD difference</div></div>
+      <div class="period-card"><div class="k">Cheaper Market</div><div class="v" id="cheaperMarket">—</div><div class="s" id="spendComparisonSub">selected period</div></div>
+    </div>
+  </section>
+
+
+  <section class="service-status-bar offline" id="serviceStatusBar" aria-live="polite">
+    <div class="service-status-main">
+      <span class="service-dot" aria-hidden="true"></span>
+      <div>
+        <div class="service-status-text" id="serviceStatusText">CHECKING SERVICE…</div>
+        <div class="service-status-sub" id="serviceStatusSub">Checking local iSH server</div>
+      </div>
+    </div>
+    <div class="service-cache" id="serviceCacheState">PWA CACHE ACTIVE</div>
+  </section>
+
+  <section class="data-status-panel" id="dataStatusPanel" aria-live="polite">
+    <div class="data-status-head">
+      <div class="data-status-title">DATA STATUS</div>
+      <div class="data-status-badge"><span class="dot" aria-hidden="true"></span><span>SAVED LOCALLY</span></div>
+    </div>
+    <div class="data-status-grid">
+      <div class="data-status-item">
+        <div class="data-status-label">Records</div>
+        <div class="data-status-value" id="dataRecordCount">0 records</div>
+      </div>
+      <div class="data-status-item">
+        <div class="data-status-label">Last Saved</div>
+        <div class="data-status-value" id="dataLastSaved">No entries yet</div>
+      </div>
+      <div class="data-status-item">
+        <div class="data-status-label">Backup</div>
+        <div class="data-status-value warn" id="dataBackupState">Not backed up</div>
+      </div>
+      <div class="data-status-item">
+        <div class="data-status-label">Last Backup</div>
+        <div class="data-status-value" id="dataLastBackup">—</div>
+      </div>
+    </div>
+  </section>
+
+
+  <section class="install-panel" id="installPanel">
+    <div class="install-copy">
+      <strong>INSTALL RIDEFUEL</strong>
+      <span id="installHint">Install once, then launch RideFuel from your Home Screen without starting iSH.</span>
+    </div>
+    <div class="install-actions">
+      <button class="primary" id="installBtn" type="button" style="display:none">INSTALL APP</button>
+      <button class="secondary" type="button" onclick="showInstallHelp()">HOW TO INSTALL</button>
+    </div>
+  </section>
+
+  <section class="backup-panel">
+    <div class="backup-head">
+      <h3>Master Data & Backup</h3>
+      <div class="backup-state" id="backupState">LOCAL COPY ACTIVE</div>
+    </div>
+
+    <div class="backup-grid">
+      <div class="backup-item">
+        <div class="k">Working Copy</div>
+        <div class="v">Browser Storage</div>
+      </div>
+      <div class="backup-item">
+        <div class="k">Master Database</div>
+        <div class="v" id="backupFileName">BikeFuelData.json</div>
+      </div>
+      <div class="backup-item">
+        <div class="k">Last Saved</div>
+        <div class="v" id="lastBackup">Never</div>
+      </div>
+      <div class="backup-item">
+        <div class="k">Pending Changes</div>
+        <div class="v" id="pendingChanges">0</div>
+      </div>
+    </div>
+
+    <div class="backup-actions">
+      <button class="secondary" type="button" onclick="document.getElementById('replaceFileInput').click()">RESTORE / REPLACE</button>
+      <button class="secondary" type="button" onclick="document.getElementById('mergeFileInput').click()">MERGE DATA</button>
+      <button class="primary" type="button" onclick="saveJsonBackup()">SAVE MASTER DB</button>
+    </div>
+
+    <input class="file-input" id="replaceFileInput" type="file" accept=".json,application/json" onchange="openJsonBackup(event,'replace')">
+    <input class="file-input" id="mergeFileInput" type="file" accept=".json,application/json" onchange="openJsonBackup(event,'merge')">
+  </section>
+
+  <section class="content">
+    <div class="card">
+      <div class="card-head">
+        <h2>LOG A REFUEL</h2>
+        <div class="hint">Required fields marked *</div>
+      </div>
+      <div class="form">
+        <div class="message" id="successMsg">✓ Refuel entry saved.</div>
+
+        <form id="fuelForm">
+          <div class="grid2">
+            <div class="group">
+              <label for="dateTime">Date & Time *</label>
+              <input type="datetime-local" id="dateTime" required>
+            </div>
+            <div class="group">
+              <label for="mileage">Odometer (KM) *</label>
+              <input type="number" id="mileage" min="0" step="1" placeholder="e.g. 24850" required>
+            </div>
+          </div>
+
+          <div class="group">
+            <label for="location">Fuel Station *</label>
+            <select id="location" required>
+              <option value="">Select station</option>
+              <optgroup label="Malaysia">
+                <option>Petronas (MY)</option>
+                <option>Petron (MY)</option>
+                <option>Shell (MY)</option>
+                <option>Caltex (MY)</option>
+                <option>BHPetrol (MY)</option>
+              </optgroup>
+              <optgroup label="Singapore">
+                <option>Shell (SG)</option>
+                <option>Esso (SG)</option>
+                <option>Caltex (SG)</option>
+                <option>SPC (SG)</option>
+              </optgroup>
+            </select>
+          </div>
+
+          <div class="grid2">
+            <div class="group">
+              <label for="volume">Fuel Volume (L) *</label>
+              <input type="number" id="volume" step="0.01" min="0.01" placeholder="e.g. 12.40" required>
+            </div>
+            <div class="group">
+              <label for="cost">Total Cost *</label>
+              <input type="number" id="cost" step="0.01" min="0" placeholder="e.g. 28.60" required>
+            </div>
+          </div>
+
+          <div class="grid2">
+            <div class="group">
+              <label for="currency">Currency *</label>
+              <select id="currency" required>
+                <option value="">Select currency</option>
+                <option value="MYR">MYR</option>
+                <option value="SGD">SGD</option>
+              </select>
+            </div>
+            <div class="group">
+              <label for="fuelType">Fuel Grade</label>
+              <select id="fuelType">
+                <option value="">Optional</option>
+                <option value="RON 95">RON 95</option>
+                <option value="RON 97">RON 97</option>
+                <option value="RON 98">RON 98</option>
+                <option value="RON 100">RON 100</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="fx-inline" id="fxRateWrap">
+            <div class="group" style="margin:0">
+              <label for="fxRate">MYR Exchange Rate • 1 SGD = RM</label>
+              <input type="number" id="fxRate" step="0.001" min="0.001" inputmode="decimal" placeholder="e.g. 3.160">
+              <div class="fx-help">Stored with this MYR refuel for accurate historical SGD conversion. The last rate is remembered for offline use.</div>
+            </div>
+          </div>
+
+          <div class="group">
+            <label for="notes">Ride Notes</label>
+            <textarea id="notes" placeholder="Trip, station location, riding conditions, etc."></textarea>
+          </div>
+
+          <div class="actions">
+            <button class="primary" type="submit">SAVE REFUEL</button>
+            <button class="secondary" type="button" onclick="exportToCSV()">EXPORT CSV</button>
+            <button class="danger" type="button" onclick="clearAllData()">CLEAR DATA</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <h2>RIDE HISTORY</h2>
+        <div class="hint" id="entryCount">0 entries</div>
+      </div>
+      <div class="list" id="entriesList">
+        <div class="empty">No fuel logs yet.<br>Add your first refuel to begin tracking.</div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <span>RideFuel • Motorcycle Fuel Tracker</span>
+    <span>Universal mobile storage • Master DB + safe merge</span>
+  </footer>
+</div>
+
+<script>
+const STORAGE_KEY = 'fuelTrackerData';
+const META_KEY = 'fuelTrackerBackupMeta';
+const MASTER_FILE = 'BikeFuelData.json';
+const CURRENT_ODO_KEY = 'bikeCurrentOdometer';
+const CURRENT_ODO_UPDATED_KEY = 'bikeCurrentOdometerUpdatedAt';
+const FX_RATE_KEY = 'bikeLastSgdMyrRate';
+
+function setNow(){
+  const d = new Date();
+  d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+  document.getElementById('dateTime').value = d.toISOString().slice(0,16);
+}
+
+function loadData(){
+  try{
+    const stored = localStorage.getItem(STORAGE_KEY);
+    return stored ? JSON.parse(stored) : [];
+  }catch(e){
+    return [];
+  }
+}
+
+function saveData(data, incrementPending=true){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  if(incrementPending){
+    const meta = loadMeta();
+    meta.pendingChanges = (Number(meta.pendingChanges)||0) + 1;
+    saveMeta(meta);
+  }
+  updateBackupStatus();
+}
+
+function loadMeta(){
+  try{
+    return JSON.parse(localStorage.getItem(META_KEY)) || {
+      fileName: MASTER_FILE,
+      lastBackup: '',
+      pendingChanges: 0
+    };
+  }catch(e){
+    return { fileName:MASTER_FILE, lastBackup:'', pendingChanges:0 };
+  }
+}
+
+function saveMeta(meta){
+  if(!meta.fileName) meta.fileName = MASTER_FILE;
+  localStorage.setItem(META_KEY, JSON.stringify(meta));
+}
+
+function updateBackupStatus(){
+  const meta = loadMeta();
+  const fileName = document.getElementById('backupFileName');
+  const lastBackup = document.getElementById('lastBackup');
+  const pending = document.getElementById('pendingChanges');
+  const state = document.getElementById('backupState');
+
+  if(fileName) fileName.textContent = MASTER_FILE;
+  if(lastBackup){
+    lastBackup.textContent = meta.lastBackup
+      ? new Date(meta.lastBackup).toLocaleString()
+      : 'Never';
+  }
+  if(pending) pending.textContent = Number(meta.pendingChanges)||0;
+
+  if(state){
+    if((Number(meta.pendingChanges)||0) > 0){
+      state.textContent = 'SAVE MASTER DB';
+      state.style.background = '#3a2a10';
+      state.style.color = '#ffd58a';
+    }else if(meta.lastBackup){
+      state.textContent = 'MASTER DB CURRENT';
+      state.style.background = '#12301d';
+      state.style.color = '#8ef0aa';
+    }else{
+      state.textContent = 'LOCAL COPY ACTIVE';
+      state.style.background = '#262d34';
+      state.style.color = '#c2cad3';
+    }
+  }
+}
+
+function money(v){ return Number(v).toFixed(2); }
+
+
+function updateFuelLasted(data){
+  const dated = [...data]
+    .filter(e => e.dateTime && !Number.isNaN(new Date(e.dateTime).getTime()))
+    .sort((a,b) => new Date(a.dateTime) - new Date(b.dateTime));
+
+  const valueEl = document.getElementById('fuelLasted');
+  const subEl = document.getElementById('fuelLastedSub');
+  if(!valueEl || !subEl) return;
+
+  const MS_PER_DAY = 24 * 60 * 60 * 1000;
+
+  if(!dated.length){
+    valueEl.textContent = '—';
+    subEl.textContent = 'between last 2 refuels';
+    return;
+  }
+
+  const latestDate = new Date(dated[dated.length - 1].dateTime);
+  const now = new Date();
+  const currentDays = Math.max(0, Math.floor((now - latestDate) / MS_PER_DAY));
+
+  if(dated.length >= 2){
+    const previousDate = new Date(dated[dated.length - 2].dateTime);
+    const completedDays = Math.max(0, Math.round((latestDate - previousDate) / MS_PER_DAY));
+
+    valueEl.textContent = completedDays + (completedDays === 1 ? ' day' : ' days');
+    subEl.textContent = 'current tank: ' + currentDays + (currentDays === 1 ? ' day' : ' days') + ' so far';
+  }else{
+    valueEl.textContent = currentDays + (currentDays === 1 ? ' day' : ' days');
+    subEl.textContent = 'since latest refuel • current tank';
+  }
+}
+
+
+function getLatestRefuelEntry(data){
+  return [...data]
+    .filter(e => e && e.dateTime && Number.isFinite(Number(e.mileage)))
+    .sort((a,b) => new Date(a.dateTime) - new Date(b.dateTime))
+    .pop() || null;
+}
+
+function loadCurrentOdometer(){
+  const raw = localStorage.getItem(CURRENT_ODO_KEY);
+  if(raw === null || raw === '') return null;
+  const value = Number(raw);
+  return Number.isFinite(value) ? value : null;
+}
+
+function saveCurrentOdometer(value){
+  localStorage.setItem(CURRENT_ODO_KEY, String(value));
+  localStorage.setItem(CURRENT_ODO_UPDATED_KEY, new Date().toISOString());
+}
+
+function ensureCurrentOdometer(data){
+  const latest = getLatestRefuelEntry(data);
+  if(!latest) return null;
+  const refuelOdo = Number(latest.mileage);
+  let current = loadCurrentOdometer();
+  if(current === null || current < refuelOdo){
+    current = refuelOdo;
+    saveCurrentOdometer(current);
+  }
+  return current;
+}
+
+function renderCurrentOdometer(data){
+  const valueEl = document.getElementById('currentOdo');
+  const subEl = document.getElementById('currentOdoSub');
+  if(!valueEl || !subEl) return;
+
+  const current = ensureCurrentOdometer(data);
+  if(current === null){
+    valueEl.textContent = '—';
+    subEl.textContent = 'add a refuel entry first';
+    return;
+  }
+
+  valueEl.textContent = current.toLocaleString(undefined, {maximumFractionDigits:1});
+  const updated = localStorage.getItem(CURRENT_ODO_UPDATED_KEY);
+  if(updated){
+    const d = new Date(updated);
+    subEl.textContent = Number.isNaN(d.getTime()) ? 'km • tap update' : 'km • updated ' + d.toLocaleString();
+  }else{
+    subEl.textContent = 'km • tap update';
+  }
+}
+
+function updateCurrentOdometer(){
+  const data = loadData();
+  const latest = getLatestRefuelEntry(data);
+  if(!latest){
+    alert('Add a refuel entry before updating the current odometer.');
+    return;
+  }
+
+  const refuelOdo = Number(latest.mileage);
+  const current = ensureCurrentOdometer(data) ?? refuelOdo;
+  const entered = prompt('Enter current odometer (km):', String(current));
+  if(entered === null) return;
+
+  const value = Number(String(entered).replace(/,/g,'').trim());
+  if(!Number.isFinite(value) || value < 0){
+    alert('Please enter a valid odometer value.');
+    return;
+  }
+  if(value < refuelOdo){
+    alert('Current odometer cannot be lower than the latest refuel odometer (' + refuelOdo.toLocaleString() + ' km).');
+    return;
+  }
+
+  saveCurrentOdometer(value);
+  displayEntries();
+}
+
+function updateDistanceSinceRefuel(data){
+  const valueEl = document.getElementById('distanceSinceRefuel');
+  const subEl = document.getElementById('distanceSinceRefuelSub');
+  if(!valueEl || !subEl) return;
+
+  const latestRefuel = getLatestRefuelEntry(data);
+  if(!latestRefuel){
+    valueEl.textContent = '—';
+    subEl.textContent = 'current tank';
+    return;
+  }
+
+  const refuelOdo = Number(latestRefuel.mileage);
+  const currentOdo = ensureCurrentOdometer(data);
+  if(currentOdo === null){
+    valueEl.textContent = '—';
+    subEl.textContent = 'update current odometer';
+    return;
+  }
+
+  const distance = Math.max(0, currentOdo - refuelOdo);
+  valueEl.textContent = distance.toLocaleString(undefined, {maximumFractionDigits:1}) + ' km';
+  subEl.textContent = distance === 0 ? 'tap Update Odometer after riding' : 'since latest refuel';
+}
+
+
+function updateFuelConsumptionSinceRefuel(data){
+  const economyEl=document.getElementById('latestFuelEconomy'), economySub=document.getElementById('latestFuelEconomySub'),
+        distanceEl=document.getElementById('latestEconomyDistance'), volumeEl=document.getElementById('latestEconomyVolume'),
+        previousEl=document.getElementById('latestEconomyPreviousOdo'), currentEl=document.getElementById('latestEconomyCurrentOdo');
+  if(!economyEl||!distanceEl||!volumeEl||!previousEl||!currentEl) return;
+  const valid=[...data].filter(x=>Number.isFinite(Number(x.mileage))&&Number(x.mileage)>=0&&Number(x.volume)>0)
+    .sort((a,b)=>new Date(a.dateTime||0)-new Date(b.dateTime||0));
+  if(valid.length<2){
+    economyEl.textContent=distanceEl.textContent=volumeEl.textContent=previousEl.textContent=currentEl.textContent='—';
+    if(economySub) economySub.textContent='need 2 refuels with odometer readings'; return;
+  }
+  const current=valid[valid.length-1]; let previous=null;
+  for(let i=valid.length-2;i>=0;i--){ if(Number(valid[i].mileage)<Number(current.mileage)){previous=valid[i];break;} }
+  if(!previous){ economyEl.textContent=distanceEl.textContent=previousEl.textContent='—'; volumeEl.textContent=Number(current.volume).toFixed(2)+' L';
+    currentEl.textContent=Number(current.mileage).toLocaleString()+' km'; if(economySub)economySub.textContent='no earlier odometer available'; return; }
+  const currentOdo=Number(current.mileage), previousOdo=Number(previous.mileage), currentVolume=Number(current.volume);
+  const distance=currentOdo-previousOdo, economy=distance/currentVolume;
+  previousEl.textContent=previousOdo.toLocaleString()+' km'; currentEl.textContent=currentOdo.toLocaleString()+' km';
+  distanceEl.textContent=distance.toLocaleString(undefined,{maximumFractionDigits:1})+' km'; volumeEl.textContent=currentVolume.toFixed(2)+' L';
+  economyEl.textContent=(distance>0&&currentVolume>0&&Number.isFinite(economy))?economy.toFixed(1)+' km/L':'—';
+  if(economySub)economySub.textContent=(distance>0&&currentVolume>0)?'latest completed refuel interval':'invalid odometer or volume';
+}
+
+
+
+let mileagePeriod = '14';
+let spendingPeriod = '14';
+
+function validDate(value){
+  const d = new Date(value);
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
+function periodBounds(period, previous=false){
+  const now = new Date();
+  if(period === 'all') return {start:null,end:null,label:'All Time'};
+  if(period === '14'){
+    const end = previous ? new Date(now.getTime() - 14*86400000) : new Date(now.getTime()+1000);
+    const start = new Date(end.getTime() - 14*86400000);
+    return {start,end,label:previous?'Previous 14 Days':'Last 14 Days'};
+  }
+  if(period === 'month'){
+    const currentStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    if(previous){
+      return {start:new Date(now.getFullYear(), now.getMonth()-1, 1),end:currentStart,label:'Previous Month'};
+    }
+    return {start:currentStart,end:new Date(now.getFullYear(), now.getMonth()+1, 1),label:'This Month'};
+  }
+  if(period === 'year'){
+    const currentStart = new Date(now.getFullYear(),0,1);
+    if(previous){
+      return {start:new Date(now.getFullYear()-1,0,1),end:currentStart,label:'Previous Year'};
+    }
+    return {start:currentStart,end:new Date(now.getFullYear()+1,0,1),label:'This Year'};
+  }
+  return {start:null,end:null,label:'All Time'};
+}
+
+function inBounds(date, bounds){
+  if(!date) return false;
+  if(bounds.start && date < bounds.start) return false;
+  if(bounds.end && date >= bounds.end) return false;
+  return true;
+}
+
+function entriesForPeriod(data, period, previous=false){
+  const bounds = periodBounds(period, previous);
+  if(period === 'all') return data.filter(e => validDate(e.dateTime));
+  return data.filter(e => inBounds(validDate(e.dateTime), bounds));
+}
+
+function economyIntervals(data){
+  const valid = [...data]
+    .filter(e => validDate(e.dateTime) && Number.isFinite(Number(e.mileage)) && Number(e.mileage) >= 0 && Number(e.volume) > 0)
+    .sort((a,b)=>validDate(a.dateTime)-validDate(b.dateTime));
+  const result=[];
+  for(let i=1;i<valid.length;i++){
+    const current=valid[i];
+    let previous=null;
+    for(let j=i-1;j>=0;j--){
+      if(Number(valid[j].mileage) < Number(current.mileage)){ previous=valid[j]; break; }
+    }
+    if(!previous) continue;
+    const distance=Number(current.mileage)-Number(previous.mileage);
+    const litres=Number(current.volume);
+    if(distance<=0 || litres<=0) continue;
+    result.push({current,previous,distance,litres,economy:distance/litres,date:validDate(current.dateTime)});
+  }
+  return result;
+}
+
+function setActivePeriodButtons(selector, period, attr){
+  document.querySelectorAll(selector).forEach(btn=>{
+    const active = btn.getAttribute(attr) === period;
+    btn.classList.toggle('active',active);
+    btn.setAttribute('aria-pressed',active?'true':'false');
+  });
+}
+
+function renderMileagePeriod(data){
+  const bounds=periodBounds(mileagePeriod,false);
+  const periodEntries=entriesForPeriod(data,mileagePeriod,false);
+  const intervals=economyIntervals(data).filter(x => mileagePeriod==='all' || inBounds(x.date,bounds));
+  const distance=intervals.reduce((s,x)=>s+x.distance,0);
+  const intervalFuel=intervals.reduce((s,x)=>s+x.litres,0);
+  const purchased=periodEntries.reduce((s,e)=>s+(Number(e.volume)||0),0);
+  const avg=distance>0&&intervalFuel>0?distance/intervalFuel:null;
+  const best=intervals.length?Math.max(...intervals.map(x=>x.economy)):null;
+  const latest=intervals.length?[...intervals].sort((a,b)=>a.date-b.date).pop():null;
+  const put=(id,text)=>{const el=document.getElementById(id);if(el)el.textContent=text;};
+  put('rangeDistance',distance>0?distance.toLocaleString(undefined,{maximumFractionDigits:1})+' km':'—');
+  put('rangeAvgEconomy',avg?avg.toFixed(1)+' km/L':'—');
+  put('rangeLatestEconomy',latest?latest.economy.toFixed(1)+' km/L':'—');
+  put('rangeFuel',purchased?purchased.toFixed(1)+' L':'0 L');
+  put('rangeRefuels',String(periodEntries.length));
+  put('rangeBestEconomy',best?best.toFixed(1)+' km/L':'—');
+  put('rangeDistanceSub',bounds.label.toLowerCase());
+  setActivePeriodButtons('[data-mileage-period]',mileagePeriod,'data-mileage-period');
+}
+
+function fallbackFxRate(){
+  const n=Number(localStorage.getItem(FX_RATE_KEY));
+  return Number.isFinite(n)&&n>0?n:3.16;
+}
+
+function entryFxRate(entry){
+  const own=Number(entry.fxRateSGDMYR);
+  return Number.isFinite(own)&&own>0?own:fallbackFxRate();
+}
+
+function myrToSgd(entry){
+  const amount=Number(entry.cost)||0;
+  return amount/entryFxRate(entry);
+}
+
+function spendingSummary(data, period, previous=false){
+  const entries=entriesForPeriod(data,period,previous);
+  let sgd=0,myr=0,myrSgd=0,sgLitres=0,myLitres=0,estimated=0;
+  entries.forEach(e=>{
+    const cost=Number(e.cost)||0, litres=Number(e.volume)||0;
+    const c=String(e.currency||'').toUpperCase();
+    if(c==='SGD'){sgd+=cost;sgLitres+=litres;}
+    if(c==='MYR'){
+      myr+=cost; myLitres+=litres; myrSgd+=myrToSgd(e);
+      if(!(Number(e.fxRateSGDMYR)>0)) estimated++;
+    }
+  });
+  return {entries,sgd,myr,myrSgd,totalSgd:sgd+myrSgd,sgLitres,myLitres,estimated};
+}
+
+function renderSpendingPeriod(data){
+  const s=spendingSummary(data,spendingPeriod,false);
+  const prev=spendingPeriod==='all'?null:spendingSummary(data,spendingPeriod,true);
+  const sgShare=s.totalSgd>0?s.sgd/s.totalSgd*100:0;
+  const myShare=s.totalSgd>0?s.myrSgd/s.totalSgd*100:0;
+  const sgPrice=s.sgLitres>0?s.sgd/s.sgLitres:null;
+  const myPriceMyr=s.myLitres>0?s.myr/s.myLitres:null;
+  const myPriceSgd=s.myLitres>0?s.myrSgd/s.myLitres:null;
+  const saving=sgPrice!==null&&myPriceSgd!==null?Math.abs(sgPrice-myPriceSgd):null;
+  let cheaper='—';
+  if(sgPrice!==null&&myPriceSgd!==null) cheaper=sgPrice<myPriceSgd?'🇸🇬 Singapore':'🇲🇾 Malaysia';
+  const put=(id,text)=>{const el=document.getElementById(id);if(el)el.textContent=text;};
+  put('spendSgd','S$'+s.sgd.toFixed(2));
+  put('spendMyr','RM'+s.myr.toFixed(2));
+  put('spendMyrEquivalent','≈ S$'+s.myrSgd.toFixed(2));
+  put('spendSgdShare',sgShare.toFixed(0)+'% of combined spend');
+  put('spendMyrShare',myShare.toFixed(0)+'% of combined spend');
+  put('combinedSpend','S$'+s.totalSgd.toFixed(2));
+  put('sgSharePct',sgShare.toFixed(0)+'%');
+  put('mySharePct',myShare.toFixed(0)+'%');
+  const sgBar=document.getElementById('sgSpendBar'); if(sgBar)sgBar.style.width=Math.max(0,Math.min(100,sgShare))+'%';
+  const myBar=document.getElementById('mySpendBar'); if(myBar)myBar.style.width=Math.max(0,Math.min(100,myShare))+'%';
+  put('sgFuelPrice',sgPrice!==null?'S$'+sgPrice.toFixed(2)+'/L':'—');
+  put('myFuelPrice',myPriceMyr!==null?'RM'+myPriceMyr.toFixed(2)+'/L':'—');
+  put('myFuelPriceEquivalent',myPriceSgd!==null?'≈ S$'+myPriceSgd.toFixed(2)+'/L':'SGD equivalent');
+  put('fuelPriceSaving',saving!==null?'S$'+saving.toFixed(2):'—');
+  put('cheaperMarket',cheaper);
+  const label=periodBounds(spendingPeriod,false).label;
+  let compare=label;
+  if(prev && prev.totalSgd>0){
+    const change=(s.totalSgd-prev.totalSgd)/prev.totalSgd*100;
+    compare=label+' • '+(change>=0?'↑ ':'↓ ')+Math.abs(change).toFixed(1)+'% vs previous';
+  }
+  put('spendComparisonSub',compare);
+  const note=document.getElementById('combinedSpendNote');
+  if(note){
+    note.textContent=s.estimated>0
+      ? `${s.estimated} MYR entr${s.estimated===1?'y uses':'ies use'} fallback FX S$1 = RM${fallbackFxRate().toFixed(3)}; newer entries keep their saved rate.`
+      : 'MYR converted using the exchange rate saved with each refuel.';
+  }
+  setActivePeriodButtons('[data-spending-period]',spendingPeriod,'data-spending-period');
+}
+
+function renderRangeDashboards(data){
+  renderMileagePeriod(data);
+  renderSpendingPeriod(data);
+}
+
+function syncFxField(){
+  const currency=document.getElementById('currency');
+  const wrap=document.getElementById('fxRateWrap');
+  const input=document.getElementById('fxRate');
+  if(!currency||!wrap||!input) return;
+  const isMYR=currency.value==='MYR';
+  wrap.classList.toggle('show',isMYR);
+  input.required=isMYR;
+  if(isMYR && !input.value) input.value=fallbackFxRate().toFixed(3);
+}
+
+document.querySelectorAll('[data-mileage-period]').forEach(btn=>btn.addEventListener('click',()=>{
+  mileagePeriod=btn.getAttribute('data-mileage-period')||'14';
+  renderMileagePeriod(loadData());
+}));
+document.querySelectorAll('[data-spending-period]').forEach(btn=>btn.addEventListener('click',()=>{
+  spendingPeriod=btn.getAttribute('data-spending-period')||'14';
+  renderSpendingPeriod(loadData());
+}));
+document.getElementById('currency')?.addEventListener('change',syncFxField);
+
+function computeStats(data){
+  updateFuelLasted(data);
+  renderCurrentOdometer(data);
+  updateDistanceSinceRefuel(data);
+  updateFuelConsumptionSinceRefuel(data);
+  const valid=[...data].filter(x=>Number.isFinite(Number(x.mileage))&&Number(x.mileage)>=0).sort((a,b)=>Number(a.mileage)-Number(b.mileage));
+  const latestEl=document.getElementById('latestOdo');
+  if(latestEl) latestEl.textContent=valid.length?Number(valid[valid.length-1].mileage).toLocaleString():'—';
+  renderRangeDashboards(data);
+}
+
+function displayEntries(){
+  const data = loadData();
+  const list = document.getElementById('entriesList');
+  document.getElementById('entryCount').textContent = `${data.length} ${data.length===1?'entry':'entries'}`;
+  computeStats(data);
+  updateDataStatusPanel();
+  updateBackupStatus();
+
+  if(!data.length){
+    list.innerHTML = '<div class="empty">No fuel logs yet.<br>Add your first refuel to begin tracking.</div>';
+    return;
+  }
+
+  const indexed = data.map((entry,index)=>({entry,index}))
+    .sort((a,b)=>new Date(b.entry.dateTime)-new Date(a.entry.dateTime));
+
+  list.innerHTML = indexed.map(({entry,index})=>{
+    const cpl = entry.volume ? Number(entry.cost)/Number(entry.volume) : 0;
+    const date = entry.dateTime ? new Date(entry.dateTime).toLocaleString() : 'Unknown date';
+    const fuel = entry.fuelType ? `<span class="chip">${escapeHtml(entry.fuelType)}</span>` : '';
+    return `
+      <div class="entry">
+        <div class="entry-top">
+          <div class="entry-date">${date}</div>
+          <div class="pill">${escapeHtml(entry.currency || '')}</div>
+        </div>
+        <div class="entry-main">
+          <strong>${escapeHtml(entry.location || 'Unknown station')}</strong><br>
+          ${Number(entry.volume).toFixed(2)} L • ${money(entry.cost)} ${escapeHtml(entry.currency || '')} • ${money(cpl)} /L<br>
+          Odometer: ${Number(entry.mileage).toLocaleString()} km
+          ${entry.notes ? `<br><span style="color:#89939d">${escapeHtml(entry.notes)}</span>` : ''}
+        </div>
+        <div class="entry-meta">
+          ${fuel}
+          <span class="chip">${Number(entry.volume).toFixed(2)} L</span>
+          <span class="chip">${money(cpl)} ${escapeHtml(entry.currency || '')}/L</span>
+          <span class="delete" onclick="deleteEntry(${index})">DELETE</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function escapeHtml(text){
+  const div=document.createElement('div');
+  div.textContent=String(text ?? '');
+  return div.innerHTML;
+}
+
+document.getElementById('fuelForm').addEventListener('submit',function(e){
+  e.preventDefault();
+  const entry={
+    id: crypto && crypto.randomUUID ? crypto.randomUUID() : ('rf-' + Date.now() + '-' + Math.random().toString(36).slice(2)),
+    dateTime:document.getElementById('dateTime').value,
+    location:document.getElementById('location').value,
+    volume:parseFloat(document.getElementById('volume').value),
+    cost:parseFloat(document.getElementById('cost').value),
+    currency:document.getElementById('currency').value,
+    fxRateSGDMYR: document.getElementById('currency').value==='MYR' ? parseFloat(document.getElementById('fxRate').value) : null,
+    mileage:parseInt(document.getElementById('mileage').value,10),
+    fuelType:document.getElementById('fuelType').value,
+    notes:document.getElementById('notes').value.trim()
+  };
+
+  if(entry.currency==='MYR' && Number.isFinite(Number(entry.fxRateSGDMYR)) && Number(entry.fxRateSGDMYR)>0){
+    localStorage.setItem(FX_RATE_KEY,String(entry.fxRateSGDMYR));
+  }
+
+  const data=loadData();
+  data.push(entry);
+  const existingCurrentOdo = loadCurrentOdometer();
+  if(existingCurrentOdo === null || Number(entry.mileage) > existingCurrentOdo){
+    saveCurrentOdometer(Number(entry.mileage));
+  }
+  saveData(data, true);
+
+  const msg=document.getElementById('successMsg');
+  msg.style.display='block';
+  setTimeout(()=>msg.style.display='none',1800);
+
+  this.reset();
+  setNow();
+  syncFxField();
+  displayEntries();
+});
+
+function deleteEntry(index){
+  if(confirm('Delete this refuel entry?')){
+    const data=loadData();
+    data.splice(index,1);
+    saveData(data, true);
+    displayEntries();
+  }
+}
+
+function csvEscape(value){
+  const s=String(value ?? '');
+  return `"${s.replaceAll('"','""')}"`;
+}
+
+function exportToCSV(){
+  const data=loadData();
+  if(!data.length){ alert('No data to export.'); return; }
+
+  const header=['ID','Date & Time','Location','Volume (L)','Cost','Currency','Cost/L','SGD/MYR FX Rate','Mileage (KM)','Fuel Grade','Notes'];
+  const rows=data.map(e=>[
+    e.id||'', e.dateTime ? new Date(e.dateTime).toLocaleString() : '',
+    e.location,e.volume,e.cost,e.currency,
+    e.volume ? (Number(e.cost)/Number(e.volume)).toFixed(2) : '',
+    e.fxRateSGDMYR||'', e.mileage,e.fuelType||'',e.notes||''
+  ]);
+
+  const csv=[header,...rows].map(r=>r.map(csvEscape).join(',')).join('\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download=`ridefuel_${new Date().toISOString().slice(0,10)}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function normalizeEntry(entry){
+  return {
+    id: entry.id || '',
+    dateTime: entry.dateTime || '',
+    location: entry.location || '',
+    volume: Number(entry.volume) || 0,
+    cost: Number(entry.cost) || 0,
+    currency: entry.currency || '',
+    fxRateSGDMYR: Number(entry.fxRateSGDMYR) > 0 ? Number(entry.fxRateSGDMYR) : null,
+    mileage: Number(entry.mileage) || 0,
+    fuelType: entry.fuelType || '',
+    notes: entry.notes || ''
+  };
+}
+
+function fingerprint(entry){
+  const e = normalizeEntry(entry);
+  return [
+    e.dateTime,
+    e.location.trim().toLowerCase(),
+    e.volume.toFixed(3),
+    e.cost.toFixed(2),
+    e.currency,
+    String(e.mileage)
+  ].join('|');
+}
+
+function buildBackupPayload(){
+  return {
+    app: 'RideFuel Universal Mobile',
+    version: 4,
+    database: MASTER_FILE,
+    exportedAt: new Date().toISOString(),
+    entries: loadData()
+  };
+}
+
+function saveJsonBackup(){
+  const payload = buildBackupPayload();
+  const json = JSON.stringify(payload, null, 2);
+  const blob = new Blob([json], {type:'application/json;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = MASTER_FILE;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+
+  const meta = loadMeta();
+  meta.fileName = MASTER_FILE;
+  meta.lastBackup = new Date().toISOString();
+  meta.pendingChanges = 0;
+  saveMeta(meta);
+  updateBackupStatus();
+}
+
+function openJsonBackup(event, mode){
+  const file = event.target.files && event.target.files[0];
+  if(!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(){
+    try{
+      const parsed = JSON.parse(reader.result);
+      const incoming = Array.isArray(parsed) ? parsed : parsed.entries;
+
+      if(!Array.isArray(incoming)){
+        throw new Error('Invalid data file format');
+      }
+
+      if(mode === 'replace'){
+        if(!confirm(`Replace the current working copy with ${incoming.length} entries from ${file.name}?`)){
+          event.target.value = '';
+          return;
+        }
+
+        const cleaned = incoming.map(normalizeEntry);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(cleaned));
+
+        const meta = loadMeta();
+        meta.fileName = MASTER_FILE;
+        meta.lastBackup = parsed.exportedAt || new Date().toISOString();
+        meta.pendingChanges = 0;
+        saveMeta(meta);
+
+        displayEntries();
+        alert(`Restore complete. ${cleaned.length} entries loaded.`);
+      }else{
+        const current = loadData();
+        const existingIds = new Set(current.filter(e=>e.id).map(e=>e.id));
+        const existingPrints = new Set(current.map(fingerprint));
+
+        let added = 0;
+        let skipped = 0;
+        const merged = [...current];
+
+        for(const raw of incoming){
+          const e = normalizeEntry(raw);
+          const isDupById = e.id && existingIds.has(e.id);
+          const fp = fingerprint(e);
+          const isDupByFingerprint = existingPrints.has(fp);
+
+          if(isDupById || isDupByFingerprint){
+            skipped++;
+            continue;
+          }
+
+          if(!e.id){
+            e.id = crypto && crypto.randomUUID
+              ? crypto.randomUUID()
+              : ('rf-' + Date.now() + '-' + Math.random().toString(36).slice(2));
+          }
+
+          merged.push(e);
+          existingIds.add(e.id);
+          existingPrints.add(fp);
+          added++;
+        }
+
+        merged.sort((a,b)=>new Date(a.dateTime)-new Date(b.dateTime));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+
+        const meta = loadMeta();
+        meta.fileName = MASTER_FILE;
+        meta.pendingChanges = (Number(meta.pendingChanges)||0) + (added > 0 ? 1 : 0);
+        saveMeta(meta);
+
+        displayEntries();
+        alert(`Merge complete.\n\nAdded: ${added}\nDuplicates skipped: ${skipped}\nTotal records: ${merged.length}`);
+      }
+    }catch(err){
+      alert('Unable to load this JSON file. Please choose a valid RideFuel backup.');
+    }finally{
+      event.target.value = '';
+    }
+  };
+  reader.readAsText(file);
+}
+
+function clearAllData(){
+  if(confirm('Delete ALL fuel history from this browser? This cannot be undone.')){
+    localStorage.removeItem(STORAGE_KEY);
+
+    const meta = loadMeta();
+    meta.pendingChanges = (Number(meta.pendingChanges)||0) + 1;
+    saveMeta(meta);
+
+    displayEntries();
+  }
+}
+
+setNow();
+syncFxField();
+displayEntries();
+
+let deferredInstallPrompt = null;
+
+
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  const btn = document.getElementById('installBtn');
+  if(btn) btn.style.display = 'inline-block';
+});
+
+document.getElementById('installBtn')?.addEventListener('click', async () => {
+  if(!deferredInstallPrompt) return;
+  deferredInstallPrompt.prompt();
+  await deferredInstallPrompt.userChoice;
+  deferredInstallPrompt = null;
+  document.getElementById('installBtn').style.display = 'none';
+});
+
+window.addEventListener('appinstalled', () => {
+  const hint = document.getElementById('installHint');
+  if(hint) hint.textContent = 'RideFuel is installed and ready for offline use.';
+});
+
+function showInstallHelp(){
+  const isiOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  if(isiOS){
+    alert('iPhone / iPad:\n\n1. Start RideFuel once through iSH.\n2. Open RideFuel in Safari.\n3. Tap Share > Add to Home Screen.\n4. Launch RideFuel once while iSH is still running.\n5. After the app opens successfully, RideFuel is cached for offline use.\n\nFor future updates, start iSH again and reload RideFuel.');
+  }else{
+    alert('Android / Desktop:\n\nInstall RideFuel from the browser menu. After the first successful launch, the app shell is cached for offline use.');
+  }
+}
+
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
+  window.addEventListener('load', async () => {
+    try{
+      const reg = await navigator.serviceWorker.register('./service-worker.js', {scope:'./'});
+      await navigator.serviceWorker.ready;
+
+      // Ask an updated service worker to activate quickly.
+      if(reg.waiting){
+        reg.waiting.postMessage({type:'SKIP_WAITING'});
+      }
+
+      const hint = document.getElementById('installHint');
+      if(hint) hint.textContent = 'Offline app shell ready. iSH is only needed for installation or updates.';
+    }catch(err){
+      const hint = document.getElementById('installHint');
+      if(hint) hint.textContent = 'Offline setup not complete yet. Start RideFuel through the local server once more.';
+    }
+  });
+}
+
+
+let trackerServiceTimer = null;
+
+async function checkLocalTrackerService(){
+  const bar = document.getElementById('serviceStatusBar');
+  const text = document.getElementById('serviceStatusText');
+  const sub = document.getElementById('serviceStatusSub');
+  const cache = document.getElementById('serviceCacheState');
+  if(!bar || !text || !sub || !cache) return;
+
+  try{
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 1800);
+    const response = await fetch('./service-worker.js?health=' + Date.now(), {
+      cache:'no-store',
+      signal:controller.signal
+    });
+    clearTimeout(timeout);
+
+    if(response && response.ok){
+      bar.classList.remove('offline');
+      bar.classList.add('online');
+      text.textContent = 'LOCAL SERVER ONLINE';
+      sub.textContent = 'iSH service is running • update mode available';
+      cache.textContent = 'PWA CACHE ACTIVE';
+      return;
+    }
+  }catch(e){}
+
+  bar.classList.remove('online');
+  bar.classList.add('offline');
+  text.textContent = 'OFFLINE • CACHED';
+  sub.textContent = 'iSH service is stopped • normal tracker use available';
+  cache.textContent = 'PWA CACHE ACTIVE';
+}
+
+window.addEventListener('online', checkLocalTrackerService);
+window.addEventListener('offline', checkLocalTrackerService);
+
+window.addEventListener('load', () => {
+  checkLocalTrackerService();
+  if(trackerServiceTimer) clearInterval(trackerServiceTimer);
+  trackerServiceTimer = setInterval(checkLocalTrackerService, 15000);
+});
+
+
+function formatTrackerDateTime(value){
+  if(!value) return '—';
+  const d = new Date(value);
+  if(Number.isNaN(d.getTime())) return '—';
+  return d.toLocaleString([], {
+    day:'2-digit', month:'short', year:'numeric',
+    hour:'2-digit', minute:'2-digit'
+  });
+}
+
+function updateDataStatusPanel(){
+  const countEl = document.getElementById('dataRecordCount');
+  const savedEl = document.getElementById('dataLastSaved');
+  const backupStateEl = document.getElementById('dataBackupState');
+  const backupEl = document.getElementById('dataLastBackup');
+  if(!countEl || !savedEl || !backupStateEl || !backupEl) return;
+
+  let data = [];
+  try{
+    const raw = localStorage.getItem('fuelTrackerData');
+    if(raw) data = JSON.parse(raw) || [];
+    if(!Array.isArray(data)) data = [];
+  }catch(e){ data = []; }
+
+  countEl.textContent = data.length + (data.length === 1 ? ' record' : ' records');
+
+  if(data.length){
+    const dates = data
+      .map(e => e && e.dateTime)
+      .filter(Boolean)
+      .map(v => new Date(v))
+      .filter(d => !Number.isNaN(d.getTime()))
+      .sort((a,b) => b-a);
+    savedEl.textContent = dates.length ? formatTrackerDateTime(dates[0]) : 'Saved locally';
+  }else{
+    savedEl.textContent = 'No entries yet';
+  }
+
+  let meta = null;
+  try{
+    const rawMeta = localStorage.getItem('fuelTrackerBackupMeta');
+    if(rawMeta) meta = JSON.parse(rawMeta);
+  }catch(e){}
+
+  const backupStamp = meta && (meta.lastBackup || meta.lastBackupAt || meta.timestamp || meta.dateTime);
+  if(backupStamp){
+    backupStateEl.textContent = 'Backup created';
+    backupStateEl.classList.remove('warn');
+    backupStateEl.classList.add('good');
+    backupEl.textContent = formatTrackerDateTime(backupStamp);
+  }else{
+    backupStateEl.textContent = 'Not backed up';
+    backupStateEl.classList.add('warn');
+    backupStateEl.classList.remove('good');
+    backupEl.textContent = '—';
+  }
+}
+
+window.addEventListener('load', updateDataStatusPanel);
+window.addEventListener('storage', updateDataStatusPanel);
+
+</script>
+</body>
+</html>

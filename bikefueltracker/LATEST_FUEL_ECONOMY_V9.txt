@@ -1,0 +1,1 @@
+Formula: (Current refuel odometer - Previous refuel odometer) / Current refuel volume = km/L.

@@ -1,0 +1,20 @@
+Car Fuel Tracker — Distance Since Refuel Update
+
+New dashboard metric:
+  Distance Since Refuel
+
+Calculation:
+  Latest/current odometer minus odometer recorded at the most recent refuel.
+
+If no newer odometer reading is available after the last refuel, the card shows:
+  0 km
+  update odometer on next entry
+
+After updating the app files:
+1. fueltrackers start
+2. Reload the tracker in Safari
+3. Open the Home Screen app once
+4. Confirm the new dashboard card appears
+5. fueltrackers stop
+
+PWA offline operation is retained.

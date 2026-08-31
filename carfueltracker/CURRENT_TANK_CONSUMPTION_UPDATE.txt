@@ -1,0 +1,1 @@
+Adds Fuel Consumption Since Last Refuel dashboard section. Estimated fuel used = distance since latest refuel / historical average economy. Requires Current Odometer to be updated. PWA cache bumped to v8.

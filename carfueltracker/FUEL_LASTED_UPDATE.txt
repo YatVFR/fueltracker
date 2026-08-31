@@ -1,0 +1,22 @@
+Car Fuel Tracker — Fuel Lasted Dashboard Update
+
+New dashboard card:
+  Fuel Lasted
+
+Logic:
+- With 2 or more refuels:
+  Main value = days between the latest two refuels.
+  Subtext = current tank age in days.
+- With 1 refuel:
+  Main value = days since that refuel.
+- With no records:
+  Shows —.
+
+Existing fuel records are unchanged.
+
+Update:
+1. Replace the PWA files in the tracker's mounted folder.
+2. Start its iSH local server.
+3. Reload the tracker once in Safari.
+4. Launch the Home Screen app once while the server is running.
+5. Stop iSH; normal use remains offline.

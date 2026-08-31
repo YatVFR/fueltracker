@@ -1,0 +1,70 @@
+ASTINAFUEL — OFFLINE-FIRST WORKFLOW
+====================================
+
+NORMAL DAILY USE
+----------------
+Tap AstinaFuel from the iPhone Home Screen
+        ↓
+App opens from the service-worker cache
+        ↓
+Enter fuel
+        ↓
+Data is stored in the browser local database
+
+iSH is NOT required for normal daily use.
+
+WHEN UPDATING ASTINAFUEL
+------------------------
+Open iSH
+        ↓
+Mount /mnt/carfueltracker if needed
+        ↓
+Start the update server:
+    /mnt/carfueltracker/astinafuel
+
+        ↓
+Safari:
+    http://127.0.0.1:8001
+
+        ↓
+Reload/update AstinaFuel
+        ↓
+Launch Home Screen AstinaFuel once while server is running
+        ↓
+Stop server with Ctrl+C
+        ↓
+Close iSH
+
+FIRST-TIME CACHE SETUP
+----------------------
+1. Put these files in /mnt/carfueltracker.
+2. Start:
+      /mnt/carfueltracker/astinafuel
+3. Open:
+      http://127.0.0.1:8001
+4. Wait until the app reports:
+      Offline cache ready
+5. Add to Home Screen.
+6. Launch the Home Screen app once while iSH is still running.
+7. Stop iSH server with Ctrl+C.
+8. Launch AstinaFuel again from Home Screen.
+9. If it opens, offline mode is working.
+
+IMPORTANT DATA NOTE
+-------------------
+The app shell is cached for offline launch.
+Fuel records remain in browser local storage.
+Keep periodic CarFuelData.json backups because iOS can remove site/PWA
+storage under storage pressure or after long periods of inactivity.
+
+Directory:
+  /mnt/carfueltracker
+
+Port:
+  8001
+
+Update URL:
+  http://127.0.0.1:8001
+
+Master database:
+  CarFuelData.json

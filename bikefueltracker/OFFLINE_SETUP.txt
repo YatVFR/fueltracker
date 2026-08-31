@@ -1,0 +1,39 @@
+RIDEFUEL OFFLINE-FIRST PWA
+
+FIRST-TIME SETUP ON IPHONE
+1. Start iSH and run the local RideFuel server.
+2. In Safari open:
+   http://127.0.0.1:8000
+3. Wait until RideFuel shows:
+   "Offline app shell ready."
+4. Safari > Share > Add to Home Screen.
+5. Launch the new RideFuel Home Screen icon ONCE while iSH is still running.
+6. Close RideFuel.
+7. Stop iSH or close it.
+8. Tap the RideFuel Home Screen icon again.
+
+EXPECTED RESULT
+RideFuel should open from its cached service-worker app shell.
+You should not need to start iSH for normal fuel logging.
+
+NORMAL DAILY USE
+- Tap RideFuel from the Home Screen.
+- Fuel data remains in browser storage.
+- Save BikeFuelData.json when you want a portable master backup.
+
+WHEN YOU NEED iSH AGAIN
+- Only when installing RideFuel on a new device.
+- When updating the RideFuel app files.
+- If iOS clears the website/app cache and RideFuel can no longer launch offline.
+
+UPDATING RIDEFUEL
+1. Replace the files in your RideFuel server folder.
+2. Start iSH server.
+3. Open RideFuel in Safari and reload.
+4. Launch the Home Screen app once while the server is running.
+5. Confirm the updated version works.
+6. Stop iSH.
+
+NOTE
+iOS may eventually evict website/PWA storage under storage pressure or after long periods of non-use.
+Keep BikeFuelData.json backups for your fuel records.

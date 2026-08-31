@@ -1,0 +1,6 @@
+Bike Fuel Tracker - Current Odometer Update
+
+Added a separate Current Odometer dashboard card with an Update Odometer button.
+Distance Since Refuel now equals Current Odometer minus the latest refuel odometer.
+Saving a newer refuel automatically advances Current Odometer.
+Existing fuel records and backup format are unchanged.

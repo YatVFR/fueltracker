@@ -1,0 +1,24 @@
+Bike Fuel Tracker — Data Status Update
+
+Added:
+- SAVED LOCALLY
+- Record count
+- Last saved time
+- Backup status
+- Last backup time
+
+Working database key: fuelTrackerData
+Backup metadata key: fuelTrackerBackupMeta
+Portable backup file: BikeFuelData.json
+
+LOCAL SERVER ONLINE/OFFLINE = iSH service state.
+DATA STATUS = browser-stored fuel data state.
+
+After update:
+1. fueltrackers start
+2. Reload in Safari
+3. Open Home Screen app once
+4. Save an entry and confirm DATA STATUS updates
+5. Create a backup and confirm 'Backup created'
+6. fueltrackers stop
+7. Reopen offline and verify records remain

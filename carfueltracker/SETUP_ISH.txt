@@ -1,0 +1,58 @@
+ASTINAFUEL — MAZDA 3 ASTINA BLACK
+==================================
+
+iSH directory:
+  /mnt/carfueltracker
+
+Listening port:
+  8001
+
+Local Safari URL:
+  http://127.0.0.1:8001
+
+RECOMMENDED INSTALLATION
+
+1. Create the directory in iSH:
+   mkdir -p /mnt/carfueltracker
+
+2. Put all AstinaFuel PWA files in that directory:
+   index.html
+   manifest.webmanifest
+   service-worker.js
+   icons/
+   start-carfuel.sh
+
+3. Make the startup script executable:
+   chmod +x /mnt/carfueltracker/start-carfuel.sh
+
+4. Start AstinaFuel:
+   /mnt/carfueltracker/start-carfuel.sh
+
+5. Safari:
+   http://127.0.0.1:8001
+
+6. Wait for the app to report its offline shell is ready.
+
+7. Safari > Share > Add to Home Screen.
+
+8. Launch AstinaFuel from the Home Screen once while iSH is still running.
+
+9. Stop iSH's server with Ctrl+C.
+
+10. Launch AstinaFuel again from the Home Screen to confirm offline operation.
+
+DATA IS SEPARATE FROM RIDEFUEL
+------------------------------
+Browser storage:
+  carFuelTrackerData
+  carFuelTrackerBackupMeta
+
+Master database:
+  CarFuelData.json
+
+This prevents the Mazda tracker from mixing records with the motorcycle tracker.
+
+QUICK COMMAND
+-------------
+cd /mnt/carfueltracker
+python3 -m http.server 8001 --bind 127.0.0.1

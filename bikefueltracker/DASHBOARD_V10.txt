@@ -1,0 +1,10 @@
+RideFuel Dashboard v10
+
+Added:
+- Mileage & Efficiency timeframe: 14 Days / Monthly / Yearly / All Time
+- Fuel Spending timeframe: 14 Days / Monthly / Yearly / All Time
+- SGD vs MYR spending comparison
+- MYR -> SGD conversion using per-refuel stored FX rate
+- Fallback FX rate for older MYR entries (editable through the MYR refuel form)
+- SG vs MY fuel price per litre and cheaper-market comparison
+- Existing localStorage data and backup format remain compatible
