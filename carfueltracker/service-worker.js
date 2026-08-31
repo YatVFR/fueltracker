@@ -1,11 +1,13 @@
-const CACHE_NAME = 'astinafuel-offline-v11';
+const CACHE_NAME = 'astinafuel-offline-v12';
 const APP_SHELL = [
   './',
   './index.html',
   './manifest.webmanifest',
   './icons/icon-180.png',
   './icons/icon-192.png',
-  './icons/icon-512.png'
+  './icons/icon-512.png',
+  '../dashboard-upgrade.css',
+  '../dashboard-upgrade.js'
 ];
 
 self.addEventListener('install', event => {
@@ -16,9 +18,7 @@ self.addEventListener('install', event => {
 });
 
 self.addEventListener('message', event => {
-  if(event.data && event.data.type === 'SKIP_WAITING'){
-    self.skipWaiting();
-  }
+  if(event.data && event.data.type === 'SKIP_WAITING') self.skipWaiting();
 });
 
 self.addEventListener('activate', event => {
@@ -29,12 +29,28 @@ self.addEventListener('activate', event => {
   );
 });
 
+async function decorateHtmlResponse(response){
+  if(!response) return response;
+  const html = await response.text();
+  let upgraded = html;
+  if(!upgraded.includes('dashboard-upgrade.css')){
+    upgraded = upgraded.replace('</head>', '<link rel="stylesheet" href="../dashboard-upgrade.css">\n</head>');
+  }
+  if(!upgraded.includes('dashboard-upgrade.js')){
+    upgraded = upgraded.replace('</body>', '<script src="../dashboard-upgrade.js"></script>\n</body>');
+  }
+  const headers = new Headers(response.headers);
+  headers.set('Content-Type', 'text/html; charset=utf-8');
+  return new Response(upgraded, {
+    status: response.status,
+    statusText: response.statusText,
+    headers
+  });
+}
+
 self.addEventListener('fetch', event => {
   if(event.request.method !== 'GET') return;
 
-  // health-check-network-only:
-  // A ?health= request intentionally bypasses the PWA cache so the UI
-  // can tell whether the local iSH Python server is actually running.
   const healthURL = new URL(event.request.url);
   if(healthURL.searchParams.has('health')){
     event.respondWith(
@@ -47,34 +63,35 @@ self.addEventListener('fetch', event => {
 
   const request = event.request;
 
-  // Navigation always falls back to the cached app shell.
   if(request.mode === 'navigate'){
-    event.respondWith(
-      caches.match('./index.html').then(cached => {
-        if(cached) return cached;
-
-        return fetch(request).then(response => {
-          const copy = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put('./index.html', copy));
-          return response;
-        });
-      })
-    );
+    event.respondWith((async () => {
+      try{
+        const network = await fetch(request, {cache:'no-store'});
+        if(network && network.ok){
+          const copy = network.clone();
+          const cache = await caches.open(CACHE_NAME);
+          await cache.put('./index.html', copy);
+          return decorateHtmlResponse(network);
+        }
+      }catch(error){
+        // Offline: use the cached app shell below.
+      }
+      const cached = await caches.match('./index.html');
+      return cached ? decorateHtmlResponse(cached) : new Response('Fuel Tracker is unavailable offline until it has been opened once.', {status:503});
+    })());
     return;
   }
 
-  // Static assets are cache-first.
   event.respondWith(
     caches.match(request).then(cached => {
       if(cached) return cached;
-
       return fetch(request).then(response => {
         if(response && response.ok){
           const copy = response.clone();
           caches.open(CACHE_NAME).then(cache => cache.put(request, copy));
         }
         return response;
-      }).catch(() => caches.match('./index.html'));
+      });
     })
   );
 });
