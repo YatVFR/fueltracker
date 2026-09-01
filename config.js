@@ -5,6 +5,10 @@ const defaultState={
   period:'month',
   selected:{bike:'honda',car:'mercedes'},
   registrations:{bike:'',car:''},
+  currentOdometer:{
+    bike:{value:63845,updatedAt:'2026-08-31T16:40'},
+    car:{value:28640,updatedAt:'2026-08-30T16:25'}
+  },
   records:{
     bike:[
       {id:'b1',dateTime:'2026-08-31T16:40',mileage:63845,volume:12.30,cost:62.80,currency:'SGD',fuelGrade:'95 RON',station:'Petron (P03)',notes:'Full tank'},
