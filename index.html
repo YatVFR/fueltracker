@@ -66,88 +66,76 @@
     </div>
   </section>
 
-  <section class="box">
-    <div class="odometer-grid" id="odometerGrid"></div>
-  </section>
+  <section class="box"><div class="odometer-grid" id="odometerGrid"></div></section>
 
   <section class="box">
     <div class="eff-wrap">
       <div class="eff-panel">
         <div class="eff-panel-header"><h2>MILEAGE &amp; EFFICIENCY</h2></div>
-        <div class="eff-formula">
-          <h3>LATEST FUEL CONSUMPTION</h3>
-          <p>(Current Odo − Previous Odo) ÷ Current Refuel Volume</p>
-        </div>
+        <div class="eff-formula"><h3>LATEST FUEL CONSUMPTION</h3><p>(Current Odo − Previous Odo) ÷ Current Refuel Volume</p></div>
         <div class="eff-list" id="efficiencyList"></div>
       </div>
     </div>
   </section>
 
   <section class="box lower">
-    <div class="card">
+    <div class="card refuel-card">
       <h3>ADD REFUEL</h3>
-      <form id="fuelForm"><input type="hidden" id="editId">
-      <div class="grid2">
-        <div class="field"><label>Date &amp; Time</label><input id="dateTime" type="datetime-local" required></div>
-        <div class="field"><label>Odometer (KM)</label><input id="mileage" type="number" placeholder="e.g. 63845" required></div>
-      </div>
-      <div class="grid2">
-        <div class="field"><label>Fuel Station</label><input id="station" placeholder="e.g. Shell (SG)" required></div>
-        <div class="field"><label>Fuel Volume (L)</label><input id="volume" type="number" step=".01" min=".01" required></div>
-      </div>
-      <div class="grid2">
-        <div class="field"><label>Total Cost</label><input id="cost" type="number" step=".01" min="0" required></div>
-        <div class="field"><label>Currency</label><select id="currency"><option value="SGD">SGD - Singapore Dollar</option><option value="MYR">MYR - Malaysian Ringgit</option></select></div>
-      </div>
-      <div class="grid2">
-        <div class="field"><label>Fuel Grade</label><select id="fuelGrade"><option>95 RON</option><option>98 RON</option></select></div>
-        <div class="field"><label>Notes</label><input id="notes" placeholder="Station location, conditions, etc."></div>
-      </div>
-      <div class="actions">
-        <button class="primary" type="submit">SAVE REFUEL</button>
-        <button class="secondary" type="button" id="exportCsvBtn">EXPORT CSV</button>
-        <button class="danger" type="button" id="clearBtn">CLEAR DATA</button>
-      </div>
+      <form id="fuelForm" class="refuel-form"><input type="hidden" id="editId">
+        <div class="grid2">
+          <div class="field"><label for="dateTime">Date &amp; Time *</label><input id="dateTime" type="datetime-local" required></div>
+          <div class="field"><label for="mileage">Odometer (KM) *</label><input id="mileage" type="number" min="0" step="1" placeholder="e.g. 24850" required></div>
+        </div>
+
+        <div class="field">
+          <label for="station">Fuel Station *</label>
+          <select id="station" required>
+            <option value="">Select station</option>
+            <optgroup label="Malaysia">
+              <option>Petronas (MY)</option><option>Petron (MY)</option><option>Shell (MY)</option><option>Caltex (MY)</option><option>BHPetrol (MY)</option>
+            </optgroup>
+            <optgroup label="Singapore">
+              <option>Shell (SG)</option><option>Esso (SG)</option><option>Caltex (SG)</option><option>SPC (SG)</option><option>Sinopec (SG)</option>
+            </optgroup>
+            <optgroup label="Other"><option>Historical Import</option><option>Other</option></optgroup>
+          </select>
+        </div>
+
+        <div class="grid2">
+          <div class="field"><label for="volume">Fuel Volume (L) *</label><input id="volume" type="number" step="0.01" min="0.01" inputmode="decimal" placeholder="e.g. 12.40" required></div>
+          <div class="field"><label for="cost">Total Cost *</label><input id="cost" type="number" step="0.01" min="0" inputmode="decimal" placeholder="e.g. 28.60" required></div>
+        </div>
+
+        <div class="grid2">
+          <div class="field"><label for="currency">Currency *</label><select id="currency" required><option value="">Select currency</option><option value="MYR">MYR</option><option value="SGD">SGD</option></select></div>
+          <div class="field"><label for="fuelGrade">Fuel Grade</label><select id="fuelGrade"><option value="">Optional</option><option value="RON 95">RON 95</option><option value="RON 97">RON 97</option><option value="RON 98">RON 98</option><option value="RON 100">RON 100</option><option value="Other">Other</option></select></div>
+        </div>
+
+        <div class="fx-inline" id="fxRateWrap">
+          <div class="field"><label for="fxRate">MYR Exchange Rate • 1 SGD = RM</label><input type="number" id="fxRate" step="0.001" min="0.001" inputmode="decimal" placeholder="e.g. 3.160"><div class="fx-help">Stored with this MYR refuel for accurate historical SGD conversion. The last rate is remembered for offline use.</div></div>
+        </div>
+
+        <div class="field"><label for="notes">Notes</label><textarea id="notes" placeholder="Station location, conditions, etc."></textarea></div>
+
+        <div class="actions refuel-actions"><button class="primary" type="submit">SAVE REFUEL</button><button class="secondary" type="button" id="exportCsvBtn">EXPORT CSV</button><button class="danger" type="button" id="clearBtn">CLEAR DATA</button></div>
       </form>
     </div>
 
     <div class="card">
       <h3>REFUEL HISTORY</h3>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Date &amp; Time</th><th>Odometer</th><th>Fuel (L)</th><th>Total Cost</th><th>Cost / 100 KM</th><th>Actions</th></tr></thead>
-          <tbody id="historyBody"></tbody>
-        </table>
-      </div>
+      <div class="table-wrap"><table><thead><tr><th>Date &amp; Time</th><th>Odometer</th><th>Fuel (L)</th><th>Total Cost</th><th>Cost / 100 KM</th><th>Actions</th></tr></thead><tbody id="historyBody"></tbody></table></div>
     </div>
   </section>
 
   <section class="box" id="settingsBox">
     <div class="settings">
-      <div class="setting">
-        <div class="label">Master Database</div>
-        <strong id="dbName">BikeFuelData.json</strong>
-        <p>Bike and Car keep separate working copies and MasterDB files.</p>
-        <div class="actions"><button class="primary" type="button" onclick="document.getElementById('loadDbInput').click()">LOCATE / RELOAD</button><button class="secondary" type="button" id="saveDbBtn">SAVE / SYNC</button><button class="secondary" type="button" id="newDbBtn">NEW DB</button><input id="loadDbInput" type="file" accept=".json,application/json" hidden></div>
-      </div>
-      <div class="setting">
-        <div class="label">Dashboard Theme</div>
-        <strong id="selectedTheme">Honda</strong>
-        <p>Theme choice is remembered independently for each vehicle.</p>
-        <div class="field" style="margin-top:12px"><label>Vehicle Registration No.</label><input id="vehicleRegInput" placeholder="Enter plate number"></div>
-      </div>
+      <div class="setting"><div class="label">Master Database</div><strong id="dbName">BikeFuelData.json</strong><p>Bike and Car keep separate working copies and MasterDB files.</p><div class="actions"><button class="primary" type="button" onclick="document.getElementById('loadDbInput').click()">LOCATE / RELOAD</button><button class="secondary" type="button" id="saveDbBtn">SAVE / SYNC</button><button class="secondary" type="button" id="newDbBtn">NEW DB</button><input id="loadDbInput" type="file" accept=".json,application/json" hidden></div></div>
+      <div class="setting"><div class="label">Dashboard Theme</div><strong id="selectedTheme">Honda</strong><p>Theme choice is remembered independently for each vehicle.</p><div class="field" style="margin-top:12px"><label>Vehicle Registration No.</label><input id="vehicleRegInput" placeholder="Enter plate number"></div></div>
     </div>
   </section>
 </main>
 
-<div class="modal-backdrop" id="odoModal" hidden>
-  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="odoModalTitle">
-    <h3 id="odoModalTitle">Update Current Odometer</h3>
-    <p>Update your current odometer without creating a refuel record.</p>
-    <div class="field"><label>Current Odometer (KM)</label><input id="odoInput" type="number" min="0" step="1"></div>
-    <div class="actions modal-actions"><button id="odoCancelBtn" class="secondary" type="button">CANCEL</button><button id="odoSaveBtn" class="primary" type="button">SAVE ODOMETER</button></div>
-  </div>
-</div>
+<div class="modal-backdrop" id="odoModal" hidden><div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="odoModalTitle"><h3 id="odoModalTitle">Update Current Odometer</h3><p>Update your current odometer without creating a refuel record.</p><div class="field"><label>Current Odometer (KM)</label><input id="odoInput" type="number" min="0" step="1"></div><div class="actions modal-actions"><button id="odoCancelBtn" class="secondary" type="button">CANCEL</button><button id="odoSaveBtn" class="primary" type="button">SAVE ODOMETER</button></div></div></div>
 
 <footer>Track every ride and drive. Optimize every drop.</footer>
 </div>
@@ -156,10 +144,9 @@
 <script src="./masterdb-compat.js"></script>
 <script src="./dashboard-restored.js"></script>
 <script src="./masterdb-seed.js"></script>
+<script src="./schema-native.js"></script>
 <script>
-if('serviceWorker' in navigator){
-  window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js',{scope:'./'}).catch(()=>{}));
-}
+if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js',{scope:'./'}).catch(()=>{}));}
 </script>
 </body>
 </html>
