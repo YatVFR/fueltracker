@@ -1,0 +1,81 @@
+:root{
+  --bg:#05070a; --shell:#081018; --panel:#0b131b; --panel2:#101923; --line:#253240;
+  --text:#f6f8fb; --muted:#8c98a5; --accent:#d71920; --accent2:#8a1117; --ok:#4dd46f;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:#020406;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Segoe UI",Roboto,Arial,sans-serif}
+body{padding:12px}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+.app{max-width:1380px;margin:auto;border:1px solid #1d2730;border-radius:18px;overflow:hidden;background:
+radial-gradient(circle at 15% 0%,color-mix(in srgb,var(--accent) 8%,transparent),transparent 25%),
+linear-gradient(180deg,#070b0f,#05080b);box-shadow:0 24px 70px rgba(0,0,0,.45)}
+header{display:grid;grid-template-columns:auto minmax(340px,520px) auto;gap:16px;align-items:center;padding:14px 18px;border-bottom:1px solid var(--line)}
+.brand h1{margin:0;font-size:24px;letter-spacing:.02em}
+.brand small{color:#1c96ff;font-weight:800}
+.vehicle-switch{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;border:1px solid #394552;border-radius:12px;background:#0b1117}
+.vehicle-switch button{border:0;border-radius:9px;padding:12px;background:transparent;color:#c7ced4;font-weight:900}
+.vehicle-switch button.active{background:linear-gradient(135deg,#0d62d9,#137fe8);color:#fff}
+.head-actions{display:flex;gap:8px;justify-content:flex-end}
+.head-actions button{border:0;border-left:1px solid #2a333c;background:transparent;color:#fff;padding:8px 11px}
+main{padding:14px}
+.box{border:1px solid var(--line);border-radius:13px;background:linear-gradient(180deg,#091018,#071017);margin-bottom:12px}
+.section-head{display:flex;align-items:baseline;gap:10px;padding:11px 14px 0}
+.section-head strong{color:#1597ff;font-size:12px;letter-spacing:.08em}
+.section-head span{color:#9ba5ae;font-size:11px}
+.theme-row{display:flex;gap:10px;padding:10px 14px 14px;overflow-x:auto}
+.theme-card{flex:1 0 160px;min-width:160px;height:104px;border:1px solid #34414d;border-radius:11px;background:#0c141b;color:#fff;padding:10px;text-align:center}
+.theme-card.active{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent),0 0 18px color-mix(in srgb,var(--accent) 16%,transparent)}
+.theme-logo{height:54px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:26px;letter-spacing:-.05em;color:var(--logo-color,#fff)}
+.theme-name{font-size:12px;font-weight:800}
+.hero-dash{display:grid;grid-template-columns:420px 1fr;gap:10px;padding:10px}
+.hero{min-height:295px;border:1px solid var(--accent);border-radius:12px;position:relative;overflow:hidden;padding:20px;background:
+linear-gradient(130deg,color-mix(in srgb,var(--accent) 28%,transparent),transparent 54%),
+repeating-linear-gradient(120deg,transparent 0 32px,color-mix(in srgb,var(--accent) 6%,transparent) 33px 35px),
+#06090c}
+.hero-brand{font-size:34px;font-weight:900;color:var(--accent)}
+.hero h2{font-size:30px;margin:7px 0 3px}.hero h2 span{font-weight:400}
+.hero .tag{font-size:11px;color:var(--accent);font-weight:900}
+.hero-specs{position:absolute;left:20px;bottom:22px;display:grid;gap:8px;font-size:11px;color:#cbd3da}
+.hero-specs b{color:#fff}
+.vehicle-art{display:none}
+.dashboard{border:1px solid #202b35;border-radius:12px;background:#081017;padding:10px;min-width:0}
+.dashboard-top{display:grid;grid-template-columns:minmax(250px,1fr) minmax(330px,1.2fr);gap:14px}
+.switch,.period{display:grid;gap:4px}.switch{grid-template-columns:1fr 1fr}.period{grid-template-columns:repeat(4,1fr)}
+.switch button,.period button{min-height:40px;border:1px solid #26333e;border-radius:8px;background:#0d151c;color:#a9b3bb;font-size:12px;font-weight:800}
+.switch button.active,.period button.active{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border-color:var(--accent)}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+.metric{min-height:132px;border:1px solid #28343f;border-radius:10px;background:linear-gradient(180deg,#0d161e,#091117);padding:13px}
+.metric .icon{font-size:23px;color:var(--accent);font-weight:900}
+.metric .k{font-size:11px;color:#c4ccd3;margin-top:10px}
+.metric .v{font-size:28px;font-weight:900;margin-top:5px;letter-spacing:-.04em}
+.metric .s{font-size:11px;color:#98a3ac;margin-top:5px}
+.health{margin-top:10px;padding:10px 12px;border:1px solid #255e38;border-radius:8px;background:#07150c;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.health strong{color:#5de078;font-size:11px}.health span{color:#a6aeb5;font-size:11px}.health button{border:1px solid #30404b;background:#0b1319;color:#fff;border-radius:7px;padding:8px 10px}
+.lower{display:grid;grid-template-columns:1fr 1.5fr;gap:10px}
+.card{padding:14px}
+.card + .card{border-left:1px solid var(--line)}
+.card h3{font-size:13px;margin:0 0 12px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.field{margin-bottom:9px}
+label{display:block;font-size:11px;color:#8f9aa4;text-transform:uppercase;letter-spacing:.08em;font-weight:800;margin-bottom:5px}
+input,select,textarea{width:100%;background:#070c10;color:#fff;border:1px solid #313d48;border-radius:8px;padding:10px 11px;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 12%,transparent)}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.primary,.secondary,.danger{padding:10px 12px;border-radius:8px;font-size:11px;font-weight:900}
+.primary{border:0;background:#0d69d9;color:#fff}.secondary{border:1px solid #34404a;background:#121a22;color:#fff}.danger{border:1px solid #5d2026;background:#2a1215;color:#ff868d}
+.table-wrap{overflow:auto;border:1px solid #26313b;border-radius:9px}
+table{width:100%;border-collapse:collapse;min-width:760px}
+th,td{padding:11px 12px;border-bottom:1px solid #26313b;text-align:left;font-size:11px}
+th{color:#aab4bd;font-size:11px;text-transform:uppercase;letter-spacing:.05em;background:#0a1117}
+td{color:#eef2f5}
+.settings{padding:12px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.setting{border:1px solid #293540;background:#0c141b;border-radius:10px;padding:12px}
+.setting .label{font-size:11px;text-transform:uppercase;color:#8e99a3;font-weight:900;letter-spacing:.08em}.setting strong{display:block;margin-top:6px}.setting p{font-size:11px;color:#929ca5;line-height:1.5}
+footer{padding:12px 14px;border-top:1px solid var(--line);text-align:center;color:#8d98a1;font-size:11px}
+@media(max-width:1050px){header{grid-template-columns:1fr auto}.vehicle-switch{grid-column:1/-1;grid-row:2}.hero-dash{grid-template-columns:330px 1fr}.dashboard-top{grid-template-columns:1fr}.metrics{grid-template-columns:1fr 1fr}}
+@media(max-width:780px){body{padding:0}.app{border-radius:0;border-left:0;border-right:0;min-height:100vh}header{padding:10px 12px}.brand h1{font-size:18px}.head-actions{gap:0}.head-actions button{padding:7px 9px}main{padding:8px}.theme-card{flex-basis:90px;min-width:90px;height:78px;padding:7px}.theme-logo{height:38px;font-size:18px}.theme-name{font-size:11px}.hero-dash{grid-template-columns:1fr}.hero{min-height:190px}.hero-brand{font-size:26px}.hero h2{font-size:22px}.metrics{grid-template-columns:1fr 1fr}.metric{min-height:104px;padding:10px}.metric .v{font-size:20px}.lower{grid-template-columns:1fr}.card + .card{border-left:0;border-top:1px solid var(--line)}.settings{grid-template-columns:1fr}}
+@media(max-width:480px){.vehicle-switch button{font-size:11px}.period{grid-template-columns:1fr 1fr}.grid2{grid-template-columns:1fr}.hero-specs{display:none}.hero{min-height:160px}}
+html{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+body,button,input,select,textarea,table{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Segoe UI",Roboto,Arial,sans-serif}
+.metric .v,table,input[type="number"]{font-variant-numeric:tabular-nums}
