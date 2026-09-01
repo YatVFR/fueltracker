@@ -1,4 +1,4 @@
-const CACHE_NAME='fueltracker-unified-v14-6';
+const CACHE_NAME='fueltracker-unified-v14-7';
 const APP_SHELL=['./','./index.html','./app.css','./dashboard-restored.css','./config.js','./app.js','./masterdb-compat.js','./dashboard-restored.js','./masterdb-seed.js','./schema-native.js','./manifest.webmanifest'];
 
 self.addEventListener('install',event=>{
