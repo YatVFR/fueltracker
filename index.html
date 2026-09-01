@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Fuel Tracker v14</title>
+<link rel="stylesheet" href="./app.css">
+</head>
+<body>
+<div class="app">
+<header>
+  <div class="brand"><h1>FUEL TRACKER</h1><small>v14 Unified</small></div>
+  <div class="vehicle-switch">
+    <button id="bikeBtn" class="active">BIKE TRACKER</button>
+    <button id="carBtn">CAR TRACKER</button>
+  </div>
+  <div class="head-actions">
+    <button>Master DB<br><span style="color:#5add76;font-size:11px">Linked</span></button>
+    <button id="refreshBtn">Refresh<br><span style="font-size:11px;color:#89949d">(Upgrade)</span></button>
+    <button id="settingsBtn">Settings</button>
+  </div>
+</header>
+
+<main>
+  <section class="box">
+    <div class="section-head"><strong id="themeTitle">BIKE THEMES</strong><span>Choose your style</span></div>
+    <div class="theme-row" id="themeRow"></div>
+  </section>
+
+  <section class="box">
+    <div class="hero-dash">
+      <div class="hero">
+        <div class="hero-brand" id="heroBrand">HONDA</div>
+        <h2><span id="heroPlate">Enter Registration No.</span></h2>
+        <div class="tag" id="heroTag">PERFORMANCE FIRST</div>
+        <div class="hero-specs" id="heroSpecs"></div>
+        <div class="vehicle-art" id="vehicleArt" aria-hidden="true"></div>
+      </div>
+
+      <div class="dashboard">
+        <div class="dashboard-top">
+          <div class="switch">
+            <button id="effBtn" class="active">Efficiency</button>
+            <button id="spendBtn">Spending</button>
+          </div>
+          <div class="period">
+            <button>14 Days</button><button class="active">Monthly</button><button>Yearly</button><button>All Time</button>
+          </div>
+        </div>
+        <div class="metrics" id="metrics"></div>
+        <div class="health">
+          <div><strong>DATA HEALTHY</strong><br><span>Latest record: 31 Aug 2026, 18:42</span></div>
+          <button>View Details</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="box lower">
+    <div class="card">
+      <h3>ADD REFUEL</h3>
+      <form id="fuelForm"><input type="hidden" id="editId">
+      <div class="grid2">
+        <div class="field"><label>Date & Time</label><input id="dateTime" type="datetime-local" required></div>
+        <div class="field"><label>Odometer (KM)</label><input id="mileage" type="number" placeholder="e.g. 63845" required></div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label>Fuel Station</label><input id="station" placeholder="e.g. Shell (SG)" required></div>
+        <div class="field"><label>Fuel Volume (L)</label><input id="volume" type="number" step=".01" min=".01" required></div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label>Total Cost</label><input id="cost" type="number" step=".01" min="0" required></div>
+        <div class="field"><label>Currency</label><select id="currency"><option value="SGD">SGD - Singapore Dollar</option><option value="MYR">MYR - Malaysian Ringgit</option></select></div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label>Fuel Grade</label><select id="fuelGrade"><option>95 RON</option><option>98 RON</option></select></div>
+        <div class="field"><label>Notes</label><input id="notes" placeholder="Station location, conditions, etc."></div>
+      </div>
+      <div class="actions">
+        <button class="primary" type="submit">SAVE REFUEL</button>
+        <button class="secondary" type="button" id="exportCsvBtn">EXPORT CSV</button>
+        <button class="danger" type="button" id="clearBtn">CLEAR DATA</button>
+      </div>
+      </form>
+    </div>
+
+    <div class="card">
+      <h3>REFUEL HISTORY</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Date & Time</th><th>Odometer</th><th>Fuel (L)</th><th>Total Cost</th><th>Cost / 100 KM</th><th>Actions</th></tr></thead>
+          <tbody id="historyBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="box" id="settingsBox">
+    <div class="settings">
+      <div class="setting">
+        <div class="label">Master Database</div>
+        <strong id="dbName">BikeFuelData.json</strong>
+        <p>Bike and Car keep separate working copies and MasterDB files.</p>
+        <div class="actions"><button class="primary" type="button" onclick="document.getElementById('loadDbInput').click()">LOCATE / RELOAD</button><button class="secondary" type="button" id="saveDbBtn">SAVE / SYNC</button><button class="secondary" type="button" id="newDbBtn">NEW DB</button><input id="loadDbInput" type="file" accept=".json,application/json" hidden></div>
+      </div>
+      <div class="setting">
+        <div class="label">Dashboard Theme</div>
+        <strong id="selectedTheme">Honda</strong>
+        <p>Theme choice is remembered independently for each vehicle.</p>
+        <div class="field" style="margin-top:12px"><label>Vehicle Registration No.</label><input id="vehicleRegInput" placeholder="Enter plate number"></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>Track every ride and drive. Optimize every drop.</footer>
+</div>
+<script src="./config.js"></script>
+<script src="./app.js"></script>
+</body>
+</html>
