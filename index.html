@@ -39,7 +39,7 @@
         <div class="hero-brand" id="heroBrand">HONDA</div>
         <div class="plate-row">
           <h2><span id="heroPlate">Enter Registration No.</span></h2>
-          <button id="setRegBtn" class="plate-edit" type="button">SET REGISTRATION</button>
+          <button id="setRegBtn" class="plate-edit" type="button" aria-label="Edit registration" title="Edit registration">Edit</button>
         </div>
         <div class="tag" id="heroTag">PERFORMANCE FIRST</div>
         <div class="hero-specs" id="heroSpecs"></div>
@@ -58,9 +58,26 @@
         </div>
         <div class="metrics" id="metrics"></div>
         <div class="health">
-          <div><strong>DATA HEALTHY</strong><br><span>Latest record: 31 Aug 2026, 18:42</span></div>
-          <button>View Details</button>
+          <div><strong>DATA HEALTHY</strong><br><span>Latest record</span></div>
+          <button type="button">View Details</button>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="box">
+    <div class="odometer-grid" id="odometerGrid"></div>
+  </section>
+
+  <section class="box">
+    <div class="eff-wrap">
+      <div class="eff-panel">
+        <div class="eff-panel-header"><h2>MILEAGE &amp; EFFICIENCY</h2></div>
+        <div class="eff-formula">
+          <h3>LATEST FUEL CONSUMPTION</h3>
+          <p>(Current Odo − Previous Odo) ÷ Current Refuel Volume</p>
+        </div>
+        <div class="eff-list" id="efficiencyList"></div>
       </div>
     </div>
   </section>
@@ -70,7 +87,7 @@
       <h3>ADD REFUEL</h3>
       <form id="fuelForm"><input type="hidden" id="editId">
       <div class="grid2">
-        <div class="field"><label>Date & Time</label><input id="dateTime" type="datetime-local" required></div>
+        <div class="field"><label>Date &amp; Time</label><input id="dateTime" type="datetime-local" required></div>
         <div class="field"><label>Odometer (KM)</label><input id="mileage" type="number" placeholder="e.g. 63845" required></div>
       </div>
       <div class="grid2">
@@ -97,7 +114,7 @@
       <h3>REFUEL HISTORY</h3>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Date & Time</th><th>Odometer</th><th>Fuel (L)</th><th>Total Cost</th><th>Cost / 100 KM</th><th>Actions</th></tr></thead>
+          <thead><tr><th>Date &amp; Time</th><th>Odometer</th><th>Fuel (L)</th><th>Total Cost</th><th>Cost / 100 KM</th><th>Actions</th></tr></thead>
           <tbody id="historyBody"></tbody>
         </table>
       </div>
@@ -122,21 +139,20 @@
   </section>
 </main>
 
+<div class="modal-backdrop" id="odoModal" hidden>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="odoModalTitle">
+    <h3 id="odoModalTitle">Update Current Odometer</h3>
+    <p>Update your current odometer without creating a refuel record.</p>
+    <div class="field"><label>Current Odometer (KM)</label><input id="odoInput" type="number" min="0" step="1"></div>
+    <div class="actions modal-actions"><button id="odoCancelBtn" class="secondary" type="button">CANCEL</button><button id="odoSaveBtn" class="primary" type="button">SAVE ODOMETER</button></div>
+  </div>
+</div>
+
 <footer>Track every ride and drive. Optimize every drop.</footer>
 </div>
 <script src="./config.js"></script>
 <script src="./app.js"></script>
 <script>
-document.getElementById('setRegBtn').addEventListener('click',()=>{
-  const current=state.registrations[state.mode]||'';
-  const entered=window.prompt('Enter vehicle registration number',current);
-  if(entered===null)return;
-  const value=entered.trim().toUpperCase();
-  state.registrations[state.mode]=value;
-  saveState();
-  document.getElementById('heroPlate').textContent=value||'Enter Registration No.';
-  document.getElementById('vehicleRegInput').value=value;
-});
 if('serviceWorker' in navigator){
   window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js',{scope:'./'}).catch(()=>{}));
 }
