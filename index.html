@@ -127,6 +127,16 @@
 <script src="./config.js"></script>
 <script src="./app.js"></script>
 <script>
+document.getElementById('setRegBtn').addEventListener('click',()=>{
+  const current=state.registrations[state.mode]||'';
+  const entered=window.prompt('Enter vehicle registration number',current);
+  if(entered===null)return;
+  const value=entered.trim().toUpperCase();
+  state.registrations[state.mode]=value;
+  saveState();
+  document.getElementById('heroPlate').textContent=value||'Enter Registration No.';
+  document.getElementById('vehicleRegInput').value=value;
+});
 if('serviceWorker' in navigator){
   window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js',{scope:'./'}).catch(()=>{}));
 }
