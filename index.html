@@ -12,6 +12,7 @@
 <link rel="apple-touch-icon" href="./bikefueltracker/icons/icon-180.png">
 <link rel="stylesheet" href="./app.css">
 <link rel="stylesheet" href="./dashboard-restored.css">
+<link rel="stylesheet" href="./bike-alignment.css">
 </head>
 <body>
 <div class="app">
@@ -91,12 +92,8 @@
           <label for="station">Fuel Station *</label>
           <select id="station" required>
             <option value="">Select station</option>
-            <optgroup label="Malaysia">
-              <option>Petronas (MY)</option><option>Petron (MY)</option><option>Shell (MY)</option><option>Caltex (MY)</option><option>BHPetrol (MY)</option>
-            </optgroup>
-            <optgroup label="Singapore">
-              <option>Shell (SG)</option><option>Esso (SG)</option><option>Caltex (SG)</option><option>SPC (SG)</option><option>Sinopec (SG)</option>
-            </optgroup>
+            <optgroup label="Malaysia"><option>Petronas (MY)</option><option>Petron (MY)</option><option>Shell (MY)</option><option>Caltex (MY)</option><option>BHPetrol (MY)</option></optgroup>
+            <optgroup label="Singapore"><option>Shell (SG)</option><option>Esso (SG)</option><option>Caltex (SG)</option><option>SPC (SG)</option><option>Sinopec (SG)</option></optgroup>
             <optgroup label="Other"><option>Historical Import</option><option>Other</option></optgroup>
           </select>
         </div>
@@ -111,9 +108,7 @@
           <div class="field"><label for="fuelGrade">Fuel Grade</label><select id="fuelGrade"><option value="">Optional</option><option value="RON 95">RON 95</option><option value="RON 97">RON 97</option><option value="RON 98">RON 98</option><option value="RON 100">RON 100</option><option value="Other">Other</option></select></div>
         </div>
 
-        <div class="fx-inline" id="fxRateWrap">
-          <div class="field"><label for="fxRate">MYR Exchange Rate • 1 SGD = RM</label><input type="number" id="fxRate" step="0.001" min="0.001" inputmode="decimal" placeholder="e.g. 3.160"><div class="fx-help">Stored with this MYR refuel for accurate historical SGD conversion. The last rate is remembered for offline use.</div></div>
-        </div>
+        <div class="fx-inline" id="fxRateWrap"><div class="field"><label for="fxRate">MYR Exchange Rate • 1 SGD = RM</label><input type="number" id="fxRate" step="0.001" min="0.001" inputmode="decimal" placeholder="e.g. 3.160"><div class="fx-help">Stored with this MYR refuel for accurate historical SGD conversion. The last rate is remembered for offline use.</div></div></div>
 
         <div class="field"><label for="notes">Notes</label><textarea id="notes" placeholder="Station location, conditions, etc."></textarea></div>
 
@@ -145,6 +140,7 @@
 <script src="./dashboard-restored.js"></script>
 <script src="./masterdb-seed.js"></script>
 <script src="./schema-native.js"></script>
+<script src="./bike-alignment.js"></script>
 <script>
 if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js',{scope:'./'}).catch(()=>{}));}
 </script>
