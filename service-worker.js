@@ -1,5 +1,5 @@
-const CACHE_NAME='fueltracker-unified-v14-3';
-const APP_SHELL=['./','./index.html','./app.css','./config.js','./app.js','./manifest.webmanifest'];
+const CACHE_NAME='fueltracker-unified-v14-4';
+const APP_SHELL=['./','./index.html','./app.css','./dashboard-restored.css','./config.js','./app.js','./dashboard-restored.js','./manifest.webmanifest'];
 
 self.addEventListener('install',event=>{
   event.waitUntil(caches.open(CACHE_NAME).then(cache=>cache.addAll(APP_SHELL)));
