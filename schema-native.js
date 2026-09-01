@@ -80,6 +80,7 @@
       if(+r.mileage>0){const pos=mileageRows.findIndex(x=>x.id===r.id);if(pos>=1){const dist=+r.mileage-(+mileageRows[pos-1].mileage);const sgd=r.currency==='MYR'?(+r.cost||0)/entryFx(r):(+r.cost||0);if(dist>0)cost100='S$'+(sgd/dist*100).toFixed(2);}}
       return `<tr><td>${esc(new Date(r.dateTime).toLocaleString())}<br><span style="color:#7f8a94">${esc(r.location)}</span></td><td>${+r.mileage>0?(+r.mileage).toLocaleString()+' km':'—'}</td><td>${(+r.volume).toFixed(2)} L</td><td>${money(r.cost,r.currency)}</td><td>${cost100}</td><td><button class="secondary" onclick="editRecord('${r.id}')">VIEW/EDIT</button> <button class="danger" onclick="deleteRecord('${r.id}')">DELETE</button></td></tr>`;
     }).join('');
+    enhanceHistory();
   };
 
   resetForm=function(){
@@ -162,6 +163,47 @@
     syncFxField();
   }
 
+  function enhanceHistory(){
+    const body=document.getElementById('historyBody');if(!body)return;
+    const card=body.closest('.card');const wrap=body.closest('.table-wrap');
+    if(card)card.classList.add('history-card');
+    if(wrap)wrap.classList.add('history-scroll');
+    const title=card?.querySelector('h3');
+    if(title){
+      let count=title.querySelector('.history-count');
+      if(!count){count=document.createElement('span');count.className='history-count';title.appendChild(count);}
+      count.textContent=`${currentRecords().length} records`;
+    }
+  }
+
+  function installUiFixStyles(){
+    if(document.getElementById('v14UiFixStyles'))return;
+    const style=document.createElement('style');style.id='v14UiFixStyles';
+    style.textContent=`
+      .history-card>h3{display:flex;align-items:center;justify-content:space-between;gap:10px}
+      .history-count{font-size:10px;color:#89949d;font-weight:700;letter-spacing:.03em;text-transform:none}
+      .history-scroll{max-height:540px;overflow:auto;-webkit-overflow-scrolling:touch;scrollbar-gutter:stable}
+      .history-scroll thead th{position:sticky;top:0;z-index:3;background:#0a1117;box-shadow:0 1px 0 #26313b}
+      @media(max-width:780px){.history-scroll{max-height:460px}}
+    `;
+    document.head.appendChild(style);
+  }
+
+  function bindRegistrationEdit(){
+    const btn=document.getElementById('setRegBtn');if(!btn)return;
+    btn.onclick=()=>{
+      const current=state.registrations?.[state.mode]||'';
+      const entered=window.prompt('Vehicle registration number',current);
+      if(entered===null)return;
+      const value=entered.trim().toUpperCase();
+      state.registrations=state.registrations||{bike:'',car:''};
+      state.registrations[state.mode]=value;
+      saveState();
+      document.getElementById('heroPlate').textContent=value||'Enter Registration No.';
+      const input=document.getElementById('vehicleRegInput');if(input)input.value=value;
+    };
+  }
+
   async function applyExactBundledData(){
     if(state.nativeDbRevision===NATIVE_REV){normalizeState();saveState();renderAll();return;}
     for(let i=0;i<30&&state.masterDbRevision!==BUNDLED_REV;i++)await new Promise(r=>setTimeout(r,50));
@@ -180,7 +222,10 @@
     }catch(err){console.error('Native MasterDB alignment failed',err);normalizeState();saveState();renderAll();}
   }
 
+  installUiFixStyles();
   bindNativeForm();
+  bindRegistrationEdit();
+  enhanceHistory();
   document.getElementById('saveDbBtn').onclick=exportDb;
   document.getElementById('loadDbInput').onchange=e=>importDb(e.target.files?.[0]);
   resetForm();
