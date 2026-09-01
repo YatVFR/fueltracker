@@ -1,0 +1,24 @@
+.odometer-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px}
+.odo-card,.eff-card{min-height:168px;border:1px solid #28343f;border-radius:10px;background:linear-gradient(180deg,#131a22,#0c1218);padding:18px}
+.odo-card h3,.eff-card h3{margin:0 0 12px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#c6ccd2;font-weight:900}
+.odo-value,.eff-value{font-size:44px;font-weight:900;line-height:1.05;letter-spacing:-.04em}
+.odo-unit,.eff-unit{font-size:18px;font-weight:700}
+.odo-sub,.eff-sub{margin-top:10px;color:#97a2ab;font-size:12px;line-height:1.45}
+.odo-action{margin-top:18px}
+.odo-action button{width:100%;padding:14px 16px;border:1px solid #38526b;border-radius:10px;background:linear-gradient(180deg,#152232,#101a25);color:#fff;font-size:12px;font-weight:900;letter-spacing:.08em}
+.eff-wrap{padding:10px}
+.eff-panel{border:1px solid #28343f;border-radius:12px;background:linear-gradient(180deg,#101821,#0c1218);padding:18px}
+.eff-panel-header{text-align:center;margin-bottom:14px}
+.eff-panel-header h2{margin:0;font-size:14px;letter-spacing:.14em;text-transform:uppercase}
+.eff-formula{margin-bottom:14px}
+.eff-formula h3{margin:0 0 8px;font-size:18px;letter-spacing:.08em;text-transform:uppercase}
+.eff-formula p{margin:0;color:#97a2ab;font-size:12px}
+.eff-list{display:grid;gap:12px}
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.6);align-items:center;justify-content:center;padding:16px;z-index:1000}
+.modal-backdrop:not([hidden]){display:flex}
+.modal-card{width:min(420px,100%);background:#0d141b;border:1px solid #33404b;border-radius:14px;padding:18px}
+.modal-card h3{margin:0 0 10px}
+.modal-card p{margin:0 0 14px;color:#97a2ab;font-size:12px}
+.modal-actions{justify-content:flex-end}
+@media(max-width:780px){.odo-card,.eff-card{min-height:150px;padding:14px}.odo-value,.eff-value{font-size:34px}}
+@media(max-width:560px){.odometer-grid{gap:8px}.odo-card,.eff-card{min-height:138px;padding:12px}.odo-card h3,.eff-card h3{font-size:10px}.odo-value,.eff-value{font-size:28px}.odo-unit,.eff-unit{font-size:15px}.odo-sub,.eff-sub{font-size:10px}.eff-panel{padding:12px}}
