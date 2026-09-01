@@ -3,14 +3,14 @@
     if(!state.currentOdometer) state.currentOdometer={};
     for(const mode of ['bike','car']){
       if(!state.currentOdometer[mode]){
-        const rows=[...(state.records[mode]||[])].filter(r=>validDate(r.dateTime)).sort((a,b)=>new Date(b.dateTime)-new Date(a.dateTime));
+        const rows=[...(state.records[mode]||[])].filter(r=>validDate(r.dateTime)&&+r.mileage>0).sort((a,b)=>new Date(b.dateTime)-new Date(a.dateTime));
         const latest=rows[0];
         state.currentOdometer[mode]={value:latest?+latest.mileage:null,updatedAt:latest?latest.dateTime:null};
       }
     }
     saveState();
   }
-  function rowsAsc(){return [...currentRecords()].filter(r=>validDate(r.dateTime)).sort((a,b)=>new Date(a.dateTime)-new Date(b.dateTime));}
+  function rowsAsc(){return [...currentRecords()].filter(r=>validDate(r.dateTime)&&+r.mileage>0).sort((a,b)=>new Date(a.dateTime)-new Date(b.dateTime));}
   function latestRefuel(){const rows=rowsAsc();return rows.length?rows[rows.length-1]:null;}
   function previousRefuel(){const rows=rowsAsc();return rows.length>1?rows[rows.length-2]:null;}
   function currentOdo(){ensureCurrentOdometer();return state.currentOdometer[state.mode];}
@@ -38,7 +38,7 @@
   function renderEfficiencyDetails(){
     const el=document.getElementById('efficiencyList');if(!el)return;
     const s=summary();
-    if(!s.latest||!s.prev){el.innerHTML='<div class="eff-card"><h3>Latest Fuel Economy</h3><div class="eff-value">—</div><div class="eff-sub">At least two refuel records are required.</div></div>';return;}
+    if(!s.latest||!s.prev){el.innerHTML='<div class="eff-card"><h3>Latest Fuel Economy</h3><div class="eff-value">—</div><div class="eff-sub">At least two refuel records with valid mileage are required.</div></div>';return;}
     const distance=(+s.latest.mileage)-(+s.prev.mileage), volume=+s.latest.volume;
     const economy=(distance>0&&volume>0)?distance/volume:null;
     el.innerHTML=`
@@ -57,7 +57,6 @@
   renderAll=function(){originalRenderAll();renderRestored();};
   const originalSaveRecord=saveRecord;
   saveRecord=function(e){
-    const before=latestRefuel()?.mileage??null;
     originalSaveRecord(e);
     const latest=latestRefuel();
     if(latest&&(!state.currentOdometer[state.mode]||state.currentOdometer[state.mode].value==null||+latest.mileage>+state.currentOdometer[state.mode].value)){
