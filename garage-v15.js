@@ -1,6 +1,15 @@
 (function(){
   const REV='v15-garage-1';
 
+  // Keep the v15 feature version unchanged; load only the responsive header hotfix.
+  if(!document.querySelector('link[data-v15-mobile-header-fix]')){
+    const link=document.createElement('link');
+    link.rel='stylesheet';
+    link.href='./mobile-header-fix.css';
+    link.dataset.v15MobileHeaderFix='true';
+    document.head.appendChild(link);
+  }
+
   function profile(mode){
     const reg=(state.registrations&&state.registrations[mode])||'';
     const themeId=(state.selected&&state.selected[mode])||'';
