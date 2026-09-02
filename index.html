@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Fuel Tracker">
-<title>Fuel Tracker v14</title>
+<title>Fuel Tracker v15</title>
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="apple-touch-icon" href="./bikefueltracker/icons/icon-180.png">
 <link rel="stylesheet" href="./app.css">
@@ -17,10 +17,10 @@
 <body>
 <div class="app">
 <header>
-  <div class="brand"><h1>FUEL TRACKER</h1><small>v14 Unified</small></div>
-  <div class="vehicle-switch">
-    <button id="bikeBtn" class="active">BIKE TRACKER</button>
-    <button id="carBtn">CAR TRACKER</button>
+  <div class="brand"><h1>FUEL TRACKER</h1><small>v15 Garage</small></div>
+  <div class="vehicle-switch" aria-label="My Garage">
+    <button id="bikeBtn" class="active">BIKE</button>
+    <button id="carBtn">CAR</button>
   </div>
   <div class="head-actions">
     <button>Master DB<br><span style="color:#5add76;font-size:11px">Linked</span></button>
@@ -30,11 +30,6 @@
 </header>
 
 <main>
-  <section class="box">
-    <div class="section-head"><strong id="themeTitle">BIKE THEMES</strong><span>Choose your style</span></div>
-    <div class="theme-row" id="themeRow"></div>
-  </section>
-
   <section class="box">
     <div class="hero-dash">
       <div class="hero">
@@ -87,7 +82,6 @@
           <div class="field"><label for="dateTime">Date &amp; Time *</label><input id="dateTime" type="datetime-local" required></div>
           <div class="field"><label for="mileage">Odometer (KM) *</label><input id="mileage" type="number" min="0" step="1" placeholder="e.g. 24850" required></div>
         </div>
-
         <div class="field">
           <label for="station">Fuel Station *</label>
           <select id="station" required>
@@ -97,21 +91,16 @@
             <optgroup label="Other"><option>Historical Import</option><option>Other</option></optgroup>
           </select>
         </div>
-
         <div class="grid2">
           <div class="field"><label for="volume">Fuel Volume (L) *</label><input id="volume" type="number" step="0.01" min="0.01" inputmode="decimal" placeholder="e.g. 12.40" required></div>
           <div class="field"><label for="cost">Total Cost *</label><input id="cost" type="number" step="0.01" min="0" inputmode="decimal" placeholder="e.g. 28.60" required></div>
         </div>
-
         <div class="grid2">
           <div class="field"><label for="currency">Currency *</label><select id="currency" required><option value="">Select currency</option><option value="MYR">MYR</option><option value="SGD">SGD</option></select></div>
           <div class="field"><label for="fuelGrade">Fuel Grade</label><select id="fuelGrade"><option value="">Optional</option><option value="RON 95">RON 95</option><option value="RON 97">RON 97</option><option value="RON 98">RON 98</option><option value="RON 100">RON 100</option><option value="Other">Other</option></select></div>
         </div>
-
         <div class="fx-inline" id="fxRateWrap"><div class="field"><label for="fxRate">MYR Exchange Rate • 1 SGD = RM</label><input type="number" id="fxRate" step="0.001" min="0.001" inputmode="decimal" placeholder="e.g. 3.160"><div class="fx-help">Stored with this MYR refuel for accurate historical SGD conversion. The last rate is remembered for offline use.</div></div></div>
-
         <div class="field"><label for="notes">Notes</label><textarea id="notes" placeholder="Station location, conditions, etc."></textarea></div>
-
         <div class="actions refuel-actions"><button class="primary" type="submit">SAVE REFUEL</button><button class="secondary" type="button" id="exportCsvBtn">EXPORT CSV</button><button class="danger" type="button" id="clearBtn">CLEAR DATA</button></div>
       </form>
     </div>
@@ -123,9 +112,36 @@
   </section>
 
   <section class="box" id="settingsBox">
+    <div class="section-head settings-title"><strong>SETTINGS</strong><span>Vehicle, appearance and data</span></div>
     <div class="settings">
-      <div class="setting"><div class="label">Master Database</div><strong id="dbName">BikeFuelData.json</strong><p>Bike and Car keep separate working copies and MasterDB files.</p><div class="actions"><button class="primary" type="button" onclick="document.getElementById('loadDbInput').click()">LOCATE / RELOAD</button><button class="secondary" type="button" id="saveDbBtn">SAVE / SYNC</button><button class="secondary" type="button" id="newDbBtn">NEW DB</button><input id="loadDbInput" type="file" accept=".json,application/json" hidden></div></div>
-      <div class="setting"><div class="label">Dashboard Theme</div><strong id="selectedTheme">Honda</strong><p>Theme choice is remembered independently for each vehicle.</p><div class="field" style="margin-top:12px"><label>Vehicle Registration No.</label><input id="vehicleRegInput" placeholder="Enter plate number"></div></div>
+      <div class="setting garage-setting">
+        <div class="label">My Garage</div>
+        <strong>Vehicle Profiles</strong>
+        <p>Your existing Bike and Car are now the first two Garage profiles. v15 keeps their databases independent.</p>
+        <div class="garage-profile-list" id="garageProfileList"></div>
+      </div>
+
+      <div class="setting theme-setting">
+        <div class="label">Dashboard Theme</div>
+        <strong id="selectedTheme">Honda</strong>
+        <p>Choose a theme for the currently selected vehicle. The choice is stored independently per profile.</p>
+        <div class="section-head theme-setting-head"><strong id="themeTitle">BIKE THEMES</strong><span>Choose your style</span></div>
+        <div class="theme-row settings-theme-row" id="themeRow"></div>
+      </div>
+
+      <div class="setting">
+        <div class="label">Vehicle Registration</div>
+        <strong id="settingsVehicleName">Active Vehicle</strong>
+        <p>The registration number is also shown on the dashboard and Garage selector.</p>
+        <div class="field" style="margin-top:12px"><label>Vehicle Registration No.</label><input id="vehicleRegInput" placeholder="Enter plate number"></div>
+      </div>
+
+      <div class="setting">
+        <div class="label">Master Database</div>
+        <strong id="dbName">BikeFuelData.json</strong>
+        <p>Each Garage profile keeps its own working copy and MasterDB file.</p>
+        <div class="actions"><button class="primary" type="button" onclick="document.getElementById('loadDbInput').click()">LOCATE / RELOAD</button><button class="secondary" type="button" id="saveDbBtn">SAVE / SYNC</button><button class="secondary" type="button" id="newDbBtn">NEW DB</button><input id="loadDbInput" type="file" accept=".json,application/json" hidden></div>
+      </div>
     </div>
   </section>
 </main>
@@ -141,6 +157,7 @@
 <script src="./masterdb-seed.js"></script>
 <script src="./schema-native.js"></script>
 <script src="./bike-alignment.js"></script>
+<script src="./garage-v15.js"></script>
 <script>
 if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js',{scope:'./'}).catch(()=>{}));}
 </script>
