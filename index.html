@@ -23,7 +23,7 @@
     <button id="carBtn">CAR</button>
   </div>
   <div class="head-actions">
-    <button>Master DB<br><span style="color:#5add76;font-size:11px">Linked</span></button>
+    <button>Database<br><span style="color:#5add76;font-size:11px">Local-first</span></button>
     <button id="refreshBtn">Refresh<br><span style="font-size:11px;color:#89949d">(Upgrade)</span></button>
     <button id="settingsBtn">Settings</button>
   </div>
@@ -68,7 +68,7 @@
     <div class="eff-wrap">
       <div class="eff-panel">
         <div class="eff-panel-header"><h2>MILEAGE &amp; EFFICIENCY</h2></div>
-        <div class="eff-formula"><h3>LATEST FUEL CONSUMPTION</h3><p>(Current Odo − Previous Odo) ÷ Current Refuel Volume</p></div>
+        <div class="eff-formula"><h3>LATEST FUEL CONSUMPTION</h3><p>(Current Odo − Latest Refuel Odo) ÷ Latest Refuel Volume</p></div>
         <div class="eff-list" id="efficiencyList"></div>
       </div>
     </div>
@@ -162,6 +162,7 @@
 <script src="./masterdb-v15.js"></script>
 <script src="./vehicle-model-v15.js"></script>
 <script src="./user-guide-v15.js"></script>
+<script src="./odometer-live-v15.js"></script>
 <script>
 if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js',{scope:'./'}).catch(()=>{}));}
 </script>
