@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Fuel Tracker">
-<title>Fuel Tracker v15.2</title>
+<title>Fuel Tracker v15.4</title>
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="apple-touch-icon" href="./bikefueltracker/icons/icon-180.png">
 <link rel="stylesheet" href="./app.css">
@@ -17,14 +17,14 @@
 <body>
 <div class="app">
 <header>
-  <div class="brand"><h1>FUEL TRACKER</h1><small>v15.2 Garage</small></div>
+  <div class="brand"><h1>FUEL TRACKER</h1><small>v15.4 Garage</small></div>
   <div class="vehicle-switch" aria-label="My Garage">
     <button id="bikeBtn" class="active">BIKE</button>
     <button id="carBtn">CAR</button>
   </div>
   <div class="head-actions">
     <button>Database<br><span style="color:#5add76;font-size:11px">Local-first</span></button>
-    <button id="refreshBtn">Refresh<br><span style="font-size:11px;color:#89949d">(Upgrade)</span></button>
+    <button id="refreshBtn">Refresh<br><span style="font-size:11px;color:#89949d">Check update</span></button>
     <button id="settingsBtn">Settings</button>
   </div>
 </header>
@@ -67,7 +67,7 @@
   <section class="box">
     <div class="eff-wrap">
       <div class="eff-panel">
-        <div class="eff-panel-header"><h2>MILEAGE &amp; EFFICIENCY</h2></div>
+        <div class="eff-panel-header"><h2>CURRENT TANK</h2></div>
         <div class="eff-formula"><h3>LATEST FUEL CONSUMPTION</h3><p>(Current Odo − Latest Refuel Odo) ÷ Latest Refuel Volume</p></div>
         <div class="eff-list" id="efficiencyList"></div>
       </div>
