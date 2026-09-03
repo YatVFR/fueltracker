@@ -1,8 +1,10 @@
 # Fuel Tracker
 
-Active version: **v15.3 Garage**
+Current approved stable baseline: **v15.3 Garage**
 
-Previous approved stable baseline: **v15.2 Garage**
+Previous rollback baseline: **v15.2 Garage**
+
+Status: **Approved stable version**
 
 ## v15.3 — Garage Overview
 - All vehicles summarized in one compact dashboard
@@ -27,4 +29,4 @@ Previous approved stable baseline: **v15.2 Garage**
 
 Live app: https://yatvfr.github.io/fueltracker/
 
-v15.2 remains the rollback/stable reference while v15.3 is being validated.
+Next planned milestone: **v15.4 Enhanced Vehicle Profiles**
