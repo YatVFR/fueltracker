@@ -50,5 +50,13 @@
     close.onclick=()=>{setOpen(false);card.querySelector('.user-guide-launcher')?.scrollIntoView({behavior:'smooth',block:'center'});};
   }
 
-  installStyles();buildGuide();state.userGuideRevision=REV;saveState?.();
+  function loadOdometerLiveFix(){
+    if(document.querySelector('script[data-odometer-live-v15]'))return;
+    const s=document.createElement('script');
+    s.src='./odometer-live-v15.js';
+    s.dataset.odometerLiveV15='true';
+    document.body.appendChild(s);
+  }
+
+  installStyles();buildGuide();state.userGuideRevision=REV;saveState?.();loadOdometerLiveFix();
 })();
