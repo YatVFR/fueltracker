@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Fuel Tracker">
-<title>Fuel Tracker v15</title>
+<title>Fuel Tracker v15.2</title>
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="apple-touch-icon" href="./bikefueltracker/icons/icon-180.png">
 <link rel="stylesheet" href="./app.css">
@@ -17,7 +17,7 @@
 <body>
 <div class="app">
 <header>
-  <div class="brand"><h1>FUEL TRACKER</h1><small>v15 Garage</small></div>
+  <div class="brand"><h1>FUEL TRACKER</h1><small>v15.2 Garage</small></div>
   <div class="vehicle-switch" aria-label="My Garage">
     <button id="bikeBtn" class="active">BIKE</button>
     <button id="carBtn">CAR</button>
@@ -117,7 +117,7 @@
       <div class="setting garage-setting">
         <div class="label">My Garage</div>
         <strong>Vehicle Profiles</strong>
-        <p>Your existing Bike and Car are now the first two Garage profiles. v15 keeps their databases independent.</p>
+        <p>Each vehicle profile keeps independent registration, theme, odometer, fuel history and MasterDB identity.</p>
         <div class="garage-profile-list" id="garageProfileList"></div>
       </div>
 
@@ -139,8 +139,8 @@
       <div class="setting">
         <div class="label">Master Database</div>
         <strong id="dbName">BikeFuelData.json</strong>
-        <p>Each Garage profile keeps its own working copy and MasterDB file.</p>
-        <div class="actions"><button class="primary" type="button" onclick="document.getElementById('loadDbInput').click()">LOCATE / RELOAD</button><button class="secondary" type="button" id="saveDbBtn">SAVE / SYNC</button><button class="secondary" type="button" id="newDbBtn">NEW DB</button><input id="loadDbInput" type="file" accept=".json,application/json" hidden></div>
+        <p>This Garage vehicle owns an independent MasterDB.</p>
+        <div class="actions"><button class="primary" type="button" onclick="document.getElementById('loadDbInput').click()">IMPORT DB</button><button class="secondary" type="button" id="saveDbBtn">EXPORT DB</button><button class="secondary" type="button" id="newDbBtn">NEW DB</button><input id="loadDbInput" type="file" accept=".json,application/json" hidden></div>
       </div>
     </div>
   </section>
@@ -158,6 +158,8 @@
 <script src="./schema-native.js"></script>
 <script src="./bike-alignment.js"></script>
 <script src="./garage-v15.js"></script>
+<script src="./v15-hotfix.js"></script>
+<script src="./masterdb-v15.js"></script>
 <script>
 if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js',{scope:'./'}).catch(()=>{}));}
 </script>
