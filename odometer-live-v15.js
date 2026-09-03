@@ -1,6 +1,6 @@
 (function(){
   'use strict';
-  const REV='v15.2-current-tank-compact-1';
+  const REV='v15.3-current-tank-compact-1';
   const MONTH_KEY='fueltrackerV14SelectedMonth';
 
   economyIntervals=function(){
@@ -116,7 +116,7 @@
     </div>`;
   }
 
-  function fixVersion(){const badge=document.querySelector('.brand small');if(badge)badge.textContent='v15.2 Garage';document.title='Fuel Tracker v15.2';}
+  function fixVersion(){const badge=document.querySelector('.brand small');if(badge)badge.textContent='v15.3 Garage';document.title='Fuel Tracker v15.3';}
   function refreshLive(){installTankStyles();patchCurrentTank();patchDashboard();fixVersion();}
 
   const baseRenderAll=renderAll;renderAll=function(){baseRenderAll();refreshLive();};
@@ -124,7 +124,14 @@
 
   document.getElementById('odoSaveBtn')?.addEventListener('click',()=>setTimeout(()=>{renderDashboard();patchCurrentTank();fixVersion();saveState?.();},0));
   document.querySelector('.vehicle-switch')?.addEventListener('click',()=>setTimeout(refreshLive,0));
-  const badge=document.querySelector('.brand small');if(badge)new MutationObserver(()=>{if(badge.textContent!=='v15.2 Garage')badge.textContent='v15.2 Garage';}).observe(badge,{childList:true,characterData:true,subtree:true});
+  const badge=document.querySelector('.brand small');if(badge)new MutationObserver(()=>{if(badge.textContent!=='v15.3 Garage')badge.textContent='v15.3 Garage';}).observe(badge,{childList:true,characterData:true,subtree:true});
+
+  if(!document.querySelector('script[data-v153-garage-overview]')){
+    const script=document.createElement('script');
+    script.src='./garage-overview-v15.js';
+    script.dataset.v153GarageOverview='true';
+    document.body.appendChild(script);
+  }
 
   state.odometerLiveRevision=REV;saveState?.();refreshLive();
 })();
