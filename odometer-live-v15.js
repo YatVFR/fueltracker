@@ -1,6 +1,6 @@
 (function(){
   'use strict';
-  const REV='v15.2-current-tank-1';
+  const REV='v15.2-current-tank-compact-1';
   const MONTH_KEY='fueltrackerV14SelectedMonth';
 
   economyIntervals=function(){
@@ -32,21 +32,14 @@
     const distance=Math.max(0,current-previous);
     const refuelDate=validDate(latest.dateTime);
     const tankAge=refuelDate?Math.max(0,Math.floor((Date.now()-refuelDate.getTime())/86400000)):null;
-    return {
-      latest,odo,current,previous,litres,distance,
-      economy:distance>0?distance/litres:null,
-      tankAge,
-      date:validDate(odo?.updatedAt)||new Date()
-    };
+    return {latest,odo,current,previous,litres,distance,economy:distance>0?distance/litres:null,tankAge,date:validDate(odo?.updatedAt)||new Date()};
   }
 
   function selectedMonth(){
     try{
       const all=JSON.parse(localStorage.getItem(MONTH_KEY)||'{}');
       return all[state.mode]||`${new Date().getFullYear()}-${String(new Date().getMonth()+1).padStart(2,'0')}`;
-    }catch(e){
-      const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
-    }
+    }catch(e){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;}
   }
   function ym(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;}
   function inActivePeriod(d){
@@ -62,15 +55,12 @@
 
   function patchDashboard(){
     if(state.dashMode!=='efficiency')return;
-    const cards=document.querySelectorAll('#metrics .metric');
-    if(cards.length<4)return;
-    const done=completedIntervals();
-    const live=currentInterval();
+    const cards=document.querySelectorAll('#metrics .metric');if(cards.length<4)return;
+    const done=completedIntervals(),live=currentInterval();
     const includeLive=live&&live.distance>0&&inActivePeriod(live.date);
     const distance=done.reduce((s,x)=>s+x.distance,0)+(includeLive?live.distance:0);
     const intervalLitres=done.reduce((s,x)=>s+x.litres,0)+(includeLive?live.litres:0);
-    const avg=intervalLitres>0?distance/intervalLitres:null;
-    const base=dashboardSummary();
+    const avg=intervalLitres>0?distance/intervalLitres:null,base=dashboardSummary();
     const setValue=(card,value)=>{const el=card?.querySelector('.v');if(el)el.textContent=value;};
     setValue(cards[0],distance>0?Math.round(distance).toLocaleString()+' km':'—');
     setValue(cards[1],avg?avg.toFixed(1)+' km/L':'—');
@@ -80,90 +70,61 @@
   }
 
   function installTankStyles(){
-    if(document.getElementById('v15CurrentTankStyles'))return;
-    const s=document.createElement('style');
-    s.id='v15CurrentTankStyles';
+    let s=document.getElementById('v15CurrentTankStyles');
+    if(!s){s=document.createElement('style');s.id='v15CurrentTankStyles';document.head.appendChild(s);}
     s.textContent=`
-      .eff-panel-header h2{font-size:14px}
+      .eff-panel{padding:12px}
+      .eff-panel-header{margin-bottom:8px;text-align:left}
+      .eff-panel-header h2{font-size:12px;letter-spacing:.12em}
       .eff-formula{display:none}
-      .current-tank-summary{display:grid;gap:10px}
-      .tank-primary{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-      .tank-primary-card{border:1px solid #2b3945;border-radius:10px;background:linear-gradient(180deg,#131c25,#0b1218);padding:16px;min-width:0}
-      .tank-k{font-size:9px;font-weight:900;letter-spacing:.11em;text-transform:uppercase;color:#8d99a4}
-      .tank-v{margin-top:7px;font-size:34px;font-weight:900;letter-spacing:-.035em;line-height:1}
-      .tank-v small{font-size:14px;font-weight:750;letter-spacing:0}
-      .tank-s{margin-top:7px;font-size:10px;color:#8f9aa4;line-height:1.35}
-      .tank-facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
-      .tank-fact{border:1px solid #27343f;border-radius:9px;background:#0a1117;padding:11px;min-width:0}
-      .tank-fact .tank-v{font-size:18px;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-      .tank-progress{border:1px solid #27343f;border-radius:9px;background:#0a1117;padding:11px 12px}
-      .tank-progress-head{display:flex;justify-content:space-between;gap:10px;font-size:10px;color:#9aa5af;margin-bottom:7px}
-      .tank-progress-track{height:5px;border-radius:999px;background:#202b34;overflow:hidden}
-      .tank-progress-fill{height:100%;width:100%;background:var(--accent);border-radius:999px}
-      @media(max-width:560px){.tank-primary{grid-template-columns:1fr 1fr}.tank-primary-card{padding:12px}.tank-v{font-size:28px}.tank-facts{grid-template-columns:1fr 1fr}.tank-fact .tank-v{font-size:17px}}
+      .eff-list{gap:0}
+      .current-tank-summary{display:grid;gap:7px}
+      .tank-primary{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+      .tank-primary-card{border:1px solid #2b3945;border-radius:9px;background:linear-gradient(180deg,#131c25,#0b1218);padding:11px 12px;min-width:0}
+      .tank-k{font-size:8px;font-weight:900;letter-spacing:.09em;text-transform:uppercase;color:#8d99a4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      .tank-v{margin-top:5px;font-size:25px;font-weight:900;letter-spacing:-.035em;line-height:1}
+      .tank-v small{font-size:11px;font-weight:750;letter-spacing:0}
+      .tank-s{margin-top:4px;font-size:9px;color:#8f9aa4;line-height:1.25}
+      .tank-facts{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+      .tank-fact{display:flex;align-items:center;justify-content:space-between;gap:8px;border:1px solid #27343f;border-radius:8px;background:#0a1117;padding:8px 10px;min-width:0}
+      .tank-fact .tank-k{flex:1}
+      .tank-fact .tank-v{margin:0;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:right}
+      @media(min-width:700px){.tank-facts{grid-template-columns:repeat(4,1fr)}.tank-fact{display:block}.tank-fact .tank-v{margin-top:5px;text-align:left}}
+      @media(max-width:420px){.tank-primary-card{padding:10px}.tank-v{font-size:22px}.tank-s{display:none}.tank-fact{padding:7px 8px}.tank-fact .tank-v{font-size:13px}}
     `;
-    document.head.appendChild(s);
   }
 
   function patchCurrentTank(){
-    const panel=document.querySelector('.eff-panel');
-    const el=document.getElementById('efficiencyList');
-    if(!panel||!el)return;
-    const title=panel.querySelector('.eff-panel-header h2');
-    if(title)title.textContent='CURRENT TANK';
+    const panel=document.querySelector('.eff-panel'),el=document.getElementById('efficiencyList');if(!panel||!el)return;
+    const title=panel.querySelector('.eff-panel-header h2');if(title)title.textContent='CURRENT TANK';
     const live=currentInterval();
     if(!live){
-      el.innerHTML='<div class="current-tank-summary"><div class="tank-primary-card"><div class="tank-k">Current Tank</div><div class="tank-v">—</div><div class="tank-s">Add a valid refuel and update Current Odometer to start tracking this tank.</div></div></div>';
+      el.innerHTML='<div class="current-tank-summary"><div class="tank-primary-card"><div class="tank-k">Current Tank</div><div class="tank-v">—</div><div class="tank-s">Add a valid refuel and update Current Odometer.</div></div></div>';
       return;
     }
-    el.innerHTML=`
-      <div class="current-tank-summary">
-        <div class="tank-primary">
-          <div class="tank-primary-card">
-            <div class="tank-k">Distance Since Refuel</div>
-            <div class="tank-v">${Number(live.distance).toLocaleString()} <small>km</small></div>
-            <div class="tank-s">Current odometer − latest refuel odometer</div>
-          </div>
-          <div class="tank-primary-card">
-            <div class="tank-k">Current Economy</div>
-            <div class="tank-v">${live.economy?live.economy.toFixed(1):'—'} <small>km/L</small></div>
-            <div class="tank-s">Live estimate for the current tank</div>
-          </div>
-        </div>
-        <div class="tank-facts">
-          <div class="tank-fact"><div class="tank-k">Fuel Loaded</div><div class="tank-v">${live.litres.toFixed(2)} L</div></div>
-          <div class="tank-fact"><div class="tank-k">Tank Age</div><div class="tank-v">${live.tankAge!=null?live.tankAge:'—'} days</div></div>
-          <div class="tank-fact"><div class="tank-k">Last Refuel Odo</div><div class="tank-v">${live.previous.toLocaleString()} km</div></div>
-          <div class="tank-fact"><div class="tank-k">Current Odo</div><div class="tank-v">${live.current.toLocaleString()} km</div></div>
-        </div>
-        <div class="tank-progress">
-          <div class="tank-progress-head"><span>Current tank journey</span><strong>${Number(live.distance).toLocaleString()} km travelled</strong></div>
-          <div class="tank-progress-track"><div class="tank-progress-fill"></div></div>
-        </div>
-      </div>`;
+    el.innerHTML=`<div class="current-tank-summary">
+      <div class="tank-primary">
+        <div class="tank-primary-card"><div class="tank-k">Distance Since Refuel</div><div class="tank-v">${Number(live.distance).toLocaleString()} <small>km</small></div><div class="tank-s">Current odo − last refuel odo</div></div>
+        <div class="tank-primary-card"><div class="tank-k">Current Economy</div><div class="tank-v">${live.economy?live.economy.toFixed(1):'—'} <small>km/L</small></div><div class="tank-s">Live current-tank estimate</div></div>
+      </div>
+      <div class="tank-facts">
+        <div class="tank-fact"><div class="tank-k">Fuel</div><div class="tank-v">${live.litres.toFixed(2)} L</div></div>
+        <div class="tank-fact"><div class="tank-k">Tank Age</div><div class="tank-v">${live.tankAge!=null?live.tankAge:'—'} d</div></div>
+        <div class="tank-fact"><div class="tank-k">Refuel Odo</div><div class="tank-v">${live.previous.toLocaleString()}</div></div>
+        <div class="tank-fact"><div class="tank-k">Current Odo</div><div class="tank-v">${live.current.toLocaleString()}</div></div>
+      </div>
+    </div>`;
   }
 
-  function fixVersion(){
-    const badge=document.querySelector('.brand small');
-    if(badge)badge.textContent='v15.2 Garage';
-    document.title='Fuel Tracker v15.2';
-  }
+  function fixVersion(){const badge=document.querySelector('.brand small');if(badge)badge.textContent='v15.2 Garage';document.title='Fuel Tracker v15.2';}
   function refreshLive(){installTankStyles();patchCurrentTank();patchDashboard();fixVersion();}
 
-  const baseRenderAll=renderAll;
-  renderAll=function(){baseRenderAll();refreshLive();};
-  const baseRenderDashboard=renderDashboard;
-  renderDashboard=function(){baseRenderDashboard();patchDashboard();fixVersion();};
+  const baseRenderAll=renderAll;renderAll=function(){baseRenderAll();refreshLive();};
+  const baseRenderDashboard=renderDashboard;renderDashboard=function(){baseRenderDashboard();patchDashboard();fixVersion();};
 
-  document.getElementById('odoSaveBtn')?.addEventListener('click',()=>setTimeout(()=>{
-    renderDashboard();patchCurrentTank();fixVersion();saveState?.();
-  },0));
-
+  document.getElementById('odoSaveBtn')?.addEventListener('click',()=>setTimeout(()=>{renderDashboard();patchCurrentTank();fixVersion();saveState?.();},0));
   document.querySelector('.vehicle-switch')?.addEventListener('click',()=>setTimeout(refreshLive,0));
-  const badge=document.querySelector('.brand small');
-  if(badge)new MutationObserver(()=>{if(badge.textContent!=='v15.2 Garage')badge.textContent='v15.2 Garage';}).observe(badge,{childList:true,characterData:true,subtree:true});
+  const badge=document.querySelector('.brand small');if(badge)new MutationObserver(()=>{if(badge.textContent!=='v15.2 Garage')badge.textContent='v15.2 Garage';}).observe(badge,{childList:true,characterData:true,subtree:true});
 
-  state.odometerLiveRevision=REV;
-  saveState?.();
-  refreshLive();
+  state.odometerLiveRevision=REV;saveState?.();refreshLive();
 })();
