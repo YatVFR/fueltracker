@@ -1,23 +1,24 @@
 # Fuel Tracker
 
-Current approved stable baseline: **v15.3 Garage**
+Active validation version: **v15.4 Garage**
 
-Previous rollback baseline: **v15.2 Garage**
+Current approved stable rollback baseline: **v15.3 Garage**
 
-Status: **Approved stable version**
+## v15.4 — Enhanced Vehicle Profiles
+- Vehicle Make
+- Vehicle Model
+- Model Year
+- Fuel Tank Capacity
+- Vehicle Notes
+- Richer vehicle identity shown in the dashboard hero
+- Enhanced profile details in My Garage and Settings
+- Garage Overview now shows Year + Make + Model and tank capacity
+- v15.4 MasterDB exports preserve enhanced vehicle profile metadata
+- Import can restore the enhanced profile metadata together with fuel records
 
-## v15.3 — Garage Overview
-- All vehicles summarized in one compact dashboard
-- Total vehicle count
-- Combined fuel-record count
-- Combined all-time SGD-equivalent fuel spend
-- Latest Garage activity
-- Per-vehicle cards with model/registration, odometer, records, last refuel, spend and MasterDB name
-- Tap a Garage Overview vehicle card to switch directly to that vehicle
-
-## Preserved from v15.2
+## Preserved from v15.3
+- Garage Overview across all vehicles
 - Multi-vehicle Garage profiles
-- Vehicle model personalization
 - Per-vehicle MasterDB import/export
 - Local-first PWA storage
 - Compact Current Tank summary
@@ -29,4 +30,6 @@ Status: **Approved stable version**
 
 Live app: https://yatvfr.github.io/fueltracker/
 
-Next planned milestone: **v15.4 Enhanced Vehicle Profiles**
+v15.3 remains the approved stable rollback point while v15.4 is being validated.
+
+Next planned milestone after approval: **v15.5 Garage Analytics**
