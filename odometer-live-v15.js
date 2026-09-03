@@ -1,7 +1,18 @@
 (function(){
   'use strict';
-  const REV='v15.2-odometer-live-1';
+  const REV='v15.2-odometer-live-2';
   const MONTH_KEY='fueltrackerV14SelectedMonth';
+
+  economyIntervals=function(){
+    const rows=[...currentRecords()].filter(r=>validDate(r.dateTime)&&Number(r.mileage)>0&&Number(r.volume)>0).sort((a,b)=>new Date(a.dateTime)-new Date(b.dateTime));
+    const out=[];
+    for(let i=1;i<rows.length;i++){
+      const prev=rows[i-1],cur=rows[i];
+      const distance=Number(cur.mileage)-Number(prev.mileage),litres=Number(cur.volume);
+      if(distance>0&&litres>0)out.push({date:new Date(cur.dateTime),distance,economy:distance/litres,litres});
+    }
+    return out;
+  };
 
   function rowsAsc(){
     return [...currentRecords()]
@@ -50,13 +61,7 @@
   }
 
   function completedIntervals(){
-    const rows=rowsAsc();const out=[];
-    for(let i=1;i<rows.length;i++){
-      const prev=rows[i-1],cur=rows[i];
-      const distance=Number(cur.mileage)-Number(prev.mileage),litres=Number(cur.volume);
-      if(distance>0&&litres>0)out.push({date:new Date(cur.dateTime),distance,litres});
-    }
-    return out.filter(x=>inActivePeriod(x.date));
+    return economyIntervals().filter(x=>inActivePeriod(x.date));
   }
 
   function patchDashboard(){
@@ -88,8 +93,8 @@
     el.innerHTML=`
       <div class="eff-card"><h3>Latest Fuel Economy</h3><div class="eff-value">${live.economy?live.economy.toFixed(1):'—'}<span class="eff-unit"> km/L</span></div><div class="eff-sub">current odometer interval</div></div>
       <div class="eff-card"><h3>Distance Travelled</h3><div class="eff-value">${live.distance>0?Number(live.distance).toLocaleString():'—'}<span class="eff-unit"> km</span></div><div class="eff-sub">current odo − latest refuel odo</div></div>
-      <div class="eff-card"><h3>Current Refuel Volume</h3><div class="eff-value">${live.litres>0?live.litres.toFixed(2):'—'}<span class="eff-unit"> L</span></div><div class="eff-sub">litres used in formula</div></div>
-      <div class="eff-card"><h3>Previous Odometer</h3><div class="eff-value">${live.previous.toLocaleString()}<span class="eff-unit"> km</span></div><div class="eff-sub">latest refuel odometer</div></div>
+      <div class="eff-card"><h3>Current Refuel Volume</h3><div class="eff-value">${live.litres>0?live.litres.toFixed(2):'—'}<span class="eff-unit"> L</span></div><div class="eff-sub">latest refuel volume used in formula</div></div>
+      <div class="eff-card"><h3>Latest Refuel Odometer</h3><div class="eff-value">${live.previous.toLocaleString()}<span class="eff-unit"> km</span></div><div class="eff-sub">starting odometer for current interval</div></div>
       <div class="eff-card"><h3>Current Odometer</h3><div class="eff-value">${live.current.toLocaleString()}<span class="eff-unit"> km</span></div><div class="eff-sub">manual current odometer</div></div>`;
   }
 
@@ -110,11 +115,7 @@
   renderDashboard=function(){baseRenderDashboard();patchDashboard();fixVersion();};
 
   document.getElementById('odoSaveBtn')?.addEventListener('click',()=>setTimeout(()=>{
-    renderDashboard();
-    patchEfficiencyDetails();
-    fixFormulaText();
-    fixVersion();
-    if(typeof saveState==='function')saveState();
+    renderDashboard();patchEfficiencyDetails();fixFormulaText();fixVersion();saveState?.();
   },0));
 
   document.querySelector('.vehicle-switch')?.addEventListener('click',()=>setTimeout(refreshLive,0));
