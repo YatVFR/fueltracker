@@ -12,9 +12,7 @@
     p.data=p.data||{records:[],registration:'',theme:p.type==='bike'?'honda':'generic',odometer:{value:null,updatedAt:null}};
     return p.data;
   }
-  function cleanName(v){
-    return String(v||'').trim().replace(/[^a-zA-Z0-9_-]+/g,'-').replace(/^-+|-+$/g,'').slice(0,48);
-  }
+  function cleanName(v){return String(v||'').trim().replace(/[^a-zA-Z0-9_-]+/g,'-').replace(/^-+|-+$/g,'').slice(0,48);}
   function defaultDbName(p){
     if(!p)return 'FuelData.json';
     if(p.id==='bike-primary')return 'BikeFuelData.json';
@@ -36,120 +34,76 @@
   function normalizeEntry(e){
     return {
       id:e.id||((crypto.randomUUID&&crypto.randomUUID())||('id-'+Date.now()+'-'+Math.random().toString(36).slice(2))),
-      dateTime:e.dateTime||'',
-      location:e.location||e.station||'',
-      volume:Number(e.volume)||0,
-      cost:Number(e.cost)||0,
-      currency:String(e.currency||'').toUpperCase(),
-      fxRateSGDMYR:Number(e.fxRateSGDMYR)>0?Number(e.fxRateSGDMYR):null,
-      mileage:Number(e.mileage)||0,
-      fuelType:e.fuelType||e.fuelGrade||'',
-      notes:e.notes||''
+      dateTime:e.dateTime||'',location:e.location||e.station||'',volume:Number(e.volume)||0,cost:Number(e.cost)||0,
+      currency:String(e.currency||'').toUpperCase(),fxRateSGDMYR:Number(e.fxRateSGDMYR)>0?Number(e.fxRateSGDMYR):null,
+      mileage:Number(e.mileage)||0,fuelType:e.fuelType||e.fuelGrade||'',notes:e.notes||''
     };
   }
   function syncActiveSlot(p){
     const d=profileData(p);if(!p||!d)return;
     state.records=state.records||{};state.registrations=state.registrations||{};state.selected=state.selected||{};state.currentOdometer=state.currentOdometer||{};
-    state.mode=p.type;
-    state.records[p.type]=clone(d.records||[]);
-    state.registrations[p.type]=d.registration||'';
-    state.selected[p.type]=d.theme||(p.type==='bike'?'honda':'generic');
-    state.currentOdometer[p.type]=clone(d.odometer||{value:null,updatedAt:null});
+    state.mode=p.type;state.records[p.type]=clone(d.records||[]);state.registrations[p.type]=d.registration||'';
+    state.selected[p.type]=d.theme||(p.type==='bike'?'honda':'generic');state.currentOdometer[p.type]=clone(d.odometer||{value:null,updatedAt:null});
   }
   function saveActiveBack(){
-    const p=activeProfile();if(!p)return;
-    const d=profileData(p);if(!d)return;
-    d.records=clone(state.records?.[p.type]||[]);
-    d.registration=state.registrations?.[p.type]||d.registration||'';
+    const p=activeProfile();if(!p)return;const d=profileData(p);if(!d)return;
+    d.records=clone(state.records?.[p.type]||[]);d.registration=state.registrations?.[p.type]||d.registration||'';
     d.theme=state.selected?.[p.type]||d.theme||(p.type==='bike'?'honda':'generic');
-    d.odometer=clone(state.currentOdometer?.[p.type]||d.odometer||{value:null,updatedAt:null});
-    ensureMeta(p).lastRecordCount=d.records.length;
+    d.odometer=clone(state.currentOdometer?.[p.type]||d.odometer||{value:null,updatedAt:null});ensureMeta(p).lastRecordCount=d.records.length;
   }
   function payloadFor(p){
-    saveActiveBack();
-    const d=profileData(p);const meta=ensureMeta(p);
-    return {
-      app:'Fuel Tracker Garage',
-      version:15.2,
-      database:meta.filename,
-      profile:{id:p.id,type:p.type,name:p.name||'',registration:d.registration||''},
-      exportedAt:new Date().toISOString(),
-      entries:(d.records||[]).map(normalizeEntry)
-    };
+    saveActiveBack();const d=profileData(p);const meta=ensureMeta(p);
+    return {app:'Fuel Tracker Garage',version:15.2,database:meta.filename,profile:{id:p.id,type:p.type,name:p.name||'',registration:d.registration||''},exportedAt:new Date().toISOString(),entries:(d.records||[]).map(normalizeEntry)};
   }
-  function downloadBlob(content,name,type){
-    const blob=new Blob([content],{type});
-    const url=URL.createObjectURL(blob);const a=document.createElement('a');
-    a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),300);
-  }
+  function downloadBlob(content,name,type){const blob=new Blob([content],{type});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),300);}
   function exportActiveDb(){
-    const p=activeProfile();if(!p)return;
-    const payload=payloadFor(p);const meta=ensureMeta(p);
-    downloadBlob(JSON.stringify(payload,null,2),meta.filename,'application/json');
-    meta.lastExportedAt=payload.exportedAt;meta.lastRecordCount=payload.entries.length;
-    saveState();renderMasterDbUi();
+    const p=activeProfile();if(!p)return;const payload=payloadFor(p);const meta=ensureMeta(p);
+    downloadBlob(JSON.stringify(payload,null,2),meta.filename,'application/json');meta.lastExportedAt=payload.exportedAt;meta.lastRecordCount=payload.entries.length;saveState();renderMasterDbUi();
   }
   function importActiveDb(file){
-    const p=activeProfile();if(!p||!file)return;
-    const reader=new FileReader();
-    reader.onload=()=>{
-      try{
-        const raw=JSON.parse(reader.result);
-        const entries=Array.isArray(raw)?raw:(Array.isArray(raw.entries)?raw.entries:null);
-        if(!entries)throw new Error('No entries array');
-        const rows=entries.map(normalizeEntry);
-        const label=profileData(p)?.registration||p.name||p.type;
-        if(!confirm(`Replace ${label} with ${rows.length} records from ${file.name}?`))return;
-        const d=profileData(p);d.records=rows;
-        const valid=rows.filter(r=>r.mileage>0&&r.dateTime).sort((a,b)=>new Date(b.dateTime)-new Date(a.dateTime));
-        if(valid[0])d.odometer={value:Number(valid[0].mileage),updatedAt:valid[0].dateTime};
-        const meta=ensureMeta(p);meta.filename=file.name&&file.name.toLowerCase().endsWith('.json')?file.name:meta.filename;
-        meta.lastImportedAt=new Date().toISOString();meta.lastRecordCount=rows.length;
-        syncActiveSlot(p);saveState();renderAll();resetForm?.();renderMasterDbUi();
-        alert(`MasterDB loaded for ${label}.`);
-      }catch(err){alert('Invalid Fuel Tracker MasterDB file.');}
-    };
-    reader.readAsText(file);
+    const p=activeProfile();if(!p||!file)return;const reader=new FileReader();
+    reader.onload=()=>{try{
+      const raw=JSON.parse(reader.result);const entries=Array.isArray(raw)?raw:(Array.isArray(raw.entries)?raw.entries:null);if(!entries)throw new Error('No entries array');
+      const rows=entries.map(normalizeEntry);const label=profileData(p)?.registration||p.name||p.type;
+      if(!confirm(`Replace ${label} with ${rows.length} records from ${file.name}?`))return;
+      const d=profileData(p);d.records=rows;const valid=rows.filter(r=>r.mileage>0&&r.dateTime).sort((a,b)=>new Date(b.dateTime)-new Date(a.dateTime));
+      d.odometer=valid[0]?{value:Number(valid[0].mileage),updatedAt:valid[0].dateTime}:{value:null,updatedAt:null};
+      const meta=ensureMeta(p);meta.filename=file.name&&file.name.toLowerCase().endsWith('.json')?file.name:meta.filename;meta.lastImportedAt=new Date().toISOString();meta.lastRecordCount=rows.length;
+      syncActiveSlot(p);saveState();renderAll();resetForm?.();setTimeout(renderMasterDbUi,0);alert(`MasterDB loaded for ${label}.`);
+    }catch(err){alert('Invalid Fuel Tracker MasterDB file.');}};reader.readAsText(file);
   }
   function newActiveDb(){
-    const p=activeProfile();if(!p)return;
-    const d=profileData(p);const label=d.registration||p.name||p.type;
+    const p=activeProfile();if(!p)return;const d=profileData(p);const label=d.registration||p.name||p.type;
     if(!confirm(`Create a new empty MasterDB for ${label}? This clears only this vehicle's working records.`))return;
-    d.records=[];d.odometer={value:null,updatedAt:null};
-    const meta=ensureMeta(p);meta.lastImportedAt=null;meta.lastExportedAt=null;meta.lastRecordCount=0;
-    syncActiveSlot(p);saveState();renderAll();resetForm?.();renderMasterDbUi();
+    d.records=[];d.odometer={value:null,updatedAt:null};const meta=ensureMeta(p);meta.lastImportedAt=null;meta.lastExportedAt=null;meta.lastRecordCount=0;
+    syncActiveSlot(p);saveState();renderAll();resetForm?.();setTimeout(renderMasterDbUi,0);
   }
   function fmt(v){if(!v)return 'Never';const d=new Date(v);return Number.isNaN(d.getTime())?'Never':d.toLocaleString();}
   function renderMasterDbUi(){
-    const p=activeProfile();if(!p)return;
-    saveActiveBack();const d=profileData(p);const meta=ensureMeta(p);
+    const p=activeProfile();if(!p)return;saveActiveBack();const d=profileData(p);const meta=ensureMeta(p);
     const db=document.getElementById('dbName');if(db)db.textContent=meta.filename;
     const setting=db?.closest('.setting');if(setting){
-      let status=setting.querySelector('.v15-db-status');
-      if(!status){status=document.createElement('div');status.className='v15-db-status';const actions=setting.querySelector('.actions');actions?.insertAdjacentElement('beforebegin',status);}
-      status.innerHTML=`<div><span>Profile</span><strong>${String(d.registration||p.name||p.type)}</strong></div><div><span>Records</span><strong>${(d.records||[]).length}</strong></div><div><span>Last Import</span><strong>${fmt(meta.lastImportedAt)}</strong></div><div><span>Last Export</span><strong>${fmt(meta.lastExportedAt)}</strong></div>`;
+      let status=setting.querySelector('.v15-db-status');if(!status){status=document.createElement('div');status.className='v15-db-status';const actions=setting.querySelector('.actions');actions?.insertAdjacentElement('beforebegin',status);}
+      const next=`<div><span>Profile</span><strong>${String(d.registration||p.name||p.type)}</strong></div><div><span>Records</span><strong>${(d.records||[]).length}</strong></div><div><span>Last Import</span><strong>${fmt(meta.lastImportedAt)}</strong></div><div><span>Last Export</span><strong>${fmt(meta.lastExportedAt)}</strong></div>`;
+      if(status.innerHTML!==next)status.innerHTML=next;
       const copy=setting.querySelector('p');if(copy)copy.textContent='This Garage vehicle owns an independent MasterDB. Import, export and New DB affect only the active vehicle.';
     }
-    document.querySelectorAll('.garage-profile').forEach((card,i)=>{
-      const prof=profiles()[i];const node=card.querySelector('.garage-profile-db');if(prof&&node)node.textContent=ensureMeta(prof).filename;
-    });
-    const brand=document.querySelector('.brand small');if(brand)brand.textContent='v15.2 Garage';
+    document.querySelectorAll('.garage-profile').forEach((card,i)=>{const prof=profiles()[i];const node=card.querySelector('.garage-profile-db');if(prof&&node)node.textContent=ensureMeta(prof).filename;});
+    const brand=document.querySelector('.brand small');if(brand)brand.textContent='v15.2 Garage';saveState();
   }
   function bindControls(){
     const save=document.getElementById('saveDbBtn');if(save){save.textContent='EXPORT DB';save.onclick=exportActiveDb;}
     const input=document.getElementById('loadDbInput');if(input)input.onchange=e=>{importActiveDb(e.target.files?.[0]);e.target.value='';};
     const newBtn=document.getElementById('newDbBtn');if(newBtn)newBtn.onclick=newActiveDb;
-    const locate=document.querySelector(`button[onclick*="loadDbInput"]`);if(locate){locate.textContent='IMPORT DB';}
+    const locate=document.querySelector(`button[onclick*="loadDbInput"]`);if(locate)locate.textContent='IMPORT DB';
   }
   function installStyles(){
-    if(document.getElementById('v15MasterDbStyles'))return;
-    const s=document.createElement('style');s.id='v15MasterDbStyles';s.textContent=`.v15-db-status{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin:11px 0}.v15-db-status>div{padding:8px;border:1px solid #28343e;border-radius:8px;background:#091017;min-width:0}.v15-db-status span{display:block;font-size:8px;color:#7f8b96;text-transform:uppercase;letter-spacing:.06em}.v15-db-status strong{display:block;margin-top:4px;font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}@media(max-width:580px){.v15-db-status{grid-template-columns:1fr 1fr}}`;document.head.appendChild(s);
+    if(document.getElementById('v15MasterDbStyles'))return;const s=document.createElement('style');s.id='v15MasterDbStyles';
+    s.textContent=`.v15-db-status{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin:11px 0}.v15-db-status>div{padding:8px;border:1px solid #28343e;border-radius:8px;background:#091017;min-width:0}.v15-db-status span{display:block;font-size:8px;color:#7f8b96;text-transform:uppercase;letter-spacing:.06em}.v15-db-status strong{display:block;margin-top:4px;font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}@media(max-width:580px){.v15-db-status{grid-template-columns:1fr 1fr}}`;document.head.appendChild(s);
   }
 
-  if(!garage()?.profiles?.length)return;
-  profiles().forEach(ensureMeta);state.garageV15.revision=REV;saveState();
-  installStyles();bindControls();renderMasterDbUi();
-
-  const root=document.getElementById('settingsBox');if(root){new MutationObserver(()=>{bindControls();renderMasterDbUi();}).observe(root,{childList:true,subtree:true});}
-  document.querySelector('.vehicle-switch')?.addEventListener('click',()=>setTimeout(()=>{bindControls();renderMasterDbUi();},0));
+  if(!garage()?.profiles?.length)return;profiles().forEach(ensureMeta);state.garageV15.revision=REV;saveState();installStyles();bindControls();renderMasterDbUi();
+  document.addEventListener('click',e=>{
+    if(e.target.closest('[data-profile-switch],[data-profile-open],#garageModalSave,#garageAddProfile,#garageHeaderAdd,#settingsBtn'))setTimeout(()=>{bindControls();renderMasterDbUi();},30);
+  });
 })();
