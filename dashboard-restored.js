@@ -38,20 +38,28 @@
   function renderEfficiencyDetails(){
     const el=document.getElementById('efficiencyList');if(!el)return;
     const s=summary();
-    if(!s.latest||!s.prev){el.innerHTML='<div class="eff-card"><h3>Latest Fuel Economy</h3><div class="eff-value">—</div><div class="eff-sub">At least two refuel records with valid mileage are required.</div></div>';return;}
-    const distance=(+s.latest.mileage)-(+s.prev.mileage), volume=+s.latest.volume;
+    if(!s.latest||s.currentValue==null){
+      el.innerHTML='<div class="eff-card"><h3>Latest Fuel Economy</h3><div class="eff-value">—</div><div class="eff-sub">A valid refuel record and Current Odometer are required.</div></div>';
+      return;
+    }
+    const distance=Math.max(0,s.currentValue-s.latestOdo), volume=+s.latest.volume;
     const economy=(distance>0&&volume>0)?distance/volume:null;
     el.innerHTML=`
-      <div class="eff-card"><h3>Latest Fuel Economy</h3><div class="eff-value">${economy?economy.toFixed(1):'—'}<span class="eff-unit"> km/L</span></div><div class="eff-sub">latest completed refuel interval</div></div>
-      <div class="eff-card"><h3>Distance Travelled</h3><div class="eff-value">${distance>0?Number(distance).toLocaleString():'—'}<span class="eff-unit"> km</span></div><div class="eff-sub">current odo − previous odo</div></div>
-      <div class="eff-card"><h3>Current Refuel Volume</h3><div class="eff-value">${volume>0?Number(volume).toFixed(2):'—'}<span class="eff-unit"> L</span></div><div class="eff-sub">litres used in formula</div></div>
-      <div class="eff-card"><h3>Previous Odometer</h3><div class="eff-value">${Number(s.prev.mileage).toLocaleString()}<span class="eff-unit"> km</span></div><div class="eff-sub">previous refuel</div></div>
-      <div class="eff-card"><h3>Current Odometer</h3><div class="eff-value">${Number(s.latest.mileage).toLocaleString()}<span class="eff-unit"> km</span></div><div class="eff-sub">current refuel</div></div>`;
+      <div class="eff-card"><h3>Latest Fuel Economy</h3><div class="eff-value">${economy?economy.toFixed(1):'—'}<span class="eff-unit"> km/L</span></div><div class="eff-sub">current odometer interval</div></div>
+      <div class="eff-card"><h3>Distance Travelled</h3><div class="eff-value">${distance>0?Number(distance).toLocaleString():'—'}<span class="eff-unit"> km</span></div><div class="eff-sub">current odo − latest refuel odo</div></div>
+      <div class="eff-card"><h3>Current Refuel Volume</h3><div class="eff-value">${volume>0?Number(volume).toFixed(2):'—'}<span class="eff-unit"> L</span></div><div class="eff-sub">latest refuel volume used in formula</div></div>
+      <div class="eff-card"><h3>Latest Refuel Odometer</h3><div class="eff-value">${Number(s.latestOdo).toLocaleString()}<span class="eff-unit"> km</span></div><div class="eff-sub">starting odometer for current interval</div></div>
+      <div class="eff-card"><h3>Current Odometer</h3><div class="eff-value">${Number(s.currentValue).toLocaleString()}<span class="eff-unit"> km</span></div><div class="eff-sub">manual current odometer</div></div>`;
   }
   function renderRestored(){renderOdometer();renderEfficiencyDetails();}
   function openOdoModal(){const m=document.getElementById('odoModal');if(!m)return;document.getElementById('odoInput').value=currentOdo().value??'';m.hidden=false;}
   function closeOdoModal(){const m=document.getElementById('odoModal');if(m)m.hidden=true;}
-  function saveOdo(){const input=document.getElementById('odoInput');const value=Number(input.value);if(!(value>=0)){alert('Please enter a valid odometer value.');return;}state.currentOdometer[state.mode]={value,updatedAt:new Date().toISOString()};saveState();renderRestored();closeOdoModal();}
+  function saveOdo(){
+    const input=document.getElementById('odoInput');const value=Number(input.value);
+    if(!(value>=0)){alert('Please enter a valid odometer value.');return;}
+    state.currentOdometer[state.mode]={value,updatedAt:new Date().toISOString()};
+    saveState();renderAll();closeOdoModal();
+  }
   ensureCurrentOdometer();
   const originalRenderAll=renderAll;
   renderAll=function(){originalRenderAll();renderRestored();};
