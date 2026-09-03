@@ -1,7 +1,7 @@
 (function(){
   'use strict';
 
-  // v15.1 compatibility hotfix:
+  // v15 compatibility hotfix:
   // The legacy renderer still expects #bikeBtn and #carBtn to exist.
   function restoreLegacySwitchIds(){
     const primaryBike=document.querySelector('[data-profile-switch="bike-primary"]');
@@ -74,6 +74,78 @@
     }
   }
 
+  function setRefreshLabel(btn,title,sub,color='#89949d'){
+    if(!btn)return;
+    btn.innerHTML=`${title}<br><span style="font-size:11px;color:${color}">${sub}</span>`;
+  }
+
+  async function refreshV15(){
+    const btn=document.getElementById('refreshBtn');
+    if(!btn||btn.disabled)return;
+    btn.disabled=true;
+    setRefreshLabel(btn,'Checking…','App update');
+    try{ if(typeof saveState==='function') saveState(); }catch(e){}
+
+    let reloadTimer=null;
+    const doReload=()=>{
+      if(reloadTimer)return;
+      setRefreshLabel(btn,'Refreshing…','Reloading','#5add76');
+      reloadTimer=setTimeout(()=>window.location.reload(),250);
+    };
+
+    try{
+      if('serviceWorker' in navigator){
+        const reg=await navigator.serviceWorker.getRegistration('./') || await navigator.serviceWorker.ready;
+        if(reg){
+          await reg.update();
+          if(reg.waiting){
+            setRefreshLabel(btn,'Updating…','New version found','#5add76');
+            let changed=false;
+            navigator.serviceWorker.addEventListener('controllerchange',()=>{
+              if(changed)return;changed=true;doReload();
+            },{once:true});
+            reg.waiting.postMessage({type:'SKIP_WAITING'});
+            setTimeout(doReload,900);
+            return;
+          }
+          if(reg.installing){
+            setRefreshLabel(btn,'Updating…','Installing','#5add76');
+            const worker=reg.installing;
+            const waitForInstall=new Promise(resolve=>{
+              const done=()=>{if(worker.state==='installed'||worker.state==='activated'||worker.state==='redundant')resolve();};
+              worker.addEventListener('statechange',done);done();
+              setTimeout(resolve,1800);
+            });
+            await waitForInstall;
+            if(reg.waiting)reg.waiting.postMessage({type:'SKIP_WAITING'});
+            doReload();
+            return;
+          }
+        }
+      }
+      try{
+        if(typeof loadState==='function'){state=loadState();if(typeof renderAll==='function')renderAll();}
+      }catch(e){}
+      setRefreshLabel(btn,'Updated','Reloading','#5add76');
+      setTimeout(doReload,350);
+    }catch(err){
+      try{if(typeof renderAll==='function')renderAll();}catch(e){}
+      setRefreshLabel(btn,'Refresh','Retry','#f2bd54');
+      btn.disabled=false;
+    }
+  }
+
+  function bindRefresh(){
+    const btn=document.getElementById('refreshBtn');
+    if(!btn)return;
+    btn.onclick=refreshV15;
+    btn.disabled=false;
+    if(!btn.dataset.v15RefreshReady){
+      btn.dataset.v15RefreshReady='true';
+      setRefreshLabel(btn,'Refresh','Check update');
+    }
+  }
+
   const style=document.createElement('style');
   style.id='v15HotfixStyles';
   style.textContent=`
@@ -85,19 +157,21 @@
     .v15-health-message{margin-top:9px;padding:9px 10px;border-radius:8px;font-size:10px;line-height:1.4}
     .v15-health-message.ok{border:1px solid #255e38;background:#07150c;color:#65df82}
     .v15-health-message.warn{border:1px solid #6a511f;background:#231b0d;color:#f2bd54}
+    #refreshBtn:disabled{opacity:.72;cursor:wait}
     @media(max-width:580px){.v15-health-grid{grid-template-columns:1fr 1fr}}
   `;
   if(!document.getElementById('v15HotfixStyles'))document.head.appendChild(style);
 
   buildHealthDetails();
+  bindRefresh();
 
-  // Keep details data current after vehicle/profile rerenders.
+  // Keep hotfix bindings current after vehicle/profile rerenders.
   const main=document.querySelector('main');
   if(main){
     let timer;
     new MutationObserver(()=>{
       clearTimeout(timer);
-      timer=setTimeout(()=>{restoreLegacySwitchIds();buildHealthDetails();},0);
+      timer=setTimeout(()=>{restoreLegacySwitchIds();buildHealthDetails();bindRefresh();},0);
     }).observe(main,{childList:true,subtree:true});
   }
 })();
