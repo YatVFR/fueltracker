@@ -108,6 +108,40 @@
     document.documentElement.classList.remove('v156-refreshing');
   }
 
+  async function softRefresh(btn){
+    showRefreshStage('Refreshing dashboard','Rebuilding the current Garage view…',78);
+    try{
+      if(typeof loadState==='function') state=loadState();
+      if(typeof renderAll==='function') renderAll();
+
+      const activeId=state?.garageV15?.activeProfileId;
+      if(activeId){
+        const activeBtn=[...document.querySelectorAll('[data-profile-switch]')]
+          .find(x=>x.dataset.profileSwitch===activeId);
+        if(activeBtn) activeBtn.click();
+      }
+
+      document.dispatchEvent(new CustomEvent('fueltracker:datachange',{
+        detail:{action:'soft-refresh',profileId:activeId||null,type:state?.mode||null}
+      }));
+      buildHealthDetails();
+      restoreLegacySwitchIds();
+
+      setRefreshLabel(btn,'Updated','App is current','#5add76');
+      showRefreshStage('Everything is current','Dashboard refreshed without reloading.',100,'ready');
+      await new Promise(resolve=>setTimeout(resolve,650));
+      hideRefreshOverlay();
+      btn.disabled=false;
+      setTimeout(()=>setRefreshLabel(btn,'Refresh','Check update'),900);
+    }catch(err){
+      console.error('Soft refresh failed',err);
+      setRefreshLabel(btn,'Refresh','Retry','#f2bd54');
+      showRefreshStage('Refresh interrupted','Tap Refresh to try again.',100,'ready');
+      setTimeout(hideRefreshOverlay,1200);
+      btn.disabled=false;
+    }
+  }
+
   async function refreshV15(){
     const btn=document.getElementById('refreshBtn');
     if(!btn||btn.disabled)return;
@@ -121,7 +155,7 @@
     const doReload=()=>{
       if(reloadTimer)return;
       setRefreshLabel(btn,'Ready','Reloading','#5add76');
-      showRefreshStage('Update ready','Reloading Fuel Tracker…',100,'ready');
+      showRefreshStage('Update ready','Reloading Fuel Tracker once…',100,'ready');
       document.body.classList.add('v156-refresh-fade');
       reloadTimer=setTimeout(()=>{
         try{
@@ -160,20 +194,15 @@
               setTimeout(resolve,1900);
             });
             await waitForInstall;
-            showRefreshStage('Finishing update','Refreshing your Garage…',88);
+            showRefreshStage('Finishing update','Preparing the new app version…',88);
             if(reg.waiting)reg.waiting.postMessage({type:'SKIP_WAITING'});
             doReload();
             return;
           }
         }
       }
-      try{
-        showRefreshStage('Refreshing data','Rebuilding the current dashboard…',78);
-        if(typeof loadState==='function'){state=loadState();if(typeof renderAll==='function')renderAll();}
-      }catch(e){}
-      setRefreshLabel(btn,'Updated','Reloading','#5add76');
-      showRefreshStage('Everything is current','Reloading Fuel Tracker…',96,'ready');
-      setTimeout(doReload,380);
+
+      await softRefresh(btn);
     }catch(err){
       try{if(typeof renderAll==='function')renderAll();}catch(e){}
       setRefreshLabel(btn,'Refresh','Retry','#f2bd54');
