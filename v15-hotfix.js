@@ -123,7 +123,14 @@
       setRefreshLabel(btn,'Ready','Reloading','#5add76');
       showRefreshStage('Update ready','Reloading Fuel Tracker…',100,'ready');
       document.body.classList.add('v156-refresh-fade');
-      reloadTimer=setTimeout(()=>window.location.reload(),700);
+      reloadTimer=setTimeout(()=>{
+        try{
+          const u=new URL(window.location.href);
+          u.searchParams.set('ft-refresh','1');
+          window.history.replaceState(null,'',u.pathname+(u.search||'')+(u.hash||''));
+        }catch(e){}
+        window.location.reload();
+      },760);
     };
 
     try{
@@ -200,15 +207,15 @@
     .v15-health-message.warn{border:1px solid #6a511f;background:#231b0d;color:#f2bd54}
     #refreshBtn:disabled{opacity:.72;cursor:wait}
     #v156RefreshOverlay{position:fixed;inset:0;z-index:30000;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(3,6,9,.2);backdrop-filter:blur(0);-webkit-backdrop-filter:blur(0);opacity:0;visibility:hidden;transition:opacity .22s ease,backdrop-filter .28s ease,-webkit-backdrop-filter .28s ease,background .28s ease}
-    #v156RefreshOverlay.show{opacity:1;visibility:visible;background:rgba(3,6,9,.62);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px)}
-    .v156-refresh-card{width:min(330px,88vw);border:1px solid color-mix(in srgb,var(--accent,#137fe8) 42%,#27343f);border-radius:16px;padding:18px;background:rgba(8,15,21,.94);box-shadow:0 22px 60px rgba(0,0,0,.48);transform:translateY(8px) scale(.98);transition:transform .28s ease,border-color .25s ease}
+    #v156RefreshOverlay.show{opacity:1;visibility:visible;background:rgba(3,6,9,.96);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+    .v156-refresh-card{width:min(330px,88vw);border:1px solid color-mix(in srgb,var(--accent,#137fe8) 42%,#27343f);border-radius:16px;padding:18px;background:rgba(8,15,21,.98);box-shadow:0 22px 60px rgba(0,0,0,.48);transform:translateY(8px) scale(.98);transition:transform .28s ease,border-color .25s ease}
     #v156RefreshOverlay.show .v156-refresh-card{transform:translateY(0) scale(1)}
     .v156-refresh-ring{width:34px;height:34px;border-radius:50%;border:3px solid #26333e;border-top-color:var(--accent,#137fe8);margin-bottom:13px;animation:v156spin .82s linear infinite}
     #v156RefreshOverlay.ready .v156-refresh-ring{animation:none;border-color:var(--accent,#5add76);position:relative}
     #v156RefreshOverlay.ready .v156-refresh-ring:after{content:'✓';position:absolute;inset:0;display:grid;place-items:center;color:var(--accent,#5add76);font-size:19px;font-weight:900}
     .v156-refresh-copy strong{display:block;font-size:14px;letter-spacing:.02em}.v156-refresh-copy span{display:block;margin-top:4px;font-size:10px;color:#8f9aa4;line-height:1.35}
     .v156-refresh-track{height:4px;margin-top:14px;border-radius:999px;background:#17212a;overflow:hidden}.v156-refresh-track i{display:block;width:10%;height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--accent2,#0d62d9),var(--accent,#137fe8));transition:width .38s ease}
-    body.v156-refresh-fade .app{opacity:.72;transform:scale(.996);transition:opacity .45s ease,transform .45s ease}
+    body.v156-refresh-fade .app{opacity:.2;transform:scale(.994);transition:opacity .5s ease,transform .5s ease}
     @keyframes v156spin{to{transform:rotate(360deg)}}
     @media(prefers-reduced-motion:reduce){.v156-refresh-ring{animation:none!important}.v156-refresh-card,#v156RefreshOverlay,.v156-refresh-track i,body.v156-refresh-fade .app{transition:none!important}}
     @media(max-width:580px){.v15-health-grid{grid-template-columns:1fr 1fr}.v156-refresh-card{padding:16px}}
