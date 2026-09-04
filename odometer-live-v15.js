@@ -1,6 +1,6 @@
 (function(){
   'use strict';
-  const REV='v15.5-current-tank-compact-1';
+  const REV='v15.6-current-tank-compact-1';
   const MONTH_KEY='fueltrackerV14SelectedMonth';
 
   economyIntervals=function(){
@@ -118,7 +118,7 @@
     </div>`;
   }
 
-  function fixVersion(){const badge=document.querySelector('.brand small');if(badge)badge.textContent='v15.5 Garage';document.title='Fuel Tracker v15.5';}
+  function fixVersion(){const badge=document.querySelector('.brand small');if(badge)badge.textContent='v15.6 Garage';document.title='Fuel Tracker v15.6';}
   function refreshLive(){installTankStyles();patchCurrentTank();patchDashboard();fixVersion();}
 
   const baseRenderAll=renderAll;renderAll=function(){baseRenderAll();refreshLive();};
