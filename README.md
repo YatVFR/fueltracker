@@ -1,8 +1,8 @@
 # Fuel Tracker
 
-Active validation version: **v15.7 Garage**
+Current approved stable version: **v15.7 Garage**
 
-Current approved stable rollback baseline: **v15.6 Garage**
+Current rollback baseline: **v15.6 Garage**
 
 ## v15.7 — Stabilization & Polish
 - Dedicated stabilization guard layer loaded after all feature modules
@@ -11,18 +11,18 @@ Current approved stable rollback baseline: **v15.6 Garage**
 - Safe inconsistencies are repaired automatically and recorded in Garage runtime metadata
 - Malformed profile structures are reported without deleting profile data automatically
 - A Stability card in Settings reports whether startup repairs or reviewable integrity issues were found
-- Data Health now identifies exact invalid, duplicate and odometer-sequence records that require review
+- Data Health identifies exact invalid, duplicate and odometer-sequence records that require review
 - Suspect refuel rows are marked with an amber REVIEW badge in Refuel History
 - Locate Record scrolls directly to the affected history row and temporarily highlights it
 - Odometer sequence warnings show the suspect odometer beside the previous odometer for context
-- Monthly dashboard selection is now remembered per Garage profile while preserving the existing Bike/Car dashboard storage for compatibility
+- Monthly dashboard selection is remembered per Garage profile while preserving the existing Bike/Car dashboard storage for compatibility
 - Same-type vehicles no longer need to share the same selected month state
 - Whole Garage restore is wrapped with stronger compatibility checks before the existing restore preview runs
 - Newer unsupported backup schemas and future-version Garage backups are blocked with clearer messages
 - Duplicate or malformed vehicle profile identities in Garage backups are rejected before restore
-- Existing v15.6 soft-refresh behavior is preserved
+- Existing soft-refresh behavior is preserved
 - v15.6 data model, MasterDB flow, Garage Overview, Garage Analytics and Backup & Recovery remain structurally unchanged to minimize regression risk
-- Validation PWA cache: `fueltracker-v15-7-stabilization-3`
+- Final stable PWA cache: `fueltracker-v15-7-stable-1`
 
 ## Stable baseline retained from v15.6
 - Whole Garage backup and recovery
@@ -44,6 +44,6 @@ Current approved stable rollback baseline: **v15.6 Garage**
 
 Live app: https://yatvfr.github.io/fueltracker/
 
-v15.6 remains the approved stable rollback point while v15.7 undergoes device and regression validation.
+v15.7 passed device validation for the stabilization guard, soft refresh, per-profile state handling and Data Health record locating, and is now the approved stable baseline.
 
-Validation target: confirm profile switching, per-profile month memory, themes, refuel operations, Data Health record locating, MasterDB, Whole Garage backup/restore, Clear Data, soft refresh and offline relaunch before promoting v15.7.
+Rollback baseline: **v15.6 Garage**
