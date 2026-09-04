@@ -1,6 +1,6 @@
 (function(){
   'use strict';
-  const REV='v15.5-masterdb-4';
+  const REV='v15.5-masterdb-5';
 
   function clone(v){return JSON.parse(JSON.stringify(v));}
   function garage(){return state.garageV15;}
@@ -103,13 +103,18 @@
       syncActiveSlot(p);saveState();renderAll();resetForm?.();renderMasterDbUi();emitDataChange('import',p);alert(`MasterDB loaded for ${d.registration||p.name||p.type}.`);
     }catch(err){console.error('MasterDB import failed',err);alert('Invalid Fuel Tracker MasterDB file.');}};reader.readAsText(file);
   }
-  function clearActiveVehicleData(){
-    const p=activeProfile();if(!p)return;const d=profileData(p);if(!d)return;
-    const label=d.registration||p.name||p.type;
-    if(!confirm(`Clear all fuel records and reset Current Odometer for ${label}? Vehicle profile, registration and theme will be kept.`))return;
-    d.records=[];d.odometer={value:null,updatedAt:null};
-    const meta=ensureMeta(p);meta.lastRecordCount=0;
-    syncActiveSlot(p);saveState();renderAll();resetForm?.();renderMasterDbUi();emitDataChange('clear',p);
+  function clearAllGarageData(){
+    const all=profiles();if(!all.length)return;
+    const totalRecords=all.reduce((sum,p)=>sum+(profileData(p)?.records||[]).length,0);
+    if(!confirm(`Clear fuel history and Current Odometer data for ALL ${all.length} Garage vehicles? This will remove ${totalRecords} fuel records and cannot be undone unless you exported your MasterDB files. Vehicle profiles, registration, themes and vehicle details will be kept.`))return;
+    const current=activeProfile();
+    all.forEach(p=>{
+      const d=profileData(p);if(!d)return;
+      d.records=[];d.odometer={value:null,updatedAt:null};
+      ensureMeta(p).lastRecordCount=0;
+    });
+    if(current)syncActiveSlot(current);
+    saveState();renderAll();resetForm?.();renderMasterDbUi();emitDataChange('clear-all',current);
   }
   function newActiveDb(){
     const p=activeProfile();if(!p)return;const d=profileData(p);const label=d.registration||p.name||p.type;
@@ -134,7 +139,7 @@
     const save=document.getElementById('saveDbBtn');if(save){save.textContent='EXPORT DB';save.onclick=exportActiveDb;}
     const input=document.getElementById('loadDbInput');if(input)input.onchange=e=>{importActiveDb(e.target.files?.[0]);e.target.value='';};
     const newBtn=document.getElementById('newDbBtn');if(newBtn)newBtn.onclick=newActiveDb;
-    const clear=document.getElementById('clearBtn');if(clear)clear.onclick=clearActiveVehicleData;
+    const clear=document.getElementById('clearBtn');if(clear){clear.textContent='CLEAR ALL DATA';clear.onclick=clearAllGarageData;}
     const locate=document.querySelector(`button[onclick*="loadDbInput"]`);if(locate)locate.textContent='IMPORT DB';
   }
   function installStyles(){
