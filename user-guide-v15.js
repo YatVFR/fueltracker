@@ -1,6 +1,6 @@
 (function(){
   'use strict';
-  const REV='v15.2-user-guide-2';
+  const REV='v15.4-user-guide-3';
 
   function installStyles(){
     if(document.getElementById('v15UserGuideStyles'))return;
@@ -50,13 +50,5 @@
     close.onclick=()=>{setOpen(false);card.querySelector('.user-guide-launcher')?.scrollIntoView({behavior:'smooth',block:'center'});};
   }
 
-  function loadOdometerLiveFix(){
-    if(document.querySelector('script[data-odometer-live-v15]'))return;
-    const s=document.createElement('script');
-    s.src='./odometer-live-v15.js';
-    s.dataset.odometerLiveV15='true';
-    document.body.appendChild(s);
-  }
-
-  installStyles();buildGuide();state.userGuideRevision=REV;saveState?.();loadOdometerLiveFix();
+  installStyles();buildGuide();state.userGuideRevision=REV;saveState?.();
 })();
