@@ -1,6 +1,6 @@
 (function(){
   'use strict';
-  const REV='v15.4-current-tank-compact-3';
+  const REV='v15.4-current-tank-compact-4';
   const MONTH_KEY='fueltrackerV14SelectedMonth';
 
   economyIntervals=function(){
@@ -126,14 +126,6 @@
 
   document.getElementById('odoSaveBtn')?.addEventListener('click',()=>setTimeout(()=>{renderDashboard();patchCurrentTank();fixVersion();saveState?.();},0));
   document.querySelector('.vehicle-switch')?.addEventListener('click',()=>setTimeout(refreshLive,0));
-  const badge=document.querySelector('.brand small');if(badge)new MutationObserver(()=>{if(badge.textContent!=='v15.4 Garage')badge.textContent='v15.4 Garage';}).observe(badge,{childList:true,characterData:true,subtree:true});
-
-  if(!document.querySelector('script[data-v153-garage-overview]')){
-    const script=document.createElement('script');
-    script.src='./garage-overview-v15.js';
-    script.dataset.v153GarageOverview='true';
-    document.body.appendChild(script);
-  }
 
   state.odometerLiveRevision=REV;saveState?.();refreshLive();
 })();
