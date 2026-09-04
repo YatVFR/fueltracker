@@ -1,44 +1,44 @@
 # Fuel Tracker
 
-Current approved stable version: **v15.6 Garage**
+Active validation version: **v15.7 Garage**
 
-Previous rollback baseline: **v15.5 Garage**
+Current approved stable rollback baseline: **v15.6 Garage**
 
-## v15.6 — Backup & Recovery
-- Whole Garage backup in a single JSON file
-- Backup includes all Garage profiles, enhanced vehicle details, themes, registrations, Current Odometers, MasterDB metadata and fuel records
-- Active Garage profile and app state are preserved in the backup
-- Monthly dashboard selection state is included where available
-- Restore validates that the selected file is a Fuel Tracker Garage backup
-- Restore Preview shows vehicle count, fuel-record count, backup version and export timestamp before replacement
-- Final confirmation is required before replacing the complete local Garage
-- Restore normalizes fuel volume to 3-decimal precision and rebuilds the active legacy working slot from the restored Garage profile
-- App reloads after a successful whole-Garage restore so every dashboard/module starts from the restored state
-- Per-vehicle MasterDB remains available for vehicle-level backup and restore
-- Dashboard themes are alphabetized for Bike and Car theme selectors
-- The active Garage selector follows the current vehicle theme accent
-- Refresh / Check Update now uses a soft in-app refresh when the app is already current, avoiding unnecessary Safari/PWA reload jumps
-- Hard reload is reserved for genuine app/service-worker updates
-- Final stable PWA cache: `fueltracker-v15-6-stable-1`
+## v15.7 — Stabilization & Polish
+- Dedicated stabilization guard layer loaded after all feature modules
+- One visible app-version owner keeps the header and browser title on v15.7 across rerenders
+- Startup Garage integrity check validates active profile, working slots, themes, odometers and profile structure
+- Safe inconsistencies are repaired automatically and recorded in Garage runtime metadata
+- A Stability card in Settings reports whether startup repairs were required
+- Monthly dashboard selection is now remembered per Garage profile while preserving the existing Bike/Car dashboard storage for compatibility
+- Same-type vehicles no longer need to share the same selected month state
+- Whole Garage restore is wrapped with stronger compatibility checks before the existing restore preview runs
+- Newer unsupported backup schemas and future-version Garage backups are blocked with clearer messages
+- Duplicate or malformed vehicle profile identities in Garage backups are rejected before restore
+- Existing v15.6 soft-refresh behavior is preserved
+- v15.6 data model, MasterDB flow, Garage Overview, Garage Analytics and Backup & Recovery remain structurally unchanged to minimize regression risk
+- Validation PWA cache: `fueltracker-v15-7-stabilization-1`
 
-## Preserved from v15.5
-- Garage Analytics across all vehicle profiles
-- Garage Overview across all vehicles
-- Enhanced Vehicle Profiles: Make, Model, Year, Fuel Tank Capacity and Notes
+## Stable baseline retained from v15.6
+- Whole Garage backup and recovery
+- Restore Preview and final destructive confirmation
+- Per-vehicle MasterDB backup and restore
+- Garage Analytics and Garage Overview
+- Enhanced Vehicle Profiles
 - Multi-vehicle Garage profiles
-- Per-vehicle MasterDB import/export with Bike/Car type validation
-- MasterDB backup of profile metadata, theme, Current Odometer and odometer timestamp
-- CLEAR ALL DATA resets tracking data across the entire Garage while keeping vehicle profiles
-- Fuel volume standardized to 3 decimal places
-- Local-first PWA storage
+- Alphabetical Bike and Car themes
+- Theme-aware active Garage selector
+- Soft Refresh / Check Update flow without unnecessary Safari/PWA reload jumps
+- CLEAR ALL DATA Garage-wide tracking reset
+- 3-decimal fuel volume precision
 - Compact Current Tank summary
-- Live odometer-based distance and fuel economy
+- Current Odometer and live economy calculations
 - Data Health details
-- In-app new user guide
+- Local-first PWA storage
 - Mobile-safe iPhone layout
 
 Live app: https://yatvfr.github.io/fueltracker/
 
-v15.6 passed code sanity review and device functional validation, including Whole Garage restore and soft-refresh UX, and is now the approved stable baseline.
+v15.6 remains the approved stable rollback point while v15.7 undergoes device and regression validation.
 
-Next planned milestone: **v15.7 Stabilization**
+Validation target: confirm profile switching, per-profile month memory, themes, refuel operations, MasterDB, Whole Garage backup/restore, Clear Data, soft refresh and offline relaunch before promoting v15.7.
