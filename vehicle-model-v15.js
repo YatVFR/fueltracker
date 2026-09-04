@@ -1,6 +1,6 @@
 (function(){
   'use strict';
-  const REV='v15.4-enhanced-profiles-1';
+  const REV='v15.4-enhanced-profiles-2';
 
   function garage(){return state.garageV15||null;}
   function profiles(){return garage()?.profiles||[];}
@@ -141,11 +141,15 @@
     });
   }
 
-  function renderProfileUi(){renderHero();renderGarageCards();renderSettings();renderHeader();syncModal();}
+  function renderProfileUi(){ensureModalFields();renderHero();renderGarageCards();renderSettings();renderHeader();syncModal();}
+  function refreshSoon(delay=40){setTimeout(renderProfileUi,delay);}
 
   if(!garage()?.profiles?.length)return;
   ensureProfiles();installStyles();renderProfileUi();
-  let timer;
-  const observer=new MutationObserver(()=>{clearTimeout(timer);timer=setTimeout(renderProfileUi,0);});
-  observer.observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
+
+  document.addEventListener('click',e=>{
+    if(e.target.closest('[data-profile-switch],[data-profile-open],[data-profile-edit],#garageAddProfile,#garageHeaderAdd,#garageModalSave,#settingsBtn,#odoSaveBtn,#saveDbBtn,#newDbBtn,#themeRow button'))refreshSoon();
+  });
+  document.getElementById('fuelForm')?.addEventListener('submit',()=>refreshSoon(80));
+  document.getElementById('loadDbInput')?.addEventListener('change',()=>refreshSoon(120));
 })();
