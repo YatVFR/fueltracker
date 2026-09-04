@@ -9,7 +9,8 @@ Current approved stable rollback baseline: **v15.6 Garage**
 - One visible app-version owner keeps the header and browser title on v15.7 across rerenders
 - Startup Garage integrity check validates active profile, working slots, themes, odometers and profile structure
 - Safe inconsistencies are repaired automatically and recorded in Garage runtime metadata
-- A Stability card in Settings reports whether startup repairs were required
+- Malformed profile structures are reported without deleting profile data automatically
+- A Stability card in Settings reports whether startup repairs or reviewable integrity issues were found
 - Monthly dashboard selection is now remembered per Garage profile while preserving the existing Bike/Car dashboard storage for compatibility
 - Same-type vehicles no longer need to share the same selected month state
 - Whole Garage restore is wrapped with stronger compatibility checks before the existing restore preview runs
@@ -17,7 +18,7 @@ Current approved stable rollback baseline: **v15.6 Garage**
 - Duplicate or malformed vehicle profile identities in Garage backups are rejected before restore
 - Existing v15.6 soft-refresh behavior is preserved
 - v15.6 data model, MasterDB flow, Garage Overview, Garage Analytics and Backup & Recovery remain structurally unchanged to minimize regression risk
-- Validation PWA cache: `fueltracker-v15-7-stabilization-1`
+- Validation PWA cache: `fueltracker-v15-7-stabilization-2`
 
 ## Stable baseline retained from v15.6
 - Whole Garage backup and recovery
