@@ -1,4 +1,5 @@
 (function(){
+  'use strict';
   const REV='v15.1-garage-profiles-1';
   let switching=false;
 
@@ -116,7 +117,6 @@
   function syncSettings(){
     const p=displayProfile(activeProfile());
     const name=document.getElementById('settingsVehicleName');if(name)name.textContent=p.registration||p.name||profileTypeLabel(p.type);
-    const brand=document.querySelector('.brand small');if(brand)brand.textContent='v15.1 Garage';
     const copy=document.querySelector('.garage-setting p');if(copy)copy.textContent='Each vehicle profile keeps its own registration, theme, odometer and local fuel records. Original Bike and Car profiles are protected.';
   }
   function renderV15(){renderHeader();renderGarage();syncSettings();}
