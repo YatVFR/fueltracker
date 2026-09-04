@@ -47,7 +47,7 @@
     el.innerHTML=`
       <div class="eff-card"><h3>Latest Fuel Economy</h3><div class="eff-value">${economy?economy.toFixed(1):'—'}<span class="eff-unit"> km/L</span></div><div class="eff-sub">current odometer interval</div></div>
       <div class="eff-card"><h3>Distance Travelled</h3><div class="eff-value">${distance>0?Number(distance).toLocaleString():'—'}<span class="eff-unit"> km</span></div><div class="eff-sub">current odo − latest refuel odo</div></div>
-      <div class="eff-card"><h3>Current Refuel Volume</h3><div class="eff-value">${volume>0?Number(volume).toFixed(2):'—'}<span class="eff-unit"> L</span></div><div class="eff-sub">latest refuel volume used in formula</div></div>
+      <div class="eff-card"><h3>Current Refuel Volume</h3><div class="eff-value">${volume>0?Number(volume).toFixed(3):'—'}<span class="eff-unit"> L</span></div><div class="eff-sub">latest refuel volume used in formula</div></div>
       <div class="eff-card"><h3>Latest Refuel Odometer</h3><div class="eff-value">${Number(s.latestOdo).toLocaleString()}<span class="eff-unit"> km</span></div><div class="eff-sub">starting odometer for current interval</div></div>
       <div class="eff-card"><h3>Current Odometer</h3><div class="eff-value">${Number(s.currentValue).toLocaleString()}<span class="eff-unit"> km</span></div><div class="eff-sub">manual current odometer</div></div>`;
   }
