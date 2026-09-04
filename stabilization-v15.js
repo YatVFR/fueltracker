@@ -1,7 +1,7 @@
 (function(){
   'use strict';
 
-  const REV='v15.7-stabilization-4';
+  const REV='v15.7-stabilization-5';
   const APP_VERSION='v15.7 Garage';
   const APP_NUMBER='15.7';
   const LEGACY_MONTH_KEY='fueltrackerV14SelectedMonth';
@@ -183,11 +183,104 @@
     else text.textContent='Startup integrity check passed with no repairs required.';
   }
 
+  function escHealth(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+  function healthIssues(){
+    const rows=[...(typeof currentRecords==='function'?currentRecords():[])];
+    const issues=[],seen=new Map();
+    rows.forEach(r=>{
+      const location=r.location||r.station||'';
+      const reasons=[];
+      if(!validDate(r.dateTime))reasons.push('Invalid date/time');
+      if(!(Number(r.mileage)>=0))reasons.push('Invalid odometer');
+      if(!(Number(r.volume)>0))reasons.push('Invalid fuel volume');
+      if(!(Number(r.cost)>=0))reasons.push('Invalid cost');
+      if(!location)reasons.push('Missing fuel station');
+      if(reasons.length)issues.push({id:r.id,type:'invalid',title:'Invalid refuel record',detail:reasons.join(' • '),row:r});
+      const fp=[r.dateTime,r.mileage,r.volume,r.cost,r.currency,location].join('|');
+      if(seen.has(fp))issues.push({id:r.id,type:'duplicate',title:'Possible duplicate',detail:'Matches another refuel with the same date, odometer, fuel, cost, currency and station.',row:r});
+      else seen.set(fp,r.id);
+    });
+    const odo=rows.filter(r=>Number(r.mileage)>0&&validDate(r.dateTime)).sort((a,b)=>new Date(a.dateTime)-new Date(b.dateTime));
+    for(let i=1;i<odo.length;i++){
+      const prev=odo[i-1],cur=odo[i];
+      if(Number(cur.mileage)<Number(prev.mileage)){
+        issues.push({id:cur.id,type:'odometer',title:'Odometer sequence issue',detail:`${Number(cur.mileage).toLocaleString()} km is lower than the previous ${Number(prev.mileage).toLocaleString()} km record.`,row:cur,previous:prev});
+      }
+    }
+    return issues;
+  }
+
+  function annotateHealthRows(){
+    const body=document.getElementById('historyBody');if(!body)return;
+    const sorted=[...(typeof currentRecords==='function'?currentRecords():[])].sort((a,b)=>new Date(b.dateTime)-new Date(a.dateTime));
+    const suspect=new Set(healthIssues().map(x=>String(x.id||'')));
+    [...body.querySelectorAll('tr')].forEach((tr,i)=>{
+      const r=sorted[i];if(!r)return;
+      tr.dataset.healthRecordId=String(r.id||'');
+      tr.classList.toggle('v157-health-suspect',suspect.has(String(r.id||'')));
+      const first=tr.querySelector('td');
+      first?.querySelector('.v157-health-pin')?.remove();
+      if(first&&suspect.has(String(r.id||''))){
+        const pin=document.createElement('span');pin.className='v157-health-pin';pin.textContent='⚠ REVIEW';first.prepend(pin);
+      }
+    });
+  }
+
+  function locateHealthRecord(id){
+    annotateHealthRows();
+    const row=[...document.querySelectorAll('#historyBody tr')].find(tr=>tr.dataset.healthRecordId===String(id));
+    if(!row)return;
+    row.scrollIntoView({behavior:'smooth',block:'center'});
+    row.classList.remove('v157-health-pulse');
+    void row.offsetWidth;
+    row.classList.add('v157-health-pulse');
+    setTimeout(()=>row.classList.remove('v157-health-pulse'),2600);
+  }
+
+  function renderHealthIssueList(){
+    const panel=document.getElementById('v15HealthDetails');if(!panel)return;
+    let list=panel.querySelector('#v157HealthIssueList');
+    if(!list){list=document.createElement('div');list.id='v157HealthIssueList';panel.appendChild(list);}
+    const issues=healthIssues();
+    if(!issues.length){list.innerHTML='';annotateHealthRows();return;}
+    list.innerHTML=`<div class="v157-health-issue-head"><strong>Records requiring review</strong><span>${issues.length} ${issues.length===1?'issue':'issues'}</span></div>${issues.map(x=>{
+      const d=validDate(x.row?.dateTime);
+      const when=d?d.toLocaleString():'Invalid date';
+      return `<div class="v157-health-issue"><div class="v157-health-issue-copy"><b>${escHealth(x.title)}</b><span>${escHealth(when)} • ${Number(x.row?.mileage||0).toLocaleString()} km</span><small>${escHealth(x.detail)}</small></div><button type="button" data-health-locate="${escHealth(x.id)}">LOCATE RECORD</button></div>`;
+    }).join('')}`;
+    annotateHealthRows();
+  }
+
+  function installIssueStyles(){
+    if(document.getElementById('v157HealthIssueStyles'))return;
+    const s=document.createElement('style');s.id='v157HealthIssueStyles';
+    s.textContent=`
+      #v157HealthIssueList{margin-top:10px}.v157-health-issue-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:7px}.v157-health-issue-head strong{font-size:10px;letter-spacing:.06em;text-transform:uppercase}.v157-health-issue-head span{font-size:8px;color:#f2bd54}
+      .v157-health-issue{display:flex;align-items:center;justify-content:space-between;gap:9px;padding:9px 10px;margin-top:6px;border:1px solid #6a511f;border-radius:8px;background:#17130b}.v157-health-issue-copy{min-width:0}.v157-health-issue-copy b{display:block;font-size:10px;color:#f2bd54}.v157-health-issue-copy span{display:block;margin-top:2px;font-size:8px;color:#a8b0b7}.v157-health-issue-copy small{display:block;margin-top:4px;font-size:8px;line-height:1.35;color:#d1b36a}.v157-health-issue button{flex:0 0 auto;border:1px solid #7a5c20;border-radius:7px;background:#0d151c;color:#f2bd54;padding:7px 8px;font-size:8px;font-weight:900}
+      #historyBody tr.v157-health-suspect td{background:color-mix(in srgb,#f2bd54 8%,transparent);border-top-color:#6a511f;border-bottom-color:#6a511f}#historyBody tr.v157-health-suspect td:first-child{box-shadow:inset 3px 0 0 #f2bd54}.v157-health-pin{display:inline-block;margin:0 6px 5px 0;padding:3px 5px;border:1px solid #7a5c20;border-radius:5px;background:#231b0d;color:#f2bd54;font-size:7px;font-weight:900;letter-spacing:.06em}
+      #historyBody tr.v157-health-pulse td{animation:v157HealthPulse .65s ease 3}@keyframes v157HealthPulse{0%,100%{box-shadow:inset 0 0 0 0 rgba(242,189,84,0)}50%{box-shadow:inset 0 0 0 2px rgba(242,189,84,.9),0 0 18px rgba(242,189,84,.16)}}
+      @media(max-width:580px){.v157-health-issue{align-items:flex-start;flex-direction:column}.v157-health-issue button{width:100%}}
+    `;
+    document.head.appendChild(s);
+  }
+
+  installIssueStyles();
+  const baseRenderHistory=typeof renderHistory==='function'?renderHistory:null;
+  if(baseRenderHistory){
+    renderHistory=function(){baseRenderHistory();annotateHealthRows();setTimeout(renderHealthIssueList,0);};
+  }
+  document.addEventListener('click',e=>{
+    const btn=e.target.closest('[data-health-locate]');
+    if(btn){e.preventDefault();locateHealthRecord(btn.dataset.healthLocate);}
+  });
+
   const result=repairGarageState();
   migrateMonths();
   setVersion();
   wrapGarageRestoreValidation();
   installHealthBadge(result);
+  annotateHealthRows();
+  renderHealthIssueList();
 
   let lastProfileId=activeProfile()?.id||'';
   document.addEventListener('click',e=>{
@@ -197,15 +290,16 @@
     setTimeout(()=>{
       const now=activeProfile()?.id||'';
       if(now&&now!==lastProfileId){lastProfileId=now;applyActiveMonth();}
-      saveActiveMonth();setVersion();wrapGarageRestoreValidation();
+      saveActiveMonth();setVersion();wrapGarageRestoreValidation();annotateHealthRows();renderHealthIssueList();
     },90);
   });
-  document.addEventListener('change',()=>setTimeout(()=>{saveActiveMonth();setVersion();},30));
-  document.addEventListener('fueltracker:datachange',()=>setTimeout(()=>{setVersion();wrapGarageRestoreValidation();},80));
+  document.addEventListener('change',()=>setTimeout(()=>{saveActiveMonth();setVersion();annotateHealthRows();renderHealthIssueList();},30));
+  document.addEventListener('fueltracker:datachange',()=>setTimeout(()=>{setVersion();wrapGarageRestoreValidation();annotateHealthRows();renderHealthIssueList();},80));
 
-  const observer=new MutationObserver(()=>setVersion());
+  const observer=new MutationObserver(()=>{setVersion();renderHealthIssueList();});
   const brand=document.querySelector('.brand');if(brand)observer.observe(brand,{childList:true,subtree:true});
   const titleEl=document.querySelector('title');if(titleEl)observer.observe(titleEl,{childList:true});
+  const healthPanel=document.getElementById('v15HealthDetails');if(healthPanel)observer.observe(healthPanel,{childList:true,subtree:false});
 
-  window.FuelTrackerStabilization={revision:REV,version:APP_VERSION,integrity:result,runIntegrityCheck:repairGarageState};
+  window.FuelTrackerStabilization={revision:REV,version:APP_VERSION,integrity:result,runIntegrityCheck:repairGarageState,healthIssues,locateHealthRecord};
 })();
