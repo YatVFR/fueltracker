@@ -1,6 +1,6 @@
 (function(){
   'use strict';
-  const REV='v15.5-masterdb-5';
+  const REV='v15.5-masterdb-6';
 
   function clone(v){return JSON.parse(JSON.stringify(v));}
   function garage(){return state.garageV15;}
@@ -93,6 +93,11 @@
     const p=activeProfile();if(!p||!file)return;const reader=new FileReader();
     reader.onload=()=>{try{
       const raw=JSON.parse(reader.result);const entries=Array.isArray(raw)?raw:(Array.isArray(raw.entries)?raw.entries:null);if(!entries)throw new Error('No entries array');
+      const backupType=raw?.profile?.type;
+      if(backupType&&backupType!==p.type){
+        alert(`This backup belongs to a ${backupType==='bike'?'Bike':'Car'} profile, but the selected Garage vehicle is a ${p.type==='bike'?'Bike':'Car'}. Select the correct vehicle and try again.`);
+        return;
+      }
       const rows=entries.map(normalizeEntry);const label=profileData(p)?.registration||p.name||p.type;
       if(!confirm(`Replace ${label} with ${rows.length} records from ${file.name}?`))return;
       const d=profileData(p);d.records=rows;applyProfileMeta(p,d,raw?.profile);
@@ -113,6 +118,10 @@
       d.records=[];d.odometer={value:null,updatedAt:null};
       ensureMeta(p).lastRecordCount=0;
     });
+    state.records=state.records||{};state.currentOdometer=state.currentOdometer||{};
+    state.records.bike=[];state.records.car=[];
+    state.currentOdometer.bike={value:null,updatedAt:null};
+    state.currentOdometer.car={value:null,updatedAt:null};
     if(current)syncActiveSlot(current);
     saveState();renderAll();resetForm?.();renderMasterDbUi();emitDataChange('clear-all',current);
   }
