@@ -1,6 +1,6 @@
 (function(){
   'use strict';
-  const REV='v15.5-masterdb-3';
+  const REV='v15.5-masterdb-4';
 
   function clone(v){return JSON.parse(JSON.stringify(v));}
   function garage(){return state.garageV15;}
@@ -14,6 +14,8 @@
   }
   function emitDataChange(action,p){
     document.dispatchEvent(new CustomEvent('fueltracker:datachange',{detail:{action,profileId:p?.id||null,type:p?.type||state.mode}}));
+    const btn=[...document.querySelectorAll('[data-profile-switch]')].find(x=>x.dataset.profileSwitch===p?.id);
+    if(btn)setTimeout(()=>btn.click(),0);
   }
   function cleanName(v){return String(v||'').trim().replace(/[^a-zA-Z0-9_-]+/g,'-').replace(/^-+|-+$/g,'').slice(0,48);}
   function defaultDbName(p){
