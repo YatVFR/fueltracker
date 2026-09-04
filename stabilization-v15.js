@@ -1,7 +1,7 @@
 (function(){
   'use strict';
 
-  const REV='v15.7-stabilization-3';
+  const REV='v15.7-stabilization-4';
   const APP_VERSION='v15.7 Garage';
   const APP_NUMBER='15.7';
   const LEGACY_MONTH_KEY='fueltrackerV14SelectedMonth';
@@ -13,7 +13,7 @@
   function profiles(){return Array.isArray(garage()?.profiles)?garage().profiles:[];}
   function activeProfile(){
     const g=garage();
-    return profiles().find(p=>p?.id===g?.activeProfileId)||profiles()[0]||null;
+    return profiles().find(p=>p?.id===g?.activeProfileId)||profiles().find(p=>VALID_TYPES.has(p?.type))||profiles()[0]||null;
   }
   function defaultTheme(type){return type==='bike'?'honda':'generic';}
   function validTheme(type,id){
@@ -34,8 +34,8 @@
 
   function repairGarageState(){
     const g=garage();
-    if(!g||!Array.isArray(g.profiles)||!g.profiles.length)return {changed:false,repairs:0};
-    let changed=false,repairs=0;
+    if(!g||!Array.isArray(g.profiles)||!g.profiles.length)return {changed:false,repairs:0,issues:0};
+    let changed=false,repairs=0,issues=0;
     g.legacy=g.legacy&&typeof g.legacy==='object'?g.legacy:{};
 
     for(const type of ['bike','car']){
@@ -45,29 +45,31 @@
     }
 
     const seen=new Set();
-    g.profiles=g.profiles.filter(p=>{
-      if(!p||!VALID_TYPES.has(p.type)){
-        changed=true;repairs++;
-        return false;
-      }
+    g.profiles.forEach(p=>{
+      if(!p||typeof p!=='object'){issues++;return;}
+      if(!VALID_TYPES.has(p.type)){issues++;return;}
       if(!p.id||seen.has(p.id)){
         p.id='vehicle-'+Date.now()+'-'+Math.random().toString(36).slice(2,8);
         changed=true;repairs++;
       }
       seen.add(p.id);
+      const oldName=p.name;
       p.name=String(p.name||((p.type==='bike')?'Bike':'Car')).trim()||((p.type==='bike')?'Bike':'Car');
+      if(p.name!==oldName){changed=true;repairs++;}
       if(!p.legacy)p.data=normalizeData(p.type,p.data);
-      if(typeof p.make!=='string')p.make='';
-      if(typeof p.model!=='string')p.model='';
-      if(typeof p.year!=='string')p.year='';
-      if(typeof p.notes!=='string')p.notes='';
-      if(!('tankCapacity' in p))p.tankCapacity=null;
-      return true;
+      if(typeof p.make!=='string'){p.make='';changed=true;repairs++;}
+      if(typeof p.model!=='string'){p.model='';changed=true;repairs++;}
+      if(typeof p.year!=='string'){p.year='';changed=true;repairs++;}
+      if(typeof p.notes!=='string'){p.notes='';changed=true;repairs++;}
+      if(!('tankCapacity' in p)){p.tankCapacity=null;changed=true;repairs++;}
     });
 
-    if(!g.profiles.length)return {changed,repairs};
-    let active=g.profiles.find(p=>p.id===g.activeProfileId);
-    if(!active){active=g.profiles[0];g.activeProfileId=active.id;changed=true;repairs++;}
+    let active=g.profiles.find(p=>p?.id===g.activeProfileId&&VALID_TYPES.has(p?.type));
+    if(!active){
+      active=g.profiles.find(p=>VALID_TYPES.has(p?.type));
+      if(active){g.activeProfileId=active.id;changed=true;repairs++;}
+      else issues++;
+    }
 
     state.records=state.records&&typeof state.records==='object'?state.records:{};
     state.registrations=state.registrations&&typeof state.registrations==='object'?state.registrations:{};
@@ -84,12 +86,13 @@
       if(!odo||typeof odo!=='object'||(!Number.isFinite(n)&&odo?.value!=null)||n<0){state.currentOdometer[type]=clone(g.legacy[type].odometer);changed=true;repairs++;}
     }
 
-    state.mode=active.type;
+    if(active)state.mode=active.type;
     g.stabilizationRevision=REV;
     g.lastIntegrityCheckAt=new Date().toISOString();
     g.lastIntegrityRepairs=repairs;
+    g.lastIntegrityIssues=issues;
     saveState?.();
-    return {changed,repairs};
+    return {changed,repairs,issues};
   }
 
   function setVersion(){
@@ -109,19 +112,19 @@
   }
   function writeLegacyMonths(v){localStorage.setItem(LEGACY_MONTH_KEY,JSON.stringify(v));}
   function saveMonthFor(p){
-    if(!p)return;
+    if(!p||!VALID_TYPES.has(p.type))return;
     const legacy=legacyMonths(),value=legacy[p.type];if(!value)return;
     const map=monthMap();map[p.id]=value;localStorage.setItem(PROFILE_MONTH_KEY,JSON.stringify(map));
   }
   function saveActiveMonth(){saveMonthFor(activeProfile());}
   function applyActiveMonth(){
-    const p=activeProfile();if(!p)return;
+    const p=activeProfile();if(!p||!VALID_TYPES.has(p.type))return;
     const map=monthMap(),value=map[p.id];if(!value)return;
     const legacy=legacyMonths();legacy[p.type]=value;writeLegacyMonths(legacy);
   }
   function migrateMonths(){
     const legacy=legacyMonths(),map=monthMap();let changed=false;
-    profiles().forEach(p=>{if(!map[p.id]&&legacy[p.type]){map[p.id]=legacy[p.type];changed=true;}});
+    profiles().forEach(p=>{if(VALID_TYPES.has(p?.type)&&p.id&&!map[p.id]&&legacy[p.type]){map[p.id]=legacy[p.type];changed=true;}});
     if(changed)localStorage.setItem(PROFILE_MONTH_KEY,JSON.stringify(map));
     applyActiveMonth();
   }
@@ -174,7 +177,10 @@
       settings.appendChild(card);
     }
     const text=card.querySelector('#v157StabilityText');
-    if(text)text.textContent=result.repairs?`${result.repairs} safe state ${result.repairs===1?'repair':'repairs'} applied at startup. Garage is ready for validation.`:'Startup integrity check passed with no repairs required.';
+    if(!text)return;
+    if(result.issues)text.textContent=`${result.repairs} safe ${result.repairs===1?'repair':'repairs'} applied. ${result.issues} integrity ${result.issues===1?'issue requires':'issues require'} review; no profile data was deleted.`;
+    else if(result.repairs)text.textContent=`${result.repairs} safe state ${result.repairs===1?'repair':'repairs'} applied at startup. Garage is ready for validation.`;
+    else text.textContent='Startup integrity check passed with no repairs required.';
   }
 
   const result=repairGarageState();
