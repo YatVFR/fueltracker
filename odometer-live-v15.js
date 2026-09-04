@@ -1,6 +1,6 @@
 (function(){
   'use strict';
-  const REV='v15.4-current-tank-compact-2';
+  const REV='v15.4-current-tank-compact-3';
   const MONTH_KEY='fueltrackerV14SelectedMonth';
 
   economyIntervals=function(){
@@ -54,14 +54,16 @@
   function completedIntervals(){return economyIntervals().filter(x=>inActivePeriod(x.date));}
 
   function patchDashboard(){
-    if(state.dashMode!=='efficiency')return;
     const cards=document.querySelectorAll('#metrics .metric');if(cards.length<4)return;
+    const base=dashboardSummary();
+    const setValue=(card,value)=>{const el=card?.querySelector('.v');if(el)el.textContent=value;};
+    setValue(cards[2],Number(base.litres||0).toFixed(3)+' L');
+    if(state.dashMode!=='efficiency')return;
     const done=completedIntervals(),live=currentInterval();
     const includeLive=live&&live.distance>0&&inActivePeriod(live.date);
     const distance=done.reduce((s,x)=>s+x.distance,0)+(includeLive?live.distance:0);
     const intervalLitres=done.reduce((s,x)=>s+x.litres,0)+(includeLive?live.litres:0);
-    const avg=intervalLitres>0?distance/intervalLitres:null,base=dashboardSummary();
-    const setValue=(card,value)=>{const el=card?.querySelector('.v');if(el)el.textContent=value;};
+    const avg=intervalLitres>0?distance/intervalLitres:null;
     setValue(cards[0],distance>0?Math.round(distance).toLocaleString()+' km':'—');
     setValue(cards[1],avg?avg.toFixed(1)+' km/L':'—');
     setValue(cards[3],distance>0?'S$'+(base.spendSgd/distance*100).toFixed(2):'—');
