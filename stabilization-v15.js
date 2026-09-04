@@ -1,7 +1,7 @@
 (function(){
   'use strict';
 
-  const REV='v15.7-stabilization-1';
+  const REV='v15.7-stabilization-2';
   const APP_VERSION='v15.7 Garage';
   const APP_NUMBER='15.7';
   const LEGACY_MONTH_KEY='fueltrackerV14SelectedMonth';
@@ -17,7 +17,7 @@
   }
   function defaultTheme(type){return type==='bike'?'honda':'generic';}
   function validTheme(type,id){
-    const list=type==='bike'?(window.bikeThemes||[]):(window.carThemes||[]);
+    const list=type==='bike'?(typeof bikeThemes!=='undefined'?bikeThemes:[]):(typeof carThemes!=='undefined'?carThemes:[]);
     return list.some(t=>t.id===id)?id:defaultTheme(type);
   }
   function emptyData(type){return {records:[],registration:'',theme:defaultTheme(type),odometer:{value:null,updatedAt:null}};}
@@ -88,8 +88,7 @@
     g.stabilizationRevision=REV;
     g.lastIntegrityCheckAt=new Date().toISOString();
     g.lastIntegrityRepairs=repairs;
-    if(changed)saveState?.();
-    else saveState?.();
+    saveState?.();
     return {changed,repairs};
   }
 
