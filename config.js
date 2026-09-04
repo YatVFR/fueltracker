@@ -24,20 +24,20 @@ const defaultState={
   }
 };
 const bikeThemes=[
- {id:'honda',name:'Honda',logo:'HONDA',tag:'PERFORMANCE FIRST',a:'#d71920',a2:'#851116',lc:'#ff342f',spec:['CBR-style cockpit','649 cc • Inline 4','11,500 rpm','192 kg']},
- {id:'yamaha',name:'Yamaha',logo:'YAMAHA',tag:'MIDNIGHT RACING',a:'#2457d6',a2:'#123d94',lc:'#4a75ff',spec:['MT-style cockpit','Blue TFT','Street sport','Night theme']},
- {id:'zontes',name:'Zontes',logo:'ZONTES',tag:'TECH NEON',a:'#30c7b5',a2:'#176a63',lc:'#6ee9d9',spec:['Smart cockpit','Cyan TFT','Tech ride','Neon theme']},
+ {id:'bmw',name:'BMW Motorrad',logo:'BMW',tag:'M PERFORMANCE TFT',a:'#1c69d4',a2:'#0d3e88',lc:'#5aa2ff',spec:['M cockpit','BMW blue','Precision UI','Sport touring']},
  {id:'ducati',name:'Ducati',logo:'DUCATI',tag:'ITALIAN RACE',a:'#d71920',a2:'#781015',lc:'#ff494f',spec:['Panigale-style','Race TFT','Track focus','Minimal black']},
+ {id:'honda',name:'Honda',logo:'HONDA',tag:'PERFORMANCE FIRST',a:'#d71920',a2:'#851116',lc:'#ff342f',spec:['CBR-style cockpit','649 cc • Inline 4','11,500 rpm','192 kg']},
  {id:'ktm',name:'KTM',logo:'KTM',tag:'READY TO RACE',a:'#f57c00',a2:'#8e4700',lc:'#ff8a15',spec:['Factory cockpit','Orange TFT','Aggressive UI','Race focus']},
- {id:'bmw',name:'BMW Motorrad',logo:'BMW',tag:'M PERFORMANCE TFT',a:'#1c69d4',a2:'#0d3e88',lc:'#5aa2ff',spec:['M cockpit','BMW blue','Precision UI','Sport touring']}
+ {id:'yamaha',name:'Yamaha',logo:'YAMAHA',tag:'MIDNIGHT RACING',a:'#2457d6',a2:'#123d94',lc:'#4a75ff',spec:['MT-style cockpit','Blue TFT','Street sport','Night theme']},
+ {id:'zontes',name:'Zontes',logo:'ZONTES',tag:'TECH NEON',a:'#30c7b5',a2:'#176a63',lc:'#6ee9d9',spec:['Smart cockpit','Cyan TFT','Tech ride','Neon theme']}
 ];
 const carThemes=[
- {id:'mercedes',name:'Mercedes',logo:'MERCEDES',tag:'LUXURY • PRECISION • INNOVATION',a:'#139bff',a2:'#0d4e7d',lc:'#79caff',spec:['Digital cockpit','Premium UI','197 hp','7.1 L/100 km']},
- {id:'mazda',name:'Mazda',logo:'MAZDA',tag:'KODO DARK',a:'#b5121b',a2:'#5d0a0e',lc:'#e33d44',spec:['Kodo cockpit','Driver focus','Skyactiv','Dark red']},
- {id:'toyota',name:'Toyota',logo:'TOYOTA',tag:'CONNECTED DRIVE',a:'#e50019',a2:'#7b0010',lc:'#ff3e50',spec:['Connected UI','Clean metrics','Efficiency','OEM style']},
+ {id:'bmw',name:'BMW',logo:'BMW',tag:'M COCKPIT',a:'#1c69d4',a2:'#0d3e88',lc:'#5ba3ff',spec:['Curved display','M accent','Driver focus','Precision']},
+ {id:'generic',name:'Generic',logo:'GENERIC',tag:'NEUTRAL OEM',a:'#4f7fa3',a2:'#2a4b61',lc:'#91b7d2',spec:['Neutral design','Universal','Clean cards','Any vehicle']},
  {id:'honda',name:'Honda',logo:'HONDA',tag:'CLEAN COCKPIT',a:'#d71920',a2:'#7f0f14',lc:'#ff434a',spec:['Clean display','Red accent','Balanced UI','Daily drive']},
  {id:'kia',name:'Kia',logo:'KIA',tag:'MODERN MINIMAL',a:'#dfe3e6',a2:'#73787d',lc:'#ffffff',spec:['Wide cockpit','Minimal UI','Modern look','Neutral dark']},
- {id:'bmw',name:'BMW',logo:'BMW',tag:'M COCKPIT',a:'#1c69d4',a2:'#0d3e88',lc:'#5ba3ff',spec:['Curved display','M accent','Driver focus','Precision']},
+ {id:'mazda',name:'Mazda',logo:'MAZDA',tag:'KODO DARK',a:'#b5121b',a2:'#5d0a0e',lc:'#e33d44',spec:['Kodo cockpit','Driver focus','Skyactiv','Dark red']},
+ {id:'mercedes',name:'Mercedes',logo:'MERCEDES',tag:'LUXURY • PRECISION • INNOVATION',a:'#139bff',a2:'#0d4e7d',lc:'#79caff',spec:['Digital cockpit','Premium UI','197 hp','7.1 L/100 km']},
  {id:'suzuki',name:'Suzuki',logo:'SUZUKI',tag:'SPORT UTILITY',a:'#1e5cb3',a2:'#0e3d77',lc:'#5a96e7',spec:['Sport UI','Blue accent','Utility','Simple metrics']},
- {id:'generic',name:'Generic',logo:'GENERIC',tag:'NEUTRAL OEM',a:'#4f7fa3',a2:'#2a4b61',lc:'#91b7d2',spec:['Neutral design','Universal','Clean cards','Any vehicle']}
+ {id:'toyota',name:'Toyota',logo:'TOYOTA',tag:'CONNECTED DRIVE',a:'#e50019',a2:'#7b0010',lc:'#ff3e50',spec:['Connected UI','Clean metrics','Efficiency','OEM style']}
 ];
