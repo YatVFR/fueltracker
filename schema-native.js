@@ -78,7 +78,7 @@
     document.getElementById('historyBody').innerHTML=rows.map(r=>{
       let cost100='—';
       if(+r.mileage>0){const pos=mileageRows.findIndex(x=>x.id===r.id);if(pos>=1){const dist=+r.mileage-(+mileageRows[pos-1].mileage);const sgd=r.currency==='MYR'?(+r.cost||0)/entryFx(r):(+r.cost||0);if(dist>0)cost100='S$'+(sgd/dist*100).toFixed(2);}}
-      return `<tr><td>${esc(new Date(r.dateTime).toLocaleString())}<br><span style="color:#7f8a94">${esc(r.location)}</span></td><td>${+r.mileage>0?(+r.mileage).toLocaleString()+' km':'—'}</td><td>${(+r.volume).toFixed(2)} L</td><td>${money(r.cost,r.currency)}</td><td>${cost100}</td><td><button class="secondary" onclick="editRecord('${r.id}')">VIEW/EDIT</button> <button class="danger" onclick="deleteRecord('${r.id}')">DELETE</button></td></tr>`;
+      return `<tr><td>${esc(new Date(r.dateTime).toLocaleString())}<br><span style="color:#7f8a94">${esc(r.location)}</span></td><td>${+r.mileage>0?(+r.mileage).toLocaleString()+' km':'—'}</td><td>${(+r.volume).toFixed(3)} L</td><td>${money(r.cost,r.currency)}</td><td>${cost100}</td><td><button class="secondary" onclick="editRecord('${r.id}')">VIEW/EDIT</button> <button class="danger" onclick="deleteRecord('${r.id}')">DELETE</button></td></tr>`;
     }).join('');
     enhanceHistory();
   };
@@ -99,7 +99,7 @@
     document.getElementById('dateTime').value=(r.dateTime||'').slice(0,16);
     document.getElementById('mileage').value=r.mileage||0;
     const station=document.getElementById('station');ensureSelectOption(station,r.location);station.value=r.location||'';
-    document.getElementById('volume').value=r.volume;
+    document.getElementById('volume').value=Number(r.volume||0).toFixed(3);
     document.getElementById('cost').value=r.cost;
     document.getElementById('currency').value=r.currency||'';
     const grade=document.getElementById('fuelGrade');ensureSelectOption(grade,r.fuelType);grade.value=r.fuelType||'';
@@ -113,11 +113,12 @@
     e.preventDefault();
     const currency=document.getElementById('currency').value;
     const fx=currency==='MYR'?Number(document.getElementById('fxRate').value):null;
+    const rawVolume=Number(document.getElementById('volume').value);
     const r={
       id:document.getElementById('editId').value||uid(),
       dateTime:document.getElementById('dateTime').value,
       location:document.getElementById('station').value,
-      volume:Number(document.getElementById('volume').value),
+      volume:Number.isFinite(rawVolume)?Math.round(rawVolume*1000)/1000:0,
       cost:Number(document.getElementById('cost').value),
       currency,
       fxRateSGDMYR:currency==='MYR'&&fx>0?fx:null,
@@ -136,7 +137,7 @@
   exportCsv=function(){
     const data=currentRecords();if(!data.length){alert('No data to export.');return;}
     const header=['ID','Date & Time','Location','Volume (L)','Cost','Currency','Cost/L','SGD/MYR FX Rate','Mileage (KM)','Fuel Grade','Notes'];
-    const rows=data.map(e=>[e.id||'',e.dateTime?new Date(e.dateTime).toLocaleString():'',e.location,e.volume,e.cost,e.currency,e.volume?(Number(e.cost)/Number(e.volume)).toFixed(2):'',e.fxRateSGDMYR||'',e.mileage,e.fuelType||'',e.notes||'']);
+    const rows=data.map(e=>[e.id||'',e.dateTime?new Date(e.dateTime).toLocaleString():'',e.location,Number(e.volume||0).toFixed(3),e.cost,e.currency,e.volume?(Number(e.cost)/Number(e.volume)).toFixed(2):'',e.fxRateSGDMYR||'',e.mileage,e.fuelType||'',e.notes||'']);
     const q=v=>'"'+String(v??'').replaceAll('"','""')+'"';
     downloadBlob([header,...rows].map(r=>r.map(q).join(',')).join('\n'),(state.mode==='bike'?'Bike':'Car')+'Fuel.csv','text/csv;charset=utf-8');
   };
@@ -156,6 +157,8 @@
   function bindNativeForm(){
     const old=document.getElementById('fuelForm');if(!old)return;
     const fresh=old.cloneNode(true);old.replaceWith(fresh);
+    const volume=document.getElementById('volume');
+    if(volume){volume.step='0.001';volume.min='0.001';volume.placeholder='e.g. 12.345';}
     fresh.addEventListener('submit',nativeSaveRecord);
     document.getElementById('currency').addEventListener('change',syncFxField);
     document.getElementById('exportCsvBtn').onclick=exportCsv;
