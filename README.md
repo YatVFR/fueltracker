@@ -21,8 +21,12 @@ Current rollback baseline: **v15.6 Garage**
 - Newer unsupported backup schemas and future-version Garage backups are blocked with clearer messages
 - Duplicate or malformed vehicle profile identities in Garage backups are rejected before restore
 - Existing soft-refresh behavior is preserved
+- Browser exports continue to use direct file downloads
+- Installed iOS PWA exports use the native iOS Share Sheet for CSV, per-vehicle MasterDB and Whole Garage backup files
+- iOS Share Sheet exports support Save to Files, AirDrop and other native share destinations
+- Blob-download fallback remains available when native file sharing is unavailable
 - v15.6 data model, MasterDB flow, Garage Overview, Garage Analytics and Backup & Recovery remain structurally unchanged to minimize regression risk
-- Final stable PWA cache: `fueltracker-v15-7-stable-1`
+- Final stable PWA cache: `fueltracker-v15-7-stable-3`
 
 ## Stable baseline retained from v15.6
 - Whole Garage backup and recovery
@@ -44,6 +48,6 @@ Current rollback baseline: **v15.6 Garage**
 
 Live app: https://yatvfr.github.io/fueltracker/
 
-v15.7 passed device validation for the stabilization guard, soft refresh, per-profile state handling and Data Health record locating, and is now the approved stable baseline.
+v15.7 passed device validation for the stabilization guard, soft refresh, per-profile state handling, Data Health record locating and iOS PWA export via the native Share Sheet, and is the approved stable baseline.
 
 Rollback baseline: **v15.6 Garage**
