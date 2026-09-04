@@ -1,6 +1,6 @@
 (function(){
   'use strict';
-  const REV='v15.4-current-tank-compact-1';
+  const REV='v15.4-current-tank-compact-2';
   const MONTH_KEY='fueltrackerV14SelectedMonth';
 
   economyIntervals=function(){
@@ -108,7 +108,7 @@
         <div class="tank-primary-card"><div class="tank-k">Current Economy</div><div class="tank-v">${live.economy?live.economy.toFixed(1):'—'} <small>km/L</small></div><div class="tank-s">Live current-tank estimate</div></div>
       </div>
       <div class="tank-facts">
-        <div class="tank-fact"><div class="tank-k">Fuel</div><div class="tank-v">${live.litres.toFixed(2)} L</div></div>
+        <div class="tank-fact"><div class="tank-k">Fuel</div><div class="tank-v">${live.litres.toFixed(3)} L</div></div>
         <div class="tank-fact"><div class="tank-k">Tank Age</div><div class="tank-v">${live.tankAge!=null?live.tankAge:'—'} d</div></div>
         <div class="tank-fact"><div class="tank-k">Refuel Odo</div><div class="tank-v">${live.previous.toLocaleString()}</div></div>
         <div class="tank-fact"><div class="tank-k">Current Odo</div><div class="tank-v">${live.current.toLocaleString()}</div></div>
