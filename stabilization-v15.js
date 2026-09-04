@@ -1,7 +1,7 @@
 (function(){
   'use strict';
 
-  const REV='v15.7-stabilization-2';
+  const REV='v15.7-stabilization-3';
   const APP_VERSION='v15.7 Garage';
   const APP_NUMBER='15.7';
   const LEGACY_MONTH_KEY='fueltrackerV14SelectedMonth';
@@ -108,11 +108,12 @@
     try{return JSON.parse(localStorage.getItem(LEGACY_MONTH_KEY)||'{}')||{};}catch(e){return {};}
   }
   function writeLegacyMonths(v){localStorage.setItem(LEGACY_MONTH_KEY,JSON.stringify(v));}
-  function saveActiveMonth(){
-    const p=activeProfile();if(!p)return;
+  function saveMonthFor(p){
+    if(!p)return;
     const legacy=legacyMonths(),value=legacy[p.type];if(!value)return;
     const map=monthMap();map[p.id]=value;localStorage.setItem(PROFILE_MONTH_KEY,JSON.stringify(map));
   }
+  function saveActiveMonth(){saveMonthFor(activeProfile());}
   function applyActiveMonth(){
     const p=activeProfile();if(!p)return;
     const map=monthMap(),value=map[p.id];if(!value)return;
@@ -184,8 +185,9 @@
 
   let lastProfileId=activeProfile()?.id||'';
   document.addEventListener('click',e=>{
-    const switchBtn=e.target.closest('[data-profile-switch]');
-    if(switchBtn)saveActiveMonth();
+    if(e.target.closest('[data-profile-switch]'))saveActiveMonth();
+  },true);
+  document.addEventListener('click',()=>{
     setTimeout(()=>{
       const now=activeProfile()?.id||'';
       if(now&&now!==lastProfileId){lastProfileId=now;applyActiveMonth();}
