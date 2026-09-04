@@ -1,7 +1,7 @@
 (function(){
   'use strict';
-  const REV='v15.4-garage-overview-1';
-  const APP_VERSION='v15.4 Garage';
+  const REV='v15.5-garage-overview-1';
+  const APP_VERSION='v15.5 Garage';
 
   function garage(){return state.garageV15||null;}
   function profiles(){return garage()?.profiles||[];}
@@ -90,7 +90,7 @@
     box.querySelectorAll('[data-go-profile]').forEach(btn=>btn.onclick=()=>{const target=document.querySelector(`[data-profile-switch="${CSS.escape(btn.dataset.goProfile)}"]`);target?.click();setTimeout(()=>{renderOverview();document.querySelector('.hero-dash')?.scrollIntoView({behavior:'smooth',block:'start'});},30);});
   }
 
-  function setVersion(){const badge=document.querySelector('.brand small');if(badge)badge.textContent=APP_VERSION;document.title='Fuel Tracker v15.4';}
+  function setVersion(){const badge=document.querySelector('.brand small');if(badge)badge.textContent=APP_VERSION;document.title='Fuel Tracker v15.5';}
   function refresh(){installStyles();renderOverview();setVersion();}
 
   if(!garage()?.profiles?.length)return;state.garageV15.overviewRevision=REV;saveState?.();refresh();
