@@ -1,6 +1,6 @@
 (function(){
   'use strict';
-  const REV='v15.4-masterdb-2';
+  const REV='v15.5-masterdb-3';
 
   function clone(v){return JSON.parse(JSON.stringify(v));}
   function garage(){return state.garageV15;}
@@ -11,6 +11,9 @@
     if(p.legacy)return garage().legacy[p.type];
     p.data=p.data||{records:[],registration:'',theme:p.type==='bike'?'honda':'generic',odometer:{value:null,updatedAt:null}};
     return p.data;
+  }
+  function emitDataChange(action,p){
+    document.dispatchEvent(new CustomEvent('fueltracker:datachange',{detail:{action,profileId:p?.id||null,type:p?.type||state.mode}}));
   }
   function cleanName(v){return String(v||'').trim().replace(/[^a-zA-Z0-9_-]+/g,'-').replace(/^-+|-+$/g,'').slice(0,48);}
   function defaultDbName(p){
@@ -77,7 +80,7 @@
   }
   function payloadFor(p){
     saveActiveBack();const d=profileData(p);const meta=ensureMeta(p);
-    return {app:'Fuel Tracker Garage',version:15.4,database:meta.filename,profile:profileMeta(p,d),exportedAt:new Date().toISOString(),entries:(d.records||[]).map(normalizeEntry)};
+    return {app:'Fuel Tracker Garage',version:15.5,database:meta.filename,profile:profileMeta(p,d),exportedAt:new Date().toISOString(),entries:(d.records||[]).map(normalizeEntry)};
   }
   function downloadBlob(content,name,type){const blob=new Blob([content],{type});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),300);}
   function exportActiveDb(){
@@ -95,14 +98,22 @@
       const importedOdo=raw?.profile?.odometer;const importedValue=Number(importedOdo?.value);
       if(!(importedOdo&&Number.isFinite(importedValue)&&importedValue>=0))d.odometer=valid[0]?{value:Number(valid[0].mileage),updatedAt:valid[0].dateTime}:{value:null,updatedAt:null};
       const meta=ensureMeta(p);meta.filename=file.name&&file.name.toLowerCase().endsWith('.json')?file.name:meta.filename;meta.lastImportedAt=new Date().toISOString();meta.lastRecordCount=rows.length;
-      syncActiveSlot(p);saveState();renderAll();resetForm?.();setTimeout(renderMasterDbUi,0);alert(`MasterDB loaded for ${d.registration||p.name||p.type}.`);
-    }catch(err){alert('Invalid Fuel Tracker MasterDB file.');}};reader.readAsText(file);
+      syncActiveSlot(p);saveState();renderAll();resetForm?.();renderMasterDbUi();emitDataChange('import',p);alert(`MasterDB loaded for ${d.registration||p.name||p.type}.`);
+    }catch(err){console.error('MasterDB import failed',err);alert('Invalid Fuel Tracker MasterDB file.');}};reader.readAsText(file);
+  }
+  function clearActiveVehicleData(){
+    const p=activeProfile();if(!p)return;const d=profileData(p);if(!d)return;
+    const label=d.registration||p.name||p.type;
+    if(!confirm(`Clear all fuel records and reset Current Odometer for ${label}? Vehicle profile, registration and theme will be kept.`))return;
+    d.records=[];d.odometer={value:null,updatedAt:null};
+    const meta=ensureMeta(p);meta.lastRecordCount=0;
+    syncActiveSlot(p);saveState();renderAll();resetForm?.();renderMasterDbUi();emitDataChange('clear',p);
   }
   function newActiveDb(){
     const p=activeProfile();if(!p)return;const d=profileData(p);const label=d.registration||p.name||p.type;
-    if(!confirm(`Create a new empty MasterDB for ${label}? This clears only this vehicle's working records.`))return;
+    if(!confirm(`Create a new empty MasterDB for ${label}? This clears this vehicle's fuel records and Current Odometer but keeps its Garage profile.`))return;
     d.records=[];d.odometer={value:null,updatedAt:null};const meta=ensureMeta(p);meta.lastImportedAt=null;meta.lastExportedAt=null;meta.lastRecordCount=0;
-    syncActiveSlot(p);saveState();renderAll();resetForm?.();setTimeout(renderMasterDbUi,0);
+    syncActiveSlot(p);saveState();renderAll();resetForm?.();renderMasterDbUi();emitDataChange('newdb',p);
   }
   function fmt(v){if(!v)return 'Never';const d=new Date(v);return Number.isNaN(d.getTime())?'Never':d.toLocaleString();}
   function renderMasterDbUi(){
@@ -112,7 +123,7 @@
       let status=setting.querySelector('.v15-db-status');if(!status){status=document.createElement('div');status.className='v15-db-status';const actions=setting.querySelector('.actions');actions?.insertAdjacentElement('beforebegin',status);}
       const next=`<div><span>Profile</span><strong>${String(d.registration||p.name||p.type)}</strong></div><div><span>Records</span><strong>${(d.records||[]).length}</strong></div><div><span>Last Import</span><strong>${fmt(meta.lastImportedAt)}</strong></div><div><span>Last Export</span><strong>${fmt(meta.lastExportedAt)}</strong></div>`;
       if(status.innerHTML!==next)status.innerHTML=next;
-      const copy=setting.querySelector('p');if(copy)copy.textContent='This Garage vehicle owns an independent MasterDB. v15.4 backups include profile details, theme, current odometer and fuel records.';
+      const copy=setting.querySelector('p');if(copy)copy.textContent='This Garage vehicle owns an independent MasterDB. v15.5 backups include profile details, theme, current odometer and fuel records.';
     }
     document.querySelectorAll('.garage-profile').forEach((card,i)=>{const prof=profiles()[i];const node=card.querySelector('.garage-profile-db');if(prof&&node)node.textContent=ensureMeta(prof).filename;});
     saveState();
@@ -121,6 +132,7 @@
     const save=document.getElementById('saveDbBtn');if(save){save.textContent='EXPORT DB';save.onclick=exportActiveDb;}
     const input=document.getElementById('loadDbInput');if(input)input.onchange=e=>{importActiveDb(e.target.files?.[0]);e.target.value='';};
     const newBtn=document.getElementById('newDbBtn');if(newBtn)newBtn.onclick=newActiveDb;
+    const clear=document.getElementById('clearBtn');if(clear)clear.onclick=clearActiveVehicleData;
     const locate=document.querySelector(`button[onclick*="loadDbInput"]`);if(locate)locate.textContent='IMPORT DB';
   }
   function installStyles(){
