@@ -1,8 +1,8 @@
 # Fuel Tracker
 
-Active validation version: **v15.5 Garage**
+Current approved stable version: **v15.5 Garage**
 
-Current approved stable rollback baseline: **v15.4 Garage**
+Previous rollback baseline: **v15.4 Garage**
 
 ## v15.5 — Garage Analytics
 - Garage-wide analytical summary across all vehicle profiles
@@ -17,6 +17,9 @@ Current approved stable rollback baseline: **v15.4 Garage**
 - Latest 12-month combined Garage spending trend
 - Analytics uses each refuel record's stored SGD/MYR FX rate where available
 - Live Current Tank estimate is excluded from completed-interval Garage analytics to avoid double counting
+- CLEAR ALL DATA resets fuel history and Current Odometer across the whole Garage while preserving vehicle profiles, registrations, themes and enhanced vehicle details
+- MasterDB restore preserves profile metadata, theme and Current Odometer and now blocks Bike/Car profile-type mismatches
+- Final stable PWA cache: `fueltracker-v15-5-stable-1`
 
 ## Preserved from v15.4
 - Enhanced Vehicle Profiles: Make, Model, Year, Fuel Tank Capacity and Notes
@@ -35,6 +38,6 @@ Current approved stable rollback baseline: **v15.4 Garage**
 
 Live app: https://yatvfr.github.io/fueltracker/
 
-v15.4 remains the approved stable rollback point while v15.5 is being validated.
+v15.5 has passed code sanity review and device functional validation and is now the approved stable baseline.
 
-Next planned milestone after approval: **v15.6 Backup & Recovery**
+Next planned milestone: **v15.6 Backup & Recovery**
