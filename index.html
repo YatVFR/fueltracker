@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Fuel Tracker">
-<title>Fuel Tracker v15.4</title>
+<title>Fuel Tracker v15.5</title>
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="apple-touch-icon" href="./bikefueltracker/icons/icon-180.png">
 <link rel="stylesheet" href="./app.css">
@@ -17,7 +17,7 @@
 <body>
 <div class="app">
 <header>
-  <div class="brand"><h1>FUEL TRACKER</h1><small>v15.4 Garage</small></div>
+  <div class="brand"><h1>FUEL TRACKER</h1><small>v15.5 Garage</small></div>
   <div class="vehicle-switch" aria-label="My Garage">
     <button id="bikeBtn" class="active">BIKE</button>
     <button id="carBtn">CAR</button>
@@ -164,6 +164,7 @@
 <script src="./user-guide-v15.js"></script>
 <script src="./odometer-live-v15.js"></script>
 <script src="./garage-overview-v15.js"></script>
+<script src="./garage-analytics-v15.js"></script>
 <script>
 if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js',{scope:'./'}).catch(()=>{}));}
 </script>
