@@ -4,11 +4,12 @@
   const FX_KEYS={bike:'bikeLastSgdMyrRate',car:'carLastSgdMyrRate'};
 
   function normalizeEntry(e){
+    const volume=Number(e.volume);
     return {
       id:e.id||uid(),
       dateTime:e.dateTime||'',
       location:e.location||e.station||'',
-      volume:Number(e.volume)||0,
+      volume:Number.isFinite(volume)?Math.round(volume*1000)/1000:0,
       cost:Number(e.cost)||0,
       currency:String(e.currency||'').toUpperCase(),
       fxRateSGDMYR:Number(e.fxRateSGDMYR)>0?Number(e.fxRateSGDMYR):null,
