@@ -1,5 +1,5 @@
-const CACHE_NAME='fueltracker-v15-8-stable-1';
-const APP_SHELL=['./','./index.html','./app.css','./dashboard-restored.css','./bike-alignment.css','./mobile-header-fix.css','./garage-v15.css','./config.js','./app.js','./masterdb-compat.js','./dashboard-restored.js','./masterdb-seed.js','./schema-native.js','./bike-alignment.js','./garage-v15.js','./v15-hotfix.js','./masterdb-v15.js','./vehicle-model-v15.js','./user-guide-v15.js','./odometer-live-v15.js','./garage-overview-v15.js','./garage-analytics-v15.js','./garage-backup-v15.js','./stabilization-v15.js','./download-compat-v15.js','./navigation-v15-8.js','./manifest.webmanifest'];
+const CACHE_NAME='fueltracker-v16-0-automation-1';
+const APP_SHELL=['./','./index.html','./app.css','./dashboard-restored.css','./bike-alignment.css','./mobile-header-fix.css','./garage-v15.css','./config.js','./app.js','./masterdb-compat.js','./dashboard-restored.js','./masterdb-seed.js','./schema-native.js','./bike-alignment.js','./garage-v15.js','./v15-hotfix.js','./masterdb-v15.js','./vehicle-model-v15.js','./user-guide-v15.js','./odometer-live-v15.js','./garage-overview-v15.js','./garage-analytics-v15.js','./garage-backup-v15.js','./stabilization-v15.js','./download-compat-v15.js','./navigation-v15-8.js','./automation-v16.js','./manifest.webmanifest'];
 
 self.addEventListener('install',event=>{
   event.waitUntil(caches.open(CACHE_NAME).then(cache=>cache.addAll(APP_SHELL)));
@@ -12,6 +12,19 @@ self.addEventListener('activate',event=>{
 
 self.addEventListener('message',event=>{
   if(event.data&&event.data.type==='SKIP_WAITING') self.skipWaiting();
+});
+
+self.addEventListener('notificationclick',event=>{
+  event.notification.close();
+  const target=event.notification?.data?.url||'./?page=refuel';
+  event.waitUntil((async()=>{
+    const absolute=new URL(target,self.registration.scope).href;
+    const windows=await clients.matchAll({type:'window',includeUncontrolled:true});
+    for(const client of windows){
+      if('navigate' in client){await client.navigate(absolute);await client.focus();return;}
+    }
+    if(clients.openWindow)await clients.openWindow(absolute);
+  })());
 });
 
 async function refreshCurtainResponse(response,request){
