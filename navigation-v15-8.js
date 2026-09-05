@@ -1,7 +1,7 @@
 (function(){
   'use strict';
 
-  const REV='v15.8-page-navigation-2';
+  const REV='v15.8-page-navigation-3';
   const APP_VERSION='v15.8 Garage';
   const APP_NUMBER='15.8';
   const PAGE_KEY='fueltrackerV158ActivePage';
@@ -25,7 +25,9 @@
       .v158-page-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin:2px 0 8px;padding:0 2px}.v158-page-heading strong{font-size:12px;letter-spacing:.11em;text-transform:uppercase}.v158-page-heading span{font-size:8px;color:#7f8b96;text-align:right}
       body[data-v158-page="refuel"] .lower{margin-top:0}
       body[data-v158-page="settings"] #settingsBox{margin-top:0}
-      @media(max-width:580px){.v158-page-nav{top:4px;margin-top:6px;padding:5px;gap:4px}.v158-page-nav button{padding:8px 5px;font-size:8px}.v158-page-nav button span{font-size:6.5px}.v158-page-heading span{display:none}}
+      .v158-fuel-age{min-width:70px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4px 8px;border:1px solid #283640;border-radius:8px;background:#091017;color:#f3f6f8;line-height:1;text-align:center;box-sizing:border-box}
+      .v158-fuel-age-main{display:flex;align-items:flex-end;justify-content:center;gap:3px;min-height:25px}.v158-fuel-age-number{font-size:24px;font-weight:900;letter-spacing:-.04em;line-height:.9;color:#fff}.v158-fuel-age-unit{font-size:8px;font-weight:850;color:#9aa5ae;line-height:1.1;margin-bottom:2px;text-transform:lowercase}.v158-fuel-age-label{margin-top:4px;font-size:7px;font-weight:900;letter-spacing:.09em;color:#7f8b96;text-transform:uppercase;white-space:nowrap}
+      @media(max-width:580px){.v158-page-nav{top:4px;margin-top:6px;padding:5px;gap:4px}.v158-page-nav button{padding:8px 5px;font-size:8px}.v158-page-nav button span{font-size:6.5px}.v158-page-heading span{display:none}.v158-fuel-age{min-width:62px;padding:4px 6px}.v158-fuel-age-number{font-size:22px}.v158-fuel-age-unit{font-size:7px}.v158-fuel-age-label{font-size:6.5px}}
     `;
     document.head.appendChild(s);
   }
@@ -107,19 +109,55 @@
     document.getElementById('settingsBtn')?.remove();
   }
 
+  function fuelAgeDays(){
+    const rows=typeof currentRecords==='function'?[...currentRecords()]:[];
+    const latest=rows
+      .filter(r=>Number(r?.volume)>0&&r?.dateTime&&!Number.isNaN(new Date(r.dateTime).getTime()))
+      .sort((a,b)=>new Date(b.dateTime)-new Date(a.dateTime))[0];
+    if(!latest)return null;
+    const refuel=new Date(latest.dateTime),today=new Date();
+    const startRefuel=new Date(refuel.getFullYear(),refuel.getMonth(),refuel.getDate());
+    const startToday=new Date(today.getFullYear(),today.getMonth(),today.getDate());
+    return Math.max(0,Math.floor((startToday-startRefuel)/86400000));
+  }
+
+  function ensureFuelAge(){
+    const actions=document.querySelector('.head-actions');if(!actions)return null;
+    let metric=document.getElementById('v158FuelAge');
+    if(!metric){
+      metric=document.createElement('div');metric.id='v158FuelAge';metric.className='v158-fuel-age';
+      metric.setAttribute('aria-label','Fuel age since latest refuel');
+      metric.innerHTML='<div class="v158-fuel-age-main"><strong class="v158-fuel-age-number">—</strong><span class="v158-fuel-age-unit">days</span></div><span class="v158-fuel-age-label">Fuel Age</span>';
+      actions.appendChild(metric);
+    }
+    return metric;
+  }
+
+  function updateFuelAge(){
+    const metric=ensureFuelAge();if(!metric)return;
+    const days=fuelAgeDays();
+    const number=metric.querySelector('.v158-fuel-age-number');
+    const unit=metric.querySelector('.v158-fuel-age-unit');
+    if(number)number.textContent=days==null?'—':String(days);
+    if(unit)unit.textContent=days===1?'day':'days';
+    metric.title=days==null?'No valid refuel date available':`${days} ${days===1?'day':'days'} since latest refuel`;
+  }
+
   function refreshLayout(){
-    classifySections();ensureHeading('refuel');ensureHeading('settings');removeHeaderSettings();setVersion();
+    classifySections();ensureHeading('refuel');ensureHeading('settings');removeHeaderSettings();updateFuelAge();setVersion();
     const page=document.body.dataset.v158Page||currentPage();
     document.querySelectorAll('main > section.box').forEach(section=>section.classList.toggle('v158-page-hidden',section.dataset.v158Page!==page));
   }
 
-  installStyles();ensureNav();ownVersionNodes();removeHeaderSettings();showPage(currentPage(),false);setVersion();
+  installStyles();ensureNav();ownVersionNodes();removeHeaderSettings();updateFuelAge();showPage(currentPage(),false);setVersion();
 
   const main=document.querySelector('main');
   if(main){let timer;new MutationObserver(()=>{clearTimeout(timer);timer=setTimeout(refreshLayout,0);}).observe(main,{childList:true,subtree:false});}
   const brand=document.querySelector('.brand');if(brand)new MutationObserver(setVersion).observe(brand,{childList:true,subtree:true});
   const title=document.querySelector('title');if(title)new MutationObserver(setVersion).observe(title,{childList:true});
 
+  document.addEventListener('click',e=>{if(e.target.closest('[data-profile-switch],#bikeBtn,#carBtn'))setTimeout(updateFuelAge,80);});
+  document.getElementById('fuelForm')?.addEventListener('submit',()=>setTimeout(updateFuelAge,120));
   document.addEventListener('fueltracker:datachange',()=>setTimeout(refreshLayout,70));
-  window.FuelTrackerNavigation={revision:REV,version:APP_VERSION,showPage};
+  window.FuelTrackerNavigation={revision:REV,version:APP_VERSION,showPage,updateFuelAge};
 })();
