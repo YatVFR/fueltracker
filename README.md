@@ -1,21 +1,23 @@
 # Fuel Tracker
 
-Active validation version: **v15.8 Garage**
+Current approved stable version: **v15.8 Garage**
 
-Current approved stable rollback baseline: **v15.7 Garage**
+Current rollback baseline: **v15.7 Garage**
 
 ## v15.8 — Separated Pages
-- Dashboard, Refuel and Settings are now separated into dedicated app pages
+- Dashboard, Refuel and Settings are separated into dedicated app pages
 - Dashboard contains the vehicle hero, fuel/spending dashboard, Data Health, Garage Overview, Garage Analytics, Current Odometer and Current Tank
 - Refuel contains the Add Refuel form and Refuel History only
 - Settings contains Garage profiles, themes, registration, MasterDB, Backup & Recovery and Stability controls
-- A compact three-page navigation switcher is available above the working content
-- The existing header Settings button now opens the dedicated Settings page instead of scrolling to an embedded section
+- Compact Dashboard / Refuel / Settings navigation is available above the working content
 - The active page is remembered locally so the installed PWA can reopen where the user left off
+- The redundant header Settings button was removed
+- The former header space now shows live Fuel Age for the selected vehicle, with the day count emphasized in a larger font
+- Fuel Age is calculated from the latest valid refuel date and updates automatically when switching vehicles
 - Existing Garage, MasterDB, analytics, backup, Data Health and export logic remain on the same local-first state model
-- No fuel-record schema change is introduced in v15.8
+- No fuel-record schema change was introduced in v15.8
 - Existing iOS PWA Share Sheet export behavior is preserved
-- Validation PWA cache: `fueltracker-v15-8-navigation-1`
+- Final stable PWA cache: `fueltracker-v15-8-stable-1`
 
 ## Stable baseline retained from v15.7
 - Startup Garage stabilization guard
@@ -41,6 +43,6 @@ Current approved stable rollback baseline: **v15.7 Garage**
 
 Live app: https://yatvfr.github.io/fueltracker/
 
-v15.7 remains the approved stable rollback point while v15.8 page separation undergoes device validation.
+v15.8 passed device validation for separated pages, navigation, iPhone layout and Fuel Age header presentation, and is now the approved stable baseline.
 
-Validation target: confirm Dashboard / Refuel / Settings navigation, page persistence, Garage switching, refuel add/edit/delete, Data Health locating, Settings controls, MasterDB, Whole Garage backup/restore, iOS Share Sheet export, soft refresh and offline relaunch before promoting v15.8.
+Rollback baseline: **v15.7 Garage**
