@@ -1,25 +1,33 @@
 # Fuel Tracker
 
-Current approved stable version: **v15.8 Garage**
+Active validation version: **v16.0 Automation**
 
-Current rollback baseline: **v15.7 Garage**
+Current approved stable rollback baseline: **v15.8 Garage**
 
-## v15.8 — Separated Pages
-- Dashboard, Refuel and Settings are separated into dedicated app pages
-- Dashboard contains the vehicle hero, fuel/spending dashboard, Data Health, Garage Overview, Garage Analytics, Current Odometer and Current Tank
-- Refuel contains the Add Refuel form and Refuel History only
-- Settings contains Garage profiles, themes, registration, MasterDB, Backup & Recovery and Stability controls
-- Compact Dashboard / Refuel / Settings navigation is available above the working content
-- The active page is remembered locally so the installed PWA can reopen where the user left off
-- The redundant header Settings button was removed
-- The former header space now shows live Fuel Age for the selected vehicle, with the day count emphasized in a larger font
-- Fuel Age is calculated from the latest valid refuel date and updates automatically when switching vehicles
-- Existing Garage, MasterDB, analytics, backup, Data Health and export logic remain on the same local-first state model
-- No fuel-record schema change was introduced in v15.8
-- Existing iOS PWA Share Sheet export behavior is preserved
-- Final stable PWA cache: `fueltracker-v15-8-stable-1`
+## v16.0 — Refuel Automation Foundation
+- New Refuel Automation card in Settings
+- Foreground petrol-station geofence monitoring using device location while Fuel Tracker is open
+- User can save the current location as a known petrol-station geofence
+- Configurable station radius: 100 m, 150 m or 250 m
+- Configurable minimum stop duration: 1, 3, 5 or 10 minutes; 3 minutes is the default
+- A qualifying stop creates a **Possible Refuel** only; it never writes a fuel record automatically
+- Possible Refuels are stored locally in an inbox for review
+- Enter Refuel opens the dedicated Refuel page and pre-fills detected date/time, station type and a detection note
+- Dismiss removes a candidate from the pending inbox without touching fuel history
+- Notification permission and test-notification controls are included
+- Service-worker notification clicks deep-link back to the relevant Possible Refuel
+- A native bridge hook (`FuelTrackerAutomation.receiveDetection`) is available for a future iOS background geofence companion
+- No fuel-record schema change is introduced in v16.0
+- Existing v15.8 Dashboard / Refuel / Settings structure, Fuel Age, Garage, MasterDB, Backup & Recovery and export behavior remain intact
+- Validation PWA cache: `fueltracker-v16-0-automation-1`
 
-## Stable baseline retained from v15.7
+### Important iPhone limitation
+The GitHub Pages PWA cannot reliably monitor geolocation while suspended or fully closed. v16.0 therefore provides the complete web-side automation workflow and foreground geofence validation. Reliable closed-app petrol-station detection will require a small native iOS companion using Core Location region monitoring, which can feed detections into the same Possible Refuel workflow.
+
+## Stable baseline retained from v15.8
+- Dedicated Dashboard / Refuel / Settings pages
+- Remembered active page
+- Fuel Age header metric
 - Startup Garage stabilization guard
 - Per-profile monthly dashboard state
 - Data Health exact-record locating and REVIEW highlighting
@@ -31,18 +39,14 @@ Current rollback baseline: **v15.7 Garage**
 - Garage Analytics and Garage Overview
 - Enhanced Vehicle Profiles
 - Multi-vehicle Garage profiles
-- Alphabetical Bike and Car themes
-- Theme-aware active Garage selector
 - Soft Refresh / Check Update flow
-- CLEAR ALL DATA Garage-wide tracking reset
 - 3-decimal fuel volume precision
-- Compact Current Tank summary
 - Current Odometer and live economy calculations
 - Local-first PWA storage
 - Mobile-safe iPhone layout
 
 Live app: https://yatvfr.github.io/fueltracker/
 
-v15.8 passed device validation for separated pages, navigation, iPhone layout and Fuel Age header presentation, and is now the approved stable baseline.
+v15.8 remains the approved stable rollback point while v16.0 automation undergoes device validation.
 
-Rollback baseline: **v15.7 Garage**
+Validation target: enable notifications, save a petrol-station location, enable Detection, confirm foreground dwell detection creates a Possible Refuel, test notification tap/deep-link, confirm Enter Refuel prefill, dismiss workflow, Garage switching, offline relaunch and existing v15.8 regression checks.
