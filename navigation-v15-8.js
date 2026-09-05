@@ -1,7 +1,7 @@
 (function(){
   'use strict';
 
-  const REV='v15.8-page-navigation-1';
+  const REV='v15.8-page-navigation-2';
   const APP_VERSION='v15.8 Garage';
   const APP_NUMBER='15.8';
   const PAGE_KEY='fueltrackerV158ActivePage';
@@ -103,18 +103,17 @@
     if(document.title!=='Fuel Tracker v'+APP_NUMBER)document.title='Fuel Tracker v'+APP_NUMBER;
   }
 
-  function bindShortcuts(){
-    const settings=document.getElementById('settingsBtn');
-    if(settings){settings.onclick=()=>showPage('settings',true);settings.title='Open Settings page';}
+  function removeHeaderSettings(){
+    document.getElementById('settingsBtn')?.remove();
   }
 
   function refreshLayout(){
-    classifySections();ensureHeading('refuel');ensureHeading('settings');bindShortcuts();setVersion();
+    classifySections();ensureHeading('refuel');ensureHeading('settings');removeHeaderSettings();setVersion();
     const page=document.body.dataset.v158Page||currentPage();
     document.querySelectorAll('main > section.box').forEach(section=>section.classList.toggle('v158-page-hidden',section.dataset.v158Page!==page));
   }
 
-  installStyles();ensureNav();ownVersionNodes();showPage(currentPage(),false);bindShortcuts();setVersion();
+  installStyles();ensureNav();ownVersionNodes();removeHeaderSettings();showPage(currentPage(),false);setVersion();
 
   const main=document.querySelector('main');
   if(main){let timer;new MutationObserver(()=>{clearTimeout(timer);timer=setTimeout(refreshLayout,0);}).observe(main,{childList:true,subtree:false});}
