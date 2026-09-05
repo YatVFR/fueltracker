@@ -1,7 +1,7 @@
 (function(){
   'use strict';
 
-  const REV='v15.8-page-navigation-3';
+  const REV='v15.8-page-navigation-4';
   const APP_VERSION='v15.8 Garage';
   const APP_NUMBER='15.8';
   const PAGE_KEY='fueltrackerV158ActivePage';
@@ -160,4 +160,8 @@
   document.getElementById('fuelForm')?.addEventListener('submit',()=>setTimeout(updateFuelAge,120));
   document.addEventListener('fueltracker:datachange',()=>setTimeout(refreshLayout,70));
   window.FuelTrackerNavigation={revision:REV,version:APP_VERSION,showPage,updateFuelAge};
+
+  if(!document.getElementById('v160AutomationScript')){
+    const script=document.createElement('script');script.id='v160AutomationScript';script.src='./automation-v16.js';document.body.appendChild(script);
+  }
 })();
