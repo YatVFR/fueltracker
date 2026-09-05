@@ -9,7 +9,8 @@ Current approved stable rollback baseline: **v15.8 Garage**
 - Foreground petrol-station geofence monitoring using device location while Fuel Tracker is open
 - User can save the current location as a known petrol-station geofence
 - Configurable station radius: 100 m, 150 m or 250 m
-- Configurable minimum stop duration: 1, 3, 5 or 10 minutes; 3 minutes is the default
+- User-defined minimum stop duration from **1 to 60 minutes**; **3 minutes** is the default
+- Changing the dwell threshold updates the locally stored automation preference and is used for the next qualifying stop
 - A qualifying stop creates a **Possible Refuel** only; it never writes a fuel record automatically
 - Possible Refuels are stored locally in an inbox for review
 - Enter Refuel opens the dedicated Refuel page and pre-fills detected date/time, station type and a detection note
@@ -19,7 +20,7 @@ Current approved stable rollback baseline: **v15.8 Garage**
 - A native bridge hook (`FuelTrackerAutomation.receiveDetection`) is available for a future iOS background geofence companion
 - No fuel-record schema change is introduced in v16.0
 - Existing v15.8 Dashboard / Refuel / Settings structure, Fuel Age, Garage, MasterDB, Backup & Recovery and export behavior remain intact
-- Validation PWA cache: `fueltracker-v16-0-automation-1`
+- Validation PWA cache: `fueltracker-v16-0-automation-2`
 
 ### Important iPhone limitation
 The GitHub Pages PWA cannot reliably monitor geolocation while suspended or fully closed. v16.0 therefore provides the complete web-side automation workflow and foreground geofence validation. Reliable closed-app petrol-station detection will require a small native iOS companion using Core Location region monitoring, which can feed detections into the same Possible Refuel workflow.
@@ -49,4 +50,4 @@ Live app: https://yatvfr.github.io/fueltracker/
 
 v15.8 remains the approved stable rollback point while v16.0 automation undergoes device validation.
 
-Validation target: enable notifications, save a petrol-station location, enable Detection, confirm foreground dwell detection creates a Possible Refuel, test notification tap/deep-link, confirm Enter Refuel prefill, dismiss workflow, Garage switching, offline relaunch and existing v15.8 regression checks.
+Validation target: confirm the custom 1–60 minute dwell control persists, enable notifications, save a petrol-station location, enable Detection, confirm foreground dwell detection creates a Possible Refuel, test notification tap/deep-link, confirm Enter Refuel prefill, dismiss workflow, Garage switching, offline relaunch and existing v15.8 regression checks.
