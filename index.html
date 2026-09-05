@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Fuel Tracker">
-<title>Fuel Tracker v16.0</title>
+<title>Fuel Tracker v16.1</title>
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="apple-touch-icon" href="./bikefueltracker/icons/icon-180.png">
 <link rel="stylesheet" href="./app.css">
@@ -17,7 +17,7 @@
 <body>
 <div class="app">
 <header>
-  <div class="brand"><h1>FUEL TRACKER</h1><small>v16.0 Automation</small></div>
+  <div class="brand"><h1>FUEL TRACKER</h1><small>v16.1 Smart Stations</small></div>
   <div class="vehicle-switch" aria-label="My Garage">
     <button id="bikeBtn" class="active">BIKE</button>
     <button id="carBtn">CAR</button>
@@ -150,7 +150,7 @@
 
 <footer>Track every ride and drive. Optimize every drop.</footer>
 </div>
-<script>window.FUEL_TRACKER_VERSION='v16.0 Automation';window.FUEL_TRACKER_VERSION_NUMBER='16.0';</script>
+<script>window.FUEL_TRACKER_VERSION='v16.1 Smart Stations';window.FUEL_TRACKER_VERSION_NUMBER='16.1';</script>
 <script src="./config.js"></script>
 <script src="./app.js"></script>
 <script src="./masterdb-compat.js"></script>
@@ -171,6 +171,7 @@
 <script src="./download-compat-v15.js"></script>
 <script src="./navigation-v15-8.js"></script>
 <script src="./automation-dwell-v16.js"></script>
+<script src="./smart-stations-v16.js"></script>
 <script>
 if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js',{scope:'./'}).catch(()=>{}));}
 </script>
