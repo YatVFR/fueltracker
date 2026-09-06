@@ -1,28 +1,40 @@
 # Fuel Tracker
 
-Active validation version: **v16.1 Smart Stations**
+Active validation version: **v16.2 Smart Inbox**
 
 Current approved stable rollback baseline: **v15.8 Garage**
 
+## v16.2 — Smart Refuel Inbox
+- Dedicated **Possible Refuels** inbox added to the Refuel page
+- Pending detections are visible without opening Automation Settings
+- Inbox statuses: **Pending**, **Opened**, **Dismissed** and **Completed**
+- Compact counters summarize each inbox state
+- Filter between active items, all items, or a specific status
+- Enter Refuel opens the existing Refuel form using the automation prefill workflow
+- Dismiss moves a candidate out of the active queue without changing fuel history
+- Dismissed items can be reopened
+- When a refuel is saved from an opened Possible Refuel, v16.2 records the newly created refuel record ID in automation inbox metadata and marks the detection **Completed**
+- The fuel record itself is not modified, preserving the existing fuel-record schema
+- The Refuel navigation tab shows a pending-count badge when unresolved Possible Refuels exist
+- Existing v16.1 Smart Station Recognition and v16.0 automation behavior remains intact
+- Validation PWA cache: `fueltracker-v16-2-smart-inbox-1`
+
 ## v16.1 — Smart Station Recognition
-- Saved petrol stations now learn from explicit user confirmations
+- Saved petrol stations learn from explicit user confirmations
 - Each station tracks confirmation count and last confirmed date locally
-- Confidence labels are shown as **New**, **Known** or **Frequent**
+- Confidence labels: **New**, **Known** or **Frequent**
 - When several saved petrol stations fall within the GPS radius, the confirmation sheet ranks frequently confirmed stations ahead of less familiar stations while still showing distance
 - The highest-ranked previously confirmed station is visually emphasized, but Fuel Tracker never auto-selects it
-- User confirmation remains mandatory before dwell timing begins, preserving protection against GPS error and nearby-station ambiguity
+- User confirmation remains mandatory before dwell timing begins
 - Saved station cards in Settings show confirmation history and confidence
 - No fuel-record schema change is introduced
-- Existing v16.0 notification, dwell, station-confirmation and Possible Refuel behavior remains intact
-- Validation PWA cache: `fueltracker-v16-1-smart-stations-1`
 
 ## v16.0 — Refuel Automation Foundation
-- New Refuel Automation card in Settings
+- Refuel Automation card in Settings
 - Foreground petrol-station geofence monitoring using device location while Fuel Tracker is open
 - User can save the current location as a known petrol-station geofence
 - Configurable station radius: 100 m, 150 m or 250 m
 - User-defined minimum stop duration from **1 to 60 minutes**; **3 minutes** is the default
-- Changing the dwell threshold updates the locally stored automation preference and is used for the next qualifying stop
 - A compact **AUTO ON / AUTO OFF** indicator is shown in the app header
 - Tapping the header automation indicator opens **Settings → Refuel Automation** directly
 - GPS proximity does not automatically assume the nearest saved petrol station
@@ -30,16 +42,13 @@ Current approved stable rollback baseline: **v15.8 Garage**
 - Nearby station choices show their approximate GPS distance
 - The station confirmation sheet includes a **Not at a petrol station** option
 - A qualifying confirmed stop creates a **Possible Refuel** only; it never writes a fuel record automatically
-- Possible Refuels are stored locally in an inbox for review
-- Enter Refuel opens the dedicated Refuel page and pre-fills detected date/time, station type and a detection note
-- Dismiss removes a candidate from the pending inbox without touching fuel history
 - Notification permission and test-notification controls are included for supported installed web-app environments
 - Service-worker notification clicks deep-link back to the relevant Possible Refuel
 - A native bridge hook (`FuelTrackerAutomation.receiveDetection`) is available for a future iOS background geofence companion
-- No fuel-record schema change is introduced in v16.0
+- No fuel-record schema change is introduced
 
 ### Important iPhone limitation
-The GitHub Pages PWA cannot reliably monitor geolocation while suspended or fully closed. v16.x therefore provides the complete web-side automation workflow and foreground geofence validation. Reliable closed-app petrol-station detection will require a small native iOS companion using Core Location region monitoring, which can feed detections into the same Possible Refuel workflow.
+The GitHub Pages PWA cannot reliably monitor geolocation while suspended or fully closed. v16.x therefore provides the web-side automation workflow and foreground geofence validation. Reliable closed-app petrol-station detection will require a small native iOS companion using Core Location region monitoring, which can feed detections into the same Possible Refuel workflow.
 
 ## Stable baseline retained from v15.8
 - Dedicated Dashboard / Refuel / Settings pages
@@ -68,4 +77,4 @@ v15.8 remains the approved stable rollback point while v16.x automation undergoe
 
 Validated so far: installed web-app notification permission/test, notification tap opening the Refuel page, custom dwell persistence, and AUTO ON/OFF header redirection to Automation settings.
 
-Pending field validation: actual GPS geofence detection, multi-station confirmation, dwell timing, Possible Refuel creation and v16.1 station-learning/ranking during real petrol-station visits.
+Pending field validation: actual GPS geofence detection, multi-station confirmation, dwell timing, Possible Refuel creation, v16.1 station-learning/ranking during real petrol-station visits, and v16.2 end-to-end inbox completion linking after a detected refuel is saved.
