@@ -1,8 +1,26 @@
-const CACHE_NAME='fueltracker-v16-2-mobile-performance-1';
+const CACHE_NAME='fueltracker-v16-2-mobile-performance-2';
 const APP_SHELL=['./','./index.html','./app.css','./dashboard-restored.css','./bike-alignment.css','./mobile-header-fix.css','./garage-v15.css','./config.js','./app.js','./masterdb-compat.js','./dashboard-restored.js','./masterdb-seed.js','./schema-native.js','./bike-alignment.js','./garage-v15.js','./v15-hotfix.js','./masterdb-v15.js','./vehicle-model-v15.js','./user-guide-v15.js','./odometer-live-v15.js','./garage-overview-v15.js','./garage-analytics-v15.js','./garage-backup-v15.js','./stabilization-v15.js','./download-compat-v15.js','./navigation-v15-8.js','./automation-v16.js','./automation-dwell-v16.js','./smart-stations-v16.js?v=162-hotfix1','./smart-refuel-inbox-v16.js?v=162-hotfix1','./manifest.webmanifest'];
+const VERSION_SENSITIVE=new Set(['./','./index.html','./smart-stations-v16.js?v=162-hotfix1','./smart-refuel-inbox-v16.js?v=162-hotfix1']);
+
+async function buildAppShell(){
+  const next=await caches.open(CACHE_NAME);
+  await Promise.all(APP_SHELL.map(async asset=>{
+    let response=null;
+
+    // Reuse unchanged assets from the previous Fuel Tracker cache. This keeps
+    // service-worker updates light on mobile data while version-sensitive files
+    // are always fetched fresh.
+    if(!VERSION_SENSITIVE.has(asset))response=await caches.match(asset);
+    if(!response){
+      response=await fetch(asset,{cache:'no-store'});
+      if(!response||!response.ok)throw new Error('Unable to cache '+asset);
+    }
+    await next.put(asset,response.clone());
+  }));
+}
 
 self.addEventListener('install',event=>{
-  event.waitUntil(caches.open(CACHE_NAME).then(cache=>cache.addAll(APP_SHELL)));
+  event.waitUntil(buildAppShell());
   self.skipWaiting();
 });
 
@@ -56,8 +74,8 @@ self.addEventListener('fetch',event=>{
 
   if(request.mode==='navigate'){
     event.respondWith((async()=>{
-      // Local-first navigation: once the PWA is installed, launch from the
-      // precached shell immediately instead of waiting for a mobile network.
+      // Local-first navigation: once installed, launch immediately from the
+      // precached shell instead of waiting for Wi-Fi or a mobile network.
       const cached=await caches.match('./index.html');
       if(cached)return refreshCurtainResponse(cached,request);
 
