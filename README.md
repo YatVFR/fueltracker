@@ -17,7 +17,11 @@ Current approved stable rollback baseline: **v15.8 Garage**
 - The fuel record itself is not modified, preserving the existing fuel-record schema
 - The Refuel navigation tab shows a pending-count badge when unresolved Possible Refuels exist
 - Existing v16.1 Smart Station Recognition and v16.0 automation behavior remains intact
-- Validation PWA cache: `fueltracker-v16-2-smart-inbox-1`
+- v16.2 hotfix prevents older v16 version observers from competing with the active v16.2 UI owner
+- Mobile-network performance improvement: installed PWA navigation now launches from the local cache immediately instead of waiting for a network-first GitHub Pages response
+- **Refresh → Check update** remains the explicit release-update path
+- Service-worker updates reuse unchanged cached app-shell assets and fetch only version-sensitive files, reducing repeated downloads on 4G/mobile data
+- Validation PWA cache: `fueltracker-v16-2-mobile-performance-2`
 
 ## v16.1 — Smart Station Recognition
 - Saved petrol stations learn from explicit user confirmations
@@ -77,4 +81,4 @@ v15.8 remains the approved stable rollback point while v16.x automation undergoe
 
 Validated so far: installed web-app notification permission/test, notification tap opening the Refuel page, custom dwell persistence, and AUTO ON/OFF header redirection to Automation settings.
 
-Pending field validation: actual GPS geofence detection, multi-station confirmation, dwell timing, Possible Refuel creation, v16.1 station-learning/ranking during real petrol-station visits, and v16.2 end-to-end inbox completion linking after a detected refuel is saved.
+Pending validation: v16.2 mobile-network launch/update performance, actual GPS geofence detection, multi-station confirmation, dwell timing, Possible Refuel creation, v16.1 station-learning/ranking during real petrol-station visits, and v16.2 end-to-end inbox completion linking after a detected refuel is saved.
