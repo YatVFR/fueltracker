@@ -2,7 +2,7 @@
   'use strict';
   if(window.FuelTrackerSmartStations)return;
 
-  const REV='v16.1-smart-stations-1';
+  const REV='v16.1-smart-stations-2';
   const APP_VERSION='v16.1 Smart Stations';
   const APP_NUMBER='16.1';
   const STATIONS_KEY='fueltrackerV160Stations';
@@ -11,7 +11,7 @@
     try{const v=JSON.parse(localStorage.getItem(STATIONS_KEY)||'[]');return Array.isArray(v)?v:[];}catch(e){return [];}
   };
   const saveStations=v=>localStorage.setItem(STATIONS_KEY,JSON.stringify(v));
-  const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[m]));
 
   function confidence(station){
     const n=Number(station?.confirmationCount)||0;
@@ -41,7 +41,13 @@
     document.head.appendChild(s);
   }
 
+  function newerVersionOwnsUi(){
+    const current=Number(window.FUEL_TRACKER_VERSION_NUMBER);
+    return Number.isFinite(current)&&current>Number(APP_NUMBER);
+  }
+
   function setVersion(){
+    if(newerVersionOwnsUi())return;
     window.FUEL_TRACKER_VERSION=APP_VERSION;window.FUEL_TRACKER_VERSION_NUMBER=APP_NUMBER;
     const badge=document.querySelector('.brand small');if(badge&&badge.textContent!==APP_VERSION)badge.textContent=APP_VERSION;
     if(document.title!=='Fuel Tracker v'+APP_NUMBER)document.title='Fuel Tracker v'+APP_NUMBER;
