@@ -1,4 +1,4 @@
-const CACHE_NAME='fueltracker-v16-2-smart-inbox-hotfix-1';
+const CACHE_NAME='fueltracker-v16-2-mobile-performance-1';
 const APP_SHELL=['./','./index.html','./app.css','./dashboard-restored.css','./bike-alignment.css','./mobile-header-fix.css','./garage-v15.css','./config.js','./app.js','./masterdb-compat.js','./dashboard-restored.js','./masterdb-seed.js','./schema-native.js','./bike-alignment.js','./garage-v15.js','./v15-hotfix.js','./masterdb-v15.js','./vehicle-model-v15.js','./user-guide-v15.js','./odometer-live-v15.js','./garage-overview-v15.js','./garage-analytics-v15.js','./garage-backup-v15.js','./stabilization-v15.js','./download-compat-v15.js','./navigation-v15-8.js','./automation-v16.js','./automation-dwell-v16.js','./smart-stations-v16.js?v=162-hotfix1','./smart-refuel-inbox-v16.js?v=162-hotfix1','./manifest.webmanifest'];
 
 self.addEventListener('install',event=>{
@@ -53,23 +53,29 @@ async function refreshCurtainResponse(response,request){
 self.addEventListener('fetch',event=>{
   if(event.request.method!=='GET') return;
   const request=event.request;
+
   if(request.mode==='navigate'){
     event.respondWith((async()=>{
+      // Local-first navigation: once the PWA is installed, launch from the
+      // precached shell immediately instead of waiting for a mobile network.
+      const cached=await caches.match('./index.html');
+      if(cached)return refreshCurtainResponse(cached,request);
+
+      // First-run / cache-recovery fallback only.
       try{
         const fresh=await fetch(request,{cache:'no-store'});
         if(fresh&&fresh.ok){
           const cache=await caches.open(CACHE_NAME);
           const clean=await fetch('./index.html',{cache:'no-store'}).catch(()=>null);
-          if(clean&&clean.ok)cache.put('./index.html',clean.clone());
+          if(clean&&clean.ok)await cache.put('./index.html',clean.clone());
           return refreshCurtainResponse(fresh,request);
         }
       }catch(e){}
-      const cached=await caches.match('./index.html');
-      if(cached)return refreshCurtainResponse(cached,request);
       return new Response('Fuel Tracker unavailable offline until opened once.',{status:503});
     })());
     return;
   }
+
   event.respondWith(caches.match(request).then(cached=>cached||fetch(request).then(response=>{
     if(response&&response.ok){caches.open(CACHE_NAME).then(cache=>cache.put(request,response.clone()));}
     return response;
