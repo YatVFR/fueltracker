@@ -2,7 +2,7 @@
   'use strict';
   if(window.FuelTrackerRuntimeRecoveryV16)return;
 
-  const REV='v16.3-runtime-recovery-1';
+  const REV='v16.3-runtime-recovery-2';
   const VERSION='v16.3 Garage Maintenance';
   const DISPLAY='16.3';
   const COMPAT='16.3';
@@ -15,6 +15,7 @@
     const badge=document.querySelector('.brand small');if(badge)badge.textContent=VERSION;
     document.title='Fuel Tracker v'+DISPLAY;
   }
+  function hasGarage(){try{return typeof state!=='undefined'&&Array.isArray(state?.garageV15?.profiles)&&state.garageV15.profiles.length>0;}catch(e){return false;}}
   function addCss(href,key){
     if(document.querySelector(`link[data-${key}]`)||document.querySelector(`link[href="${href}"]`))return;
     const l=document.createElement('link');l.rel='stylesheet';l.href=href;l.dataset[key]='1';document.head.appendChild(l);
@@ -27,14 +28,11 @@
   }
 
   async function recover(){
-    addCss('./mobile-header-fix.css','v163Mobile');
-    addCss('./garage-v15.css','v163Garage');
-    applyVersion();
-
+    addCss('./mobile-header-fix.css','v163Mobile');addCss('./garage-v15.css','v163Garage');applyVersion();
     try{if(typeof renderAll==='function')renderAll();}catch(e){console.warn('v16.3 render recovery',e);}
     await sleep(80);
 
-    if(!(window.state?.garageV15?.profiles?.length)){
+    if(!hasGarage()){
       await load('v163GarageScript','./garage-v15.js?v=163');
       try{if(typeof renderAll==='function')renderAll();}catch(e){}
       await sleep(80);
@@ -56,7 +54,6 @@
   }
 
   window.FuelTrackerRuntimeRecoveryV16={revision:REV,version:VERSION,recover,applyVersion};
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(recover,80),{once:true});
-  else setTimeout(recover,80);
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(recover,80),{once:true});else setTimeout(recover,80);
   window.addEventListener('load',()=>setTimeout(recover,120),{once:true});
 })();
