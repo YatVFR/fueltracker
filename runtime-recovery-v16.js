@@ -2,10 +2,10 @@
   'use strict';
   if(window.FuelTrackerRuntimeRecoveryV16)return;
 
-  const REV='v16.3-runtime-recovery-2';
-  const VERSION='v16.3 Garage Maintenance';
-  const DISPLAY='16.3';
-  const COMPAT='16.3';
+  const REV='v16.3.1-runtime-recovery-1';
+  const VERSION='v16.3.1 Maintenance Form Fix';
+  const DISPLAY='16.3.1';
+  const COMPAT='16.31';
 
   const sleep=ms=>new Promise(r=>setTimeout(r,ms));
   function applyVersion(){
@@ -28,23 +28,26 @@
   }
 
   async function recover(){
-    addCss('./mobile-header-fix.css','v163Mobile');addCss('./garage-v15.css','v163Garage');applyVersion();
-    try{if(typeof renderAll==='function')renderAll();}catch(e){console.warn('v16.3 render recovery',e);}
+    addCss('./mobile-header-fix.css','v1631Mobile');
+    addCss('./garage-v15.css','v1631Garage');
+    addCss('./maintenance-form-fix-v16.css','v1631MaintenanceForm');
+    applyVersion();
+    try{if(typeof renderAll==='function')renderAll();}catch(e){console.warn('v16.3.1 render recovery',e);}
     await sleep(80);
 
     if(!hasGarage()){
-      await load('v163GarageScript','./garage-v15.js?v=163');
+      await load('v1631GarageScript','./garage-v15.js?v=1631');
       try{if(typeof renderAll==='function')renderAll();}catch(e){}
       await sleep(80);
     }
-    if(!document.getElementById('garageOverviewBox'))await load('v163OverviewScript','./garage-overview-v15.js?v=163');
-    if(!document.getElementById('garageAnalyticsBox'))await load('v163AnalyticsScript','./garage-analytics-v15.js?v=163');
-    if(!document.getElementById('odometerGrid')?.children.length)await load('v163OdoScript','./odometer-live-v15.js?v=163');
-    if(!document.getElementById('v158PageNav'))await load('v163NavScript','./navigation-v15-8.js?v=163');
+    if(!document.getElementById('garageOverviewBox'))await load('v1631OverviewScript','./garage-overview-v15.js?v=1631');
+    if(!document.getElementById('garageAnalyticsBox'))await load('v1631AnalyticsScript','./garage-analytics-v15.js?v=1631');
+    if(!document.getElementById('odometerGrid')?.children.length)await load('v1631OdoScript','./odometer-live-v15.js?v=1631');
+    if(!document.getElementById('v158PageNav'))await load('v1631NavScript','./navigation-v15-8.js?v=1631');
     await sleep(120);
-    if(!window.FuelTrackerAutomation)await load('v163AutomationScript','./automation-v16.js?v=163');
-    if(!window.FuelTrackerGarageMaintenanceV16)await load('v163MaintenanceScript','./garage-maintenance-v16.js?v=163');
-    if(!window.FuelTrackerUpdateStatusV16)await load('v163UpdateStatusScript','./update-status-v16.js?v=163');
+    if(!window.FuelTrackerAutomation)await load('v1631AutomationScript','./automation-v16.js?v=1631');
+    if(!window.FuelTrackerGarageMaintenanceV16)await load('v1631MaintenanceScript','./garage-maintenance-v16.js?v=1631');
+    if(!window.FuelTrackerUpdateStatusV16)await load('v1631UpdateStatusScript','./update-status-v16.js?v=1631');
 
     try{window.FuelTrackerNavigation?.updateFuelAge?.();}catch(e){}
     try{window.FuelTrackerAutomation?.updateAutoIndicator?.();}catch(e){}
