@@ -2,7 +2,7 @@
   'use strict';
   if(window.FuelTrackerSmartStations)return;
 
-  const REV='v16.1-smart-stations-2';
+  const REV='v16.1-smart-stations-3';
   const APP_VERSION='v16.1 Smart Stations';
   const APP_NUMBER='16.1';
   const STATIONS_KEY='fueltrackerV160Stations';
@@ -11,7 +11,7 @@
     try{const v=JSON.parse(localStorage.getItem(STATIONS_KEY)||'[]');return Array.isArray(v)?v:[];}catch(e){return [];}
   };
   const saveStations=v=>localStorage.setItem(STATIONS_KEY,JSON.stringify(v));
-  const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[m]));
+  const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 
   function confidence(station){
     const n=Number(station?.confirmationCount)||0;
@@ -53,6 +53,12 @@
     if(document.title!=='Fuel Tracker v'+APP_NUMBER)document.title='Fuel Tracker v'+APP_NUMBER;
   }
 
+  function stationMetaHtml(station){
+    const c=confidence(station),count=Number(station.confirmationCount)||0;
+    const last=station.lastConfirmedAt?new Date(station.lastConfirmedAt).toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'}):'Never confirmed';
+    return `<span class="v161-confidence ${c.label.toLowerCase()}">${esc(c.label)}</span> <b>${count} confirmation${count===1?'':'s'}</b> · Last: ${esc(last)}`;
+  }
+
   function annotateSettingsStations(){
     const list=loadStations();
     document.querySelectorAll('#v160AutomationCard .v160-station').forEach(row=>{
@@ -60,13 +66,16 @@
       if(!remove)return;
       const station=list.find(s=>String(s.id)===String(remove.dataset.v160Remove));if(!station)return;
       const info=row.querySelector('div');if(!info)return;
-      info.querySelector('.v161-station-meta')?.remove();
-      const c=confidence(station),count=Number(station.confirmationCount)||0;
-      const last=station.lastConfirmedAt?new Date(station.lastConfirmedAt).toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'}):'Never confirmed';
-      const meta=document.createElement('div');meta.className='v161-station-meta';
-      meta.innerHTML=`<span class="v161-confidence ${c.label.toLowerCase()}">${esc(c.label)}</span> <b>${count} confirmation${count===1?'':'s'}</b> · Last: ${esc(last)}`;
-      info.appendChild(meta);
+      const html=stationMetaHtml(station);
+      let meta=info.querySelector('.v161-station-meta');
+      if(meta){if(meta.innerHTML!==html)meta.innerHTML=html;return;}
+      meta=document.createElement('div');meta.className='v161-station-meta';meta.innerHTML=html;info.appendChild(meta);
     });
+  }
+
+  function choiceMetaHtml(station){
+    const c=confidence(station),count=Number(station.confirmationCount)||0;
+    return `<span class="v161-confidence ${c.label.toLowerCase()}">${esc(c.label)}</span>${count} prior confirmation${count===1?'':'s'}`;
   }
 
   function reorderConfirmation(){
@@ -86,34 +95,45 @@
     const cancel=card.querySelector('#v160StationNotHere');
     parsed.forEach((x,i)=>{
       x.btn.classList.toggle('v161-preferred',i===0&&(Number(x.station.confirmationCount)||0)>0);
-      x.btn.querySelector('.v161-choice-meta')?.remove();
-      const meta=document.createElement('span');meta.className='v161-choice-meta';
-      meta.innerHTML=`<span class="v161-confidence ${x.c.label.toLowerCase()}">${esc(x.c.label)}</span>${Number(x.station.confirmationCount)||0} prior confirmation${(Number(x.station.confirmationCount)||0)===1?'':'s'}`;
-      x.btn.appendChild(meta);
-      card.insertBefore(x.btn,cancel||null);
+      const html=choiceMetaHtml(x.station);
+      let meta=x.btn.querySelector('.v161-choice-meta');
+      if(meta){if(meta.innerHTML!==html)meta.innerHTML=html;}else{meta=document.createElement('span');meta.className='v161-choice-meta';meta.innerHTML=html;x.btn.appendChild(meta);}
     });
+    const current=[...card.querySelectorAll('[data-v160-station-choice]')];
+    const needsReorder=parsed.some((x,i)=>current[i]!==x.btn);
+    if(needsReorder)parsed.forEach(x=>card.insertBefore(x.btn,cancel||null));
   }
 
   document.addEventListener('click',e=>{
     const btn=e.target.closest?.('[data-v160-station-choice]');
     if(btn){
       const station=confirmStation(btn.dataset.v160StationChoice);
-      if(station)setTimeout(()=>{annotateSettingsStations();},40);
+      if(station)setTimeout(()=>{annotateSettingsStations();reorderConfirmation();},40);
     }
   },true);
 
+  // Observe only newly rendered automation/station UI. Ignore our own
+  // v16.1 annotation nodes so the observer cannot trigger itself forever.
   let timer=null;
-  new MutationObserver(()=>{
+  const observer=new MutationObserver(records=>{
+    let relevant=false;
+    for(const record of records){
+      for(const node of record.addedNodes){
+        if(!(node instanceof Element))continue;
+        if(node.matches?.('.v161-station-meta,.v161-choice-meta,.v161-confidence'))continue;
+        if(node.matches?.('#v160AutomationCard,.v160-station,#v160StationConfirm,[data-v160-station-choice]')||node.querySelector?.('#v160AutomationCard,.v160-station,#v160StationConfirm,[data-v160-station-choice]')){relevant=true;break;}
+      }
+      if(relevant)break;
+    }
+    if(!relevant)return;
     clearTimeout(timer);
     timer=setTimeout(()=>{reorderConfirmation();annotateSettingsStations();setVersion();},0);
-  }).observe(document.body,{childList:true,subtree:true});
+  });
+  observer.observe(document.body,{childList:true,subtree:true});
 
   installStyles();setVersion();annotateSettingsStations();reorderConfirmation();
   document.addEventListener('fueltracker:pagechange',e=>{if(e.detail?.page==='settings')setTimeout(annotateSettingsStations,40);});
   document.addEventListener('fueltracker:datachange',()=>setTimeout(()=>{annotateSettingsStations();setVersion();},80));
-
-  const brand=document.querySelector('.brand');if(brand)new MutationObserver(setVersion).observe(brand,{childList:true,subtree:true});
-  const title=document.querySelector('title');if(title)new MutationObserver(setVersion).observe(title,{childList:true});
 
   window.FuelTrackerSmartStations={revision:REV,version:APP_VERSION,confidence,confirmStation,refresh:()=>{annotateSettingsStations();reorderConfirmation();setVersion();}};
 })();
