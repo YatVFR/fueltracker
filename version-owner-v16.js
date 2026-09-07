@@ -2,9 +2,12 @@
   'use strict';
   if(window.FuelTrackerVersionOwnerV16)return;
 
-  const REV='v16.1.1-version-owner-2';
-  const APP_VERSION='v16.1.1 Smart Stations';
-  const APP_NUMBER='16.1.1';
+  const REV='v16.1.2-version-owner-1';
+  const APP_VERSION='v16.1.2 Smart Stations';
+  const DISPLAY_NUMBER='16.1.2';
+  // Numeric compatibility for older modules that compare versions with Number().
+  // 16.12 is greater than 16.1 while the visible semantic version stays 16.1.2.
+  const COMPAT_NUMBER='16.12';
 
   function detachLegacyVersionObservers(){
     const brand=document.querySelector('.brand');
@@ -24,16 +27,17 @@
 
   function apply(){
     window.FUEL_TRACKER_VERSION=APP_VERSION;
-    window.FUEL_TRACKER_VERSION_NUMBER=APP_NUMBER;
+    window.FUEL_TRACKER_VERSION_NUMBER=COMPAT_NUMBER;
+    window.FUEL_TRACKER_DISPLAY_VERSION=DISPLAY_NUMBER;
     const badge=document.querySelector('.brand small');
     if(badge&&badge.textContent!==APP_VERSION)badge.textContent=APP_VERSION;
-    const wanted='Fuel Tracker v'+APP_NUMBER;
+    const wanted='Fuel Tracker v'+DISPLAY_NUMBER;
     if(document.title!==wanted)document.title=wanted;
   }
 
-  // Detach observers installed by historical v15 modules, then reassert the
-  // active release at finite lifecycle points only. No page-wide observer and
-  // no repeating timer are used.
+  // Historical v15 modules attached observers directly to the original brand/title.
+  // Clone those nodes once to detach the legacy observers, then reassert only at
+  // finite lifecycle points. No page-wide observer or repeating interval is used.
   detachLegacyVersionObservers();
   apply();
   [0,250,900,1800].forEach(ms=>setTimeout(apply,ms));
@@ -44,5 +48,5 @@
   document.addEventListener('change',()=>setTimeout(apply,90));
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)apply();});
 
-  window.FuelTrackerVersionOwnerV16={revision:REV,version:APP_VERSION,apply};
+  window.FuelTrackerVersionOwnerV16={revision:REV,version:APP_VERSION,displayVersion:DISPLAY_NUMBER,apply};
 })();
