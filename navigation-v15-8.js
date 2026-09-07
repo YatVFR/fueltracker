@@ -1,11 +1,11 @@
 (function(){
   'use strict';
 
-  const REV='v15.8-page-navigation-4';
+  const REV='v16.3.2-page-navigation-1';
   const APP_VERSION='v15.8 Garage';
   const APP_NUMBER='15.8';
   const PAGE_KEY='fueltrackerV158ActivePage';
-  const PAGES=new Set(['dashboard','refuel','settings']);
+  const PAGES=new Set(['dashboard','refuel','maintenance','settings']);
 
   function currentPage(){
     const saved=localStorage.getItem(PAGE_KEY);
@@ -17,17 +17,17 @@
     const s=document.createElement('style');
     s.id='v158NavigationStyles';
     s.textContent=`
-      .v158-page-nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:8px 0 10px;padding:6px;border:1px solid #26343f;border-radius:11px;background:#081017;position:sticky;top:6px;z-index:120;box-shadow:0 8px 22px rgba(0,0,0,.22)}
-      .v158-page-nav button{min-width:0;border:1px solid transparent;border-radius:8px;background:transparent;color:#8e99a3;padding:9px 8px;font-size:9px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
+      .v158-page-nav{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:8px 0 10px;padding:6px;border:1px solid #26343f;border-radius:11px;background:#081017;position:sticky;top:6px;z-index:120;box-shadow:0 8px 22px rgba(0,0,0,.22)}
+      .v158-page-nav button{min-width:0;border:1px solid transparent;border-radius:8px;background:transparent;color:#8e99a3;padding:9px 6px;font-size:8.5px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
       .v158-page-nav button.active{color:#fff;background:linear-gradient(135deg,var(--accent2,#0d62d9),var(--accent,#137fe8));border-color:color-mix(in srgb,var(--accent,#137fe8) 35%,transparent)}
-      .v158-page-nav button span{display:block;margin-top:2px;font-size:7px;font-weight:700;letter-spacing:.02em;text-transform:none;color:inherit;opacity:.72;overflow:hidden;text-overflow:ellipsis}
+      .v158-page-nav button span{display:block;margin-top:2px;font-size:6.5px;font-weight:700;letter-spacing:.01em;text-transform:none;color:inherit;opacity:.72;overflow:hidden;text-overflow:ellipsis}
       main>section.v158-page-hidden{display:none!important}
       .v158-page-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin:2px 0 8px;padding:0 2px}.v158-page-heading strong{font-size:12px;letter-spacing:.11em;text-transform:uppercase}.v158-page-heading span{font-size:8px;color:#7f8b96;text-align:right}
       body[data-v158-page="refuel"] .lower{margin-top:0}
       body[data-v158-page="settings"] #settingsBox{margin-top:0}
       .v158-fuel-age{min-width:70px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4px 8px;border:1px solid #283640;border-radius:8px;background:#091017;color:#f3f6f8;line-height:1;text-align:center;box-sizing:border-box}
       .v158-fuel-age-main{display:flex;align-items:flex-end;justify-content:center;gap:3px;min-height:25px}.v158-fuel-age-number{font-size:24px;font-weight:900;letter-spacing:-.04em;line-height:.9;color:#fff}.v158-fuel-age-unit{font-size:8px;font-weight:850;color:#9aa5ae;line-height:1.1;margin-bottom:2px;text-transform:lowercase}.v158-fuel-age-label{margin-top:4px;font-size:7px;font-weight:900;letter-spacing:.09em;color:#7f8b96;text-transform:uppercase;white-space:nowrap}
-      @media(max-width:580px){.v158-page-nav{top:4px;margin-top:6px;padding:5px;gap:4px}.v158-page-nav button{padding:8px 5px;font-size:8px}.v158-page-nav button span{font-size:6.5px}.v158-page-heading span{display:none}.v158-fuel-age{min-width:62px;padding:4px 6px}.v158-fuel-age-number{font-size:22px}.v158-fuel-age-unit{font-size:7px}.v158-fuel-age-label{font-size:6.5px}}
+      @media(max-width:580px){.v158-page-nav{top:4px;margin-top:6px;padding:5px;gap:3px}.v158-page-nav button{padding:8px 3px;font-size:7.3px;letter-spacing:.035em}.v158-page-nav button span{font-size:5.8px}.v158-page-heading span{display:none}.v158-fuel-age{min-width:62px;padding:4px 6px}.v158-fuel-age-number{font-size:22px}.v158-fuel-age-unit{font-size:7px}.v158-fuel-age-label{font-size:6.5px}}
     `;
     document.head.appendChild(s);
   }
@@ -39,8 +39,9 @@
     nav=document.createElement('nav');
     nav.id='v158PageNav';nav.className='v158-page-nav';nav.setAttribute('aria-label','Fuel Tracker pages');
     nav.innerHTML=`
-      <button type="button" data-v158-page="dashboard"><b>Dashboard</b><span>Overview & analytics</span></button>
-      <button type="button" data-v158-page="refuel"><b>Refuel</b><span>Entry & history</span></button>
+      <button type="button" data-v158-page="dashboard"><b>Dashboard</b><span>Overview</span></button>
+      <button type="button" data-v158-page="refuel"><b>Refuel</b><span>Fuel logs</span></button>
+      <button type="button" data-v158-page="maintenance"><b>Maintenance</b><span>Service & costs</span></button>
       <button type="button" data-v158-page="settings"><b>Settings</b><span>Garage & data</span></button>`;
     main.insertAdjacentElement('beforebegin',nav);
     nav.querySelectorAll('[data-v158-page]').forEach(btn=>btn.onclick=()=>showPage(btn.dataset.v158Page,true));
@@ -49,6 +50,7 @@
 
   function pageForSection(section){
     if(section.id==='settingsBox')return 'settings';
+    if(section.id==='garageMaintenanceBox')return 'maintenance';
     if(section.classList.contains('lower'))return 'refuel';
     return 'dashboard';
   }
@@ -90,13 +92,9 @@
 
   function ownVersionNodes(){
     const oldBrand=document.querySelector('.brand');
-    if(oldBrand&&!oldBrand.dataset.v158Owned){
-      const next=oldBrand.cloneNode(true);next.dataset.v158Owned='1';oldBrand.replaceWith(next);
-    }
+    if(oldBrand&&!oldBrand.dataset.v158Owned){const next=oldBrand.cloneNode(true);next.dataset.v158Owned='1';oldBrand.replaceWith(next);}
     const oldTitle=document.querySelector('title');
-    if(oldTitle&&!oldTitle.dataset.v158Owned){
-      const next=document.createElement('title');next.dataset.v158Owned='1';next.textContent='Fuel Tracker v'+APP_NUMBER;oldTitle.replaceWith(next);
-    }
+    if(oldTitle&&!oldTitle.dataset.v158Owned){const next=document.createElement('title');next.dataset.v158Owned='1';next.textContent='Fuel Tracker v'+APP_NUMBER;oldTitle.replaceWith(next);}
   }
 
   function setVersion(){
@@ -105,41 +103,27 @@
     if(document.title!=='Fuel Tracker v'+APP_NUMBER)document.title='Fuel Tracker v'+APP_NUMBER;
   }
 
-  function removeHeaderSettings(){
-    document.getElementById('settingsBtn')?.remove();
-  }
+  function removeHeaderSettings(){document.getElementById('settingsBtn')?.remove();}
 
   function fuelAgeDays(){
     const rows=typeof currentRecords==='function'?[...currentRecords()]:[];
-    const latest=rows
-      .filter(r=>Number(r?.volume)>0&&r?.dateTime&&!Number.isNaN(new Date(r.dateTime).getTime()))
-      .sort((a,b)=>new Date(b.dateTime)-new Date(a.dateTime))[0];
+    const latest=rows.filter(r=>Number(r?.volume)>0&&r?.dateTime&&!Number.isNaN(new Date(r.dateTime).getTime())).sort((a,b)=>new Date(b.dateTime)-new Date(a.dateTime))[0];
     if(!latest)return null;
     const refuel=new Date(latest.dateTime),today=new Date();
     const startRefuel=new Date(refuel.getFullYear(),refuel.getMonth(),refuel.getDate());
     const startToday=new Date(today.getFullYear(),today.getMonth(),today.getDate());
     return Math.max(0,Math.floor((startToday-startRefuel)/86400000));
   }
-
   function ensureFuelAge(){
     const actions=document.querySelector('.head-actions');if(!actions)return null;
     let metric=document.getElementById('v158FuelAge');
-    if(!metric){
-      metric=document.createElement('div');metric.id='v158FuelAge';metric.className='v158-fuel-age';
-      metric.setAttribute('aria-label','Fuel age since latest refuel');
-      metric.innerHTML='<div class="v158-fuel-age-main"><strong class="v158-fuel-age-number">—</strong><span class="v158-fuel-age-unit">days</span></div><span class="v158-fuel-age-label">Fuel Age</span>';
-      actions.appendChild(metric);
-    }
+    if(!metric){metric=document.createElement('div');metric.id='v158FuelAge';metric.className='v158-fuel-age';metric.setAttribute('aria-label','Fuel age since latest refuel');metric.innerHTML='<div class="v158-fuel-age-main"><strong class="v158-fuel-age-number">—</strong><span class="v158-fuel-age-unit">days</span></div><span class="v158-fuel-age-label">Fuel Age</span>';actions.appendChild(metric);}
     return metric;
   }
-
   function updateFuelAge(){
     const metric=ensureFuelAge();if(!metric)return;
-    const days=fuelAgeDays();
-    const number=metric.querySelector('.v158-fuel-age-number');
-    const unit=metric.querySelector('.v158-fuel-age-unit');
-    if(number)number.textContent=days==null?'—':String(days);
-    if(unit)unit.textContent=days===1?'day':'days';
+    const days=fuelAgeDays();const number=metric.querySelector('.v158-fuel-age-number');const unit=metric.querySelector('.v158-fuel-age-unit');
+    if(number)number.textContent=days==null?'—':String(days);if(unit)unit.textContent=days===1?'day':'days';
     metric.title=days==null?'No valid refuel date available':`${days} ${days===1?'day':'days'} since latest refuel`;
   }
 
@@ -150,18 +134,12 @@
   }
 
   installStyles();ensureNav();ownVersionNodes();removeHeaderSettings();updateFuelAge();showPage(currentPage(),false);setVersion();
-
-  const main=document.querySelector('main');
-  if(main){let timer;new MutationObserver(()=>{clearTimeout(timer);timer=setTimeout(refreshLayout,0);}).observe(main,{childList:true,subtree:false});}
+  const main=document.querySelector('main');if(main){let timer;new MutationObserver(()=>{clearTimeout(timer);timer=setTimeout(refreshLayout,0);}).observe(main,{childList:true,subtree:false});}
   const brand=document.querySelector('.brand');if(brand)new MutationObserver(setVersion).observe(brand,{childList:true,subtree:true});
   const title=document.querySelector('title');if(title)new MutationObserver(setVersion).observe(title,{childList:true});
-
   document.addEventListener('click',e=>{if(e.target.closest('[data-profile-switch],#bikeBtn,#carBtn'))setTimeout(updateFuelAge,80);});
   document.getElementById('fuelForm')?.addEventListener('submit',()=>setTimeout(updateFuelAge,120));
   document.addEventListener('fueltracker:datachange',()=>setTimeout(refreshLayout,70));
   window.FuelTrackerNavigation={revision:REV,version:APP_VERSION,showPage,updateFuelAge};
-
-  if(!document.getElementById('v160AutomationScript')){
-    const script=document.createElement('script');script.id='v160AutomationScript';script.src='./automation-v16.js';document.body.appendChild(script);
-  }
+  if(!document.getElementById('v160AutomationScript')){const script=document.createElement('script');script.id='v160AutomationScript';script.src='./automation-v16.js';document.body.appendChild(script);}
 })();
