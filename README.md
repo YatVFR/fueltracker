@@ -1,6 +1,6 @@
 # Fuel Tracker
 
-Active validation version: **v16.1.5 Update Status**
+Active validation version: **v16.3 Garage Maintenance**
 
 Current approved stable rollback baseline: **v15.8 Garage**
 
@@ -8,11 +8,26 @@ Current approved stable rollback baseline: **v15.8 Garage**
 - **v16.2 Smart Inbox remains rolled back from the live app due to startup / loading instability.**
 - `smart-refuel-inbox-v16.js` remains in the repository as unfinished work but is not loaded by the active app shell.
 - v16.1 Smart Stations remains the active automation feature line.
-- v16.1.5 adds a live Refresh update-state indicator: **Latest** when the installed app is current and **Updates Available** when a newer service worker has been downloaded and is waiting.
-- New service workers no longer call `skipWaiting()` automatically during install; the waiting state is preserved until the user taps Refresh, allowing Fuel Tracker to accurately expose an available update.
-- Tapping Refresh keeps the existing controlled update/reload workflow and activates the waiting worker via `SKIP_WAITING`.
+- v16.1.5 added the Refresh update-state indicator: **Latest** when current and **Updates Available** when a newer service worker is waiting.
+- **v16.3 adds Garage Maintenance Expenses as a separate per-vehicle ledger.**
+- Fuel records are not modified by maintenance entries.
+- Maintenance data is stored inside Garage state so Whole Garage backup/recovery carries it together with vehicle profiles.
 - The top-left app label is a release requirement and must be updated with every app change.
-- Active validation PWA cache: `fueltracker-v16-1-5-update-status-1`
+- Active validation PWA cache: `fueltracker-v16-3-garage-maintenance-2`
+
+## v16.3 — Garage Maintenance Expenses
+- Separate maintenance ledger for every Garage vehicle profile
+- Dashboard **Maintenance Expenses** section positioned with Garage Overview / Garage Analytics
+- Summary KPIs: active vehicle total, whole Garage total, current-year Garage maintenance spend and active-vehicle entry count
+- Add, edit and delete maintenance expenses
+- Categories: **Service, Repair, Tyres, Parts, Accessories, Inspection, Cleaning, Other**
+- Expense fields: date, category, description, cost, currency, optional odometer and notes
+- SGD and MYR supported
+- MYR maintenance entries store their own historical SGD/MYR exchange rate
+- Last maintenance MYR rate is remembered locally and can reuse the latest known MYR fuel-record rate as an initial value
+- Latest maintenance entries are shown directly on the Dashboard for the selected Garage vehicle
+- Maintenance spending remains independent from fuel spending and does not alter fuel efficiency calculations
+- Maintenance entries are stored under Garage state and therefore included in Whole Garage backup/recovery
 
 ## v16.1 — Smart Station Recognition
 - Saved petrol stations learn from explicit user confirmations
@@ -69,8 +84,8 @@ The GitHub Pages PWA cannot reliably monitor geolocation while suspended or full
 
 Live app: https://yatvfr.github.io/fueltracker/
 
-v15.8 remains the approved stable rollback point while v16.x automation undergoes field validation.
+v15.8 remains the approved stable rollback point while v16.x features undergo validation.
 
-Validated so far: installed web-app notification permission/test, notification tap opening the Refuel page, custom dwell persistence, and AUTO ON/OFF header redirection to Automation settings.
+Validated automation items so far: installed web-app notification permission/test, notification tap opening the Refuel page, custom dwell persistence, and AUTO ON/OFF header redirection to Automation settings.
 
 Pending field validation: actual GPS geofence detection, multi-station confirmation, dwell timing, Possible Refuel creation, and v16.1 station-learning/ranking during real petrol-station visits.
