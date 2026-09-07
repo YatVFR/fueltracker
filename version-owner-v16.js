@@ -2,12 +2,10 @@
   'use strict';
   if(window.FuelTrackerVersionOwnerV16)return;
 
-  const REV='v16.1.2-version-owner-1';
-  const APP_VERSION='v16.1.2 Smart Stations';
-  const DISPLAY_NUMBER='16.1.2';
-  // Numeric compatibility for older modules that compare versions with Number().
-  // 16.12 is greater than 16.1 while the visible semantic version stays 16.1.2.
-  const COMPAT_NUMBER='16.12';
+  const REV='v16.1.3-version-owner-1';
+  const APP_VERSION='v16.1.3 Smart Stations';
+  const DISPLAY_NUMBER='16.1.3';
+  const COMPAT_NUMBER='16.13';
 
   function detachLegacyVersionObservers(){
     const brand=document.querySelector('.brand');
@@ -35,9 +33,6 @@
     if(document.title!==wanted)document.title=wanted;
   }
 
-  // Historical v15 modules attached observers directly to the original brand/title.
-  // Clone those nodes once to detach the legacy observers, then reassert only at
-  // finite lifecycle points. No page-wide observer or repeating interval is used.
   detachLegacyVersionObservers();
   apply();
   [0,250,900,1800].forEach(ms=>setTimeout(apply,ms));
