@@ -2,10 +2,10 @@
   'use strict';
   if(window.FuelTrackerVersionOwnerV16)return;
 
-  const REV='v16.3.1-version-owner-1';
-  const APP_VERSION='v16.3.1 Maintenance Form Fix';
-  const DISPLAY_NUMBER='16.3.1';
-  const COMPAT_NUMBER='16.31';
+  const REV='v16.3.2-version-owner-1';
+  const APP_VERSION='v16.3.2 Maintenance Page Trial';
+  const DISPLAY_NUMBER='16.3.2';
+  const COMPAT_NUMBER='16.32';
 
   function apply(){
     window.FUEL_TRACKER_VERSION=APP_VERSION;
@@ -18,21 +18,25 @@
   }
 
   function ensureRecovery(){
-    if(window.FuelTrackerRuntimeRecoveryV16||document.getElementById('v1631RuntimeRecovery'))return;
-    const s=document.createElement('script');s.id='v1631RuntimeRecovery';s.src='./runtime-recovery-v16.js';document.body.appendChild(s);
+    if(window.FuelTrackerRuntimeRecoveryV16||document.getElementById('v1632RuntimeRecovery'))return;
+    const s=document.createElement('script');s.id='v1632RuntimeRecovery';s.src='./runtime-recovery-v16.js';document.body.appendChild(s);
   }
   function ensureUpdateStatus(){
-    if(window.FuelTrackerUpdateStatusV16||document.getElementById('v1631UpdateStatus'))return;
-    const s=document.createElement('script');s.id='v1631UpdateStatus';s.src='./update-status-v16.js';document.body.appendChild(s);
+    if(window.FuelTrackerUpdateStatusV16||document.getElementById('v1632UpdateStatus'))return;
+    const s=document.createElement('script');s.id='v1632UpdateStatus';s.src='./update-status-v16.js';document.body.appendChild(s);
   }
   function ensureMaintenance(){
-    if(window.FuelTrackerGarageMaintenanceV16||document.getElementById('v1631GarageMaintenance'))return;
-    const s=document.createElement('script');s.id='v1631GarageMaintenance';s.src='./garage-maintenance-v16.js';document.body.appendChild(s);
+    if(window.FuelTrackerGarageMaintenanceV16||document.getElementById('v1632GarageMaintenance'))return;
+    const s=document.createElement('script');s.id='v1632GarageMaintenance';s.src='./garage-maintenance-v16.js';document.body.appendChild(s);
+  }
+  function ensureTrial(){
+    if(window.FuelTrackerMaintenanceTrialV16||document.getElementById('v1632MaintenanceTrial'))return;
+    const s=document.createElement('script');s.id='v1632MaintenanceTrial';s.src='./maintenance-trial-v16.js';document.body.appendChild(s);
   }
 
-  apply();ensureRecovery();ensureUpdateStatus();ensureMaintenance();
+  apply();ensureRecovery();ensureUpdateStatus();ensureMaintenance();ensureTrial();
   [0,250,900,1800].forEach(ms=>setTimeout(apply,ms));
-  window.addEventListener('load',()=>{apply();ensureRecovery();ensureUpdateStatus();ensureMaintenance();},{once:true});
+  window.addEventListener('load',()=>{apply();ensureRecovery();ensureUpdateStatus();ensureMaintenance();ensureTrial();},{once:true});
   document.addEventListener('fueltracker:pagechange',()=>setTimeout(apply,120));
   document.addEventListener('fueltracker:datachange',()=>setTimeout(apply,150));
   document.addEventListener('fueltracker:maintenancechange',()=>setTimeout(apply,120));
