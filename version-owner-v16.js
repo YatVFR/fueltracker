@@ -2,10 +2,10 @@
   'use strict';
   if(window.FuelTrackerVersionOwnerV16)return;
 
-  const REV='v16.1.4-version-owner-1';
-  const APP_VERSION='v16.1.4 Runtime Recovery';
-  const DISPLAY_NUMBER='16.1.4';
-  const COMPAT_NUMBER='16.14';
+  const REV='v16.1.5-version-owner-1';
+  const APP_VERSION='v16.1.5 Update Status';
+  const DISPLAY_NUMBER='16.1.5';
+  const COMPAT_NUMBER='16.15';
 
   function apply(){
     window.FUEL_TRACKER_VERSION=APP_VERSION;
@@ -25,13 +25,19 @@
     document.body.appendChild(s);
   }
 
-  // The legacy v15.7 layer now self-disables its version writer when a newer
-  // release owns the UI, so we no longer clone/replace live DOM nodes here.
-  // Keeping the original nodes preserves navigation, header and app listeners.
+  function ensureUpdateStatus(){
+    if(window.FuelTrackerUpdateStatusV16||document.getElementById('v1615UpdateStatus'))return;
+    const s=document.createElement('script');
+    s.id='v1615UpdateStatus';
+    s.src='./update-status-v16.js';
+    document.body.appendChild(s);
+  }
+
   apply();
   ensureRecovery();
+  ensureUpdateStatus();
   [0,250,900,1800].forEach(ms=>setTimeout(apply,ms));
-  window.addEventListener('load',()=>{apply();ensureRecovery();},{once:true});
+  window.addEventListener('load',()=>{apply();ensureRecovery();ensureUpdateStatus();},{once:true});
   document.addEventListener('fueltracker:pagechange',()=>setTimeout(apply,120));
   document.addEventListener('fueltracker:datachange',()=>setTimeout(apply,150));
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)apply();});
