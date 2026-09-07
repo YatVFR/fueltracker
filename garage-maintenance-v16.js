@@ -1,0 +1,128 @@
+(function(){
+  'use strict';
+  if(window.FuelTrackerGarageMaintenanceV16)return;
+
+  const REV='v16.3-garage-maintenance-1';
+  const LAST_FX_KEY='fueltrackerV163MaintenanceLastFx';
+  const CATEGORIES=['Service','Repair','Tyres','Parts','Accessories','Inspection','Cleaning','Other'];
+
+  function garage(){return window.state?.garageV15||null;}
+  function profiles(){return Array.isArray(garage()?.profiles)?garage().profiles:[];}
+  function activeProfile(){const g=garage();return profiles().find(p=>p?.id===g?.activeProfileId)||profiles()[0]||null;}
+  function store(){
+    const g=garage();if(!g)return {};
+    if(!g.maintenance||typeof g.maintenance!=='object'||Array.isArray(g.maintenance))g.maintenance={};
+    return g.maintenance;
+  }
+  function entries(profileId){const s=store();if(!Array.isArray(s[profileId]))s[profileId]=[];return s[profileId];}
+  function allEntries(){return profiles().flatMap(p=>entries(p.id).map(x=>({entry:x,profile:p})));}
+  function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+  function validDate(v){const d=new Date(v);return Number.isNaN(d.getTime())?null:d;}
+  function money(v,d=2){return 'S$'+Number(v||0).toFixed(d);}
+  function toSgd(e){const cost=Number(e?.cost)||0;if(String(e?.currency||'SGD').toUpperCase()==='MYR'){const fx=Number(e?.fxRateSGDMYR);return fx>0?cost/fx:0;}return cost;}
+  function profileLabel(p){
+    if(!p)return 'Vehicle';
+    const g=garage();const d=p.legacy?g?.legacy?.[p.type]:p.data;
+    return String(d?.registration||p.name||(p.type==='bike'?'Bike':'Car'));
+  }
+  function fmtDate(v){const d=validDate(v);return d?d.toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'}):'—';}
+  function defaultFx(){
+    const saved=Number(localStorage.getItem(LAST_FX_KEY));if(saved>0)return saved;
+    try{
+      const rows=typeof currentRecords==='function'?currentRecords():[];
+      const latest=[...rows].filter(r=>String(r.currency||'').toUpperCase()==='MYR'&&Number(r.fxRateSGDMYR)>0).sort((a,b)=>new Date(b.dateTime)-new Date(a.dateTime))[0];
+      if(latest)return Number(latest.fxRateSGDMYR);
+    }catch(e){}
+    return 3.16;
+  }
+
+  function installStyles(){
+    if(document.getElementById('v163MaintenanceStyles'))return;
+    const s=document.createElement('style');s.id='v163MaintenanceStyles';
+    s.textContent=`
+      #garageMaintenanceBox{overflow:hidden}.gm-wrap{padding:11px}.gm-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:9px}.gm-head-copy{min-width:0}.gm-head h2{margin:0;font-size:13px;letter-spacing:.12em;text-transform:uppercase}.gm-head span{display:block;margin-top:2px;font-size:8px;color:#7f8b96;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.gm-add{border:1px solid color-mix(in srgb,var(--accent,#137fe8) 45%,#2b3945);border-radius:8px;background:linear-gradient(135deg,var(--accent2,#0d62d9),var(--accent,#137fe8));color:#fff;padding:8px 10px;font-size:8px;font-weight:900;letter-spacing:.06em;white-space:nowrap}
+      .gm-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}.gm-kpi{border:1px solid #293641;border-radius:9px;background:#0a1117;padding:9px;min-width:0}.gm-kpi small{display:block;font-size:7px;color:#7f8b96;text-transform:uppercase;letter-spacing:.07em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.gm-kpi strong{display:block;margin-top:4px;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      .gm-list{margin-top:8px;display:grid;gap:6px}.gm-empty{border:1px dashed #2b3945;border-radius:9px;padding:12px;color:#7f8b96;font-size:9px;text-align:center}.gm-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;border:1px solid #27343f;border-radius:9px;background:#091017;padding:9px}.gm-main{min-width:0}.gm-main b{display:block;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.gm-main span{display:block;margin-top:2px;font-size:8px;color:#87939e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.gm-side{text-align:right}.gm-side strong{display:block;font-size:10px}.gm-actions{display:flex;justify-content:flex-end;gap:4px;margin-top:4px}.gm-actions button{border:1px solid #35434e;border-radius:6px;background:#0d151c;color:#9aa5ae;padding:4px 6px;font-size:7px;font-weight:850}.gm-actions button.gm-delete{color:#e88989;border-color:#5b3434}
+      .gm-modal-backdrop{position:fixed;inset:0;z-index:2147482500;display:none;align-items:flex-end;justify-content:center;padding:18px;background:rgba(0,0,0,.65);backdrop-filter:blur(5px)}.gm-modal-backdrop.show{display:flex}.gm-modal{width:min(440px,100%);max-height:88vh;overflow:auto;border:1px solid #30414d;border-radius:16px;background:#091118;padding:14px;box-shadow:0 24px 70px rgba(0,0,0,.58)}.gm-modal h3{margin:0 0 4px;font-size:14px}.gm-modal>p{margin:0 0 10px;color:#84919b;font-size:9px}.gm-grid2{display:grid;grid-template-columns:1fr 1fr;gap:7px}.gm-modal .field{margin-top:7px}.gm-modal .field label{font-size:8px}.gm-modal .field input,.gm-modal .field select,.gm-modal .field textarea{width:100%;box-sizing:border-box}.gm-fx-help{font-size:7px;color:#7d8993;margin-top:3px}.gm-modal-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:11px}.gm-modal-actions button{padding:10px;border-radius:8px;font-size:9px;font-weight:900}.gm-modal-actions .secondary{border:1px solid #35434e;background:#0d151c;color:#a9b2b9}.gm-modal-actions .primary{border:1px solid color-mix(in srgb,var(--accent,#137fe8) 45%,#2b3945);background:var(--accent,#137fe8);color:#fff}
+      @media(max-width:580px){.gm-wrap{padding:9px}.gm-kpis{grid-template-columns:1fr 1fr}.gm-kpi strong{font-size:13px}.gm-grid2{grid-template-columns:1fr 1fr}.gm-add{padding:8px}.gm-modal-backdrop{padding:10px}}
+    `;
+    document.head.appendChild(s);
+  }
+
+  function ensureBox(){
+    let box=document.getElementById('garageMaintenanceBox');if(box)return box;
+    const anchor=document.getElementById('garageAnalyticsBox')||document.getElementById('garageOverviewBox')||document.querySelector('main > section.box');
+    if(!anchor)return null;
+    box=document.createElement('section');box.className='box';box.id='garageMaintenanceBox';anchor.insertAdjacentElement('afterend',box);return box;
+  }
+
+  function render(){
+    installStyles();
+    const box=ensureBox(),active=activeProfile();if(!box||!active)return;
+    const activeRows=[...entries(active.id)].sort((a,b)=>new Date(b.dateTime)-new Date(a.dateTime));
+    const garageRows=allEntries();
+    const activeTotal=activeRows.reduce((s,e)=>s+toSgd(e),0);
+    const garageTotal=garageRows.reduce((s,x)=>s+toSgd(x.entry),0);
+    const year=new Date().getFullYear();
+    const yearTotal=garageRows.filter(x=>validDate(x.entry.dateTime)?.getFullYear()===year).reduce((s,x)=>s+toSgd(x.entry),0);
+    box.innerHTML=`<div class="gm-wrap"><div class="gm-head"><div class="gm-head-copy"><h2>Maintenance Expenses</h2><span>${esc(profileLabel(active))} · separate from fuel spending</span></div><button type="button" class="gm-add" id="gmAddExpense">+ ADD EXPENSE</button></div>
+      <div class="gm-kpis"><div class="gm-kpi"><small>Vehicle Total</small><strong>${money(activeTotal,0)}</strong></div><div class="gm-kpi"><small>Garage Total</small><strong>${money(garageTotal,0)}</strong></div><div class="gm-kpi"><small>${year} Spend</small><strong>${money(yearTotal,0)}</strong></div><div class="gm-kpi"><small>Entries</small><strong>${activeRows.length}</strong></div></div>
+      <div class="gm-list">${activeRows.length?activeRows.slice(0,8).map(e=>`<div class="gm-row"><div class="gm-main"><b>${esc(e.category)} · ${esc(e.description||'Maintenance')}</b><span>${fmtDate(e.dateTime)}${Number(e.odometer)>=0&&e.odometer!==''?` · ${Number(e.odometer).toLocaleString()} km`:''}${e.notes?` · ${esc(e.notes)}`:''}</span></div><div class="gm-side"><strong>${money(toSgd(e),2)}</strong><span>${esc(e.currency)} ${Number(e.cost||0).toFixed(2)}</span><div class="gm-actions"><button type="button" data-gm-edit="${esc(e.id)}">EDIT</button><button type="button" class="gm-delete" data-gm-delete="${esc(e.id)}">DELETE</button></div></div></div>`).join(''):`<div class="gm-empty">No maintenance expenses recorded for ${esc(profileLabel(active))} yet.</div>`}</div></div>`;
+    box.querySelector('#gmAddExpense')?.addEventListener('click',()=>openModal());
+    box.querySelectorAll('[data-gm-edit]').forEach(b=>b.onclick=()=>openModal(b.dataset.gmEdit));
+    box.querySelectorAll('[data-gm-delete]').forEach(b=>b.onclick=()=>deleteEntry(b.dataset.gmDelete));
+  }
+
+  function ensureModal(){
+    let wrap=document.getElementById('gmModal');if(wrap)return wrap;
+    wrap=document.createElement('div');wrap.id='gmModal';wrap.className='gm-modal-backdrop';
+    wrap.innerHTML=`<div class="gm-modal" role="dialog" aria-modal="true" aria-labelledby="gmModalTitle"><h3 id="gmModalTitle">Add Maintenance Expense</h3><p id="gmModalVehicle"></p><input type="hidden" id="gmEditId">
+      <div class="gm-grid2"><div class="field"><label for="gmDate">Date *</label><input id="gmDate" type="date"></div><div class="field"><label for="gmCategory">Category *</label><select id="gmCategory">${CATEGORIES.map(x=>`<option>${x}</option>`).join('')}</select></div></div>
+      <div class="field"><label for="gmDescription">Description *</label><input id="gmDescription" placeholder="e.g. Engine oil + filter"></div>
+      <div class="gm-grid2"><div class="field"><label for="gmCost">Cost *</label><input id="gmCost" type="number" min="0" step="0.01" inputmode="decimal"></div><div class="field"><label for="gmCurrency">Currency *</label><select id="gmCurrency"><option value="SGD">SGD</option><option value="MYR">MYR</option></select></div></div>
+      <div class="field" id="gmFxWrap"><label for="gmFx">MYR Exchange Rate · 1 SGD = RM</label><input id="gmFx" type="number" min="0.001" step="0.001" inputmode="decimal"><div class="gm-fx-help">Saved with the expense for accurate historical SGD conversion.</div></div>
+      <div class="field"><label for="gmOdo">Odometer (KM)</label><input id="gmOdo" type="number" min="0" step="1" inputmode="numeric"></div>
+      <div class="field"><label for="gmNotes">Notes</label><textarea id="gmNotes" rows="2" placeholder="Workshop, parts fitted, warranty, etc."></textarea></div>
+      <div class="gm-modal-actions"><button type="button" class="secondary" id="gmCancel">CANCEL</button><button type="button" class="primary" id="gmSave">SAVE EXPENSE</button></div></div>`;
+    document.body.appendChild(wrap);
+    wrap.querySelector('#gmCancel').onclick=closeModal;wrap.querySelector('#gmSave').onclick=saveEntry;
+    wrap.querySelector('#gmCurrency').onchange=toggleFx;
+    wrap.addEventListener('click',e=>{if(e.target===wrap)closeModal();});
+    return wrap;
+  }
+  function toggleFx(){const wrap=ensureModal();wrap.querySelector('#gmFxWrap').style.display=wrap.querySelector('#gmCurrency').value==='MYR'?'block':'none';}
+  function openModal(id=''){
+    const p=activeProfile();if(!p)return;const wrap=ensureModal();const e=id?entries(p.id).find(x=>x.id===id):null;
+    wrap.querySelector('#gmModalTitle').textContent=e?'Edit Maintenance Expense':'Add Maintenance Expense';
+    wrap.querySelector('#gmModalVehicle').textContent=profileLabel(p);
+    wrap.querySelector('#gmEditId').value=e?.id||'';
+    wrap.querySelector('#gmDate').value=e?.dateTime?.slice(0,10)||new Date().toISOString().slice(0,10);
+    wrap.querySelector('#gmCategory').value=e?.category||'Service';wrap.querySelector('#gmDescription').value=e?.description||'';wrap.querySelector('#gmCost').value=e?.cost??'';wrap.querySelector('#gmCurrency').value=e?.currency||'SGD';wrap.querySelector('#gmFx').value=e?.fxRateSGDMYR||defaultFx();wrap.querySelector('#gmOdo').value=e?.odometer??'';wrap.querySelector('#gmNotes').value=e?.notes||'';
+    toggleFx();wrap.classList.add('show');setTimeout(()=>wrap.querySelector('#gmDescription')?.focus(),50);
+  }
+  function closeModal(){document.getElementById('gmModal')?.classList.remove('show');}
+  function saveEntry(){
+    const p=activeProfile(),wrap=ensureModal();if(!p)return;
+    const id=wrap.querySelector('#gmEditId').value,date=wrap.querySelector('#gmDate').value,category=wrap.querySelector('#gmCategory').value,description=wrap.querySelector('#gmDescription').value.trim(),cost=Number(wrap.querySelector('#gmCost').value),currency=wrap.querySelector('#gmCurrency').value,fx=Number(wrap.querySelector('#gmFx').value),odoRaw=wrap.querySelector('#gmOdo').value,notes=wrap.querySelector('#gmNotes').value.trim();
+    if(!date||!description||!(cost>=0)){alert('Enter the maintenance date, description and cost.');return;}
+    if(currency==='MYR'&&!(fx>0)){alert('Enter the MYR exchange rate for this expense.');return;}
+    if(currency==='MYR')localStorage.setItem(LAST_FX_KEY,String(fx));
+    const list=entries(p.id),existing=id?list.find(x=>x.id===id):null;
+    const next={id:existing?.id||('maint-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,6)),dateTime:date+'T12:00:00',category,description,cost,currency,fxRateSGDMYR:currency==='MYR'?fx:null,odometer:odoRaw===''?null:Number(odoRaw),notes,createdAt:existing?.createdAt||new Date().toISOString(),updatedAt:new Date().toISOString()};
+    if(existing)Object.assign(existing,next);else list.push(next);
+    try{saveState?.();}catch(e){}
+    closeModal();render();document.dispatchEvent(new CustomEvent('fueltracker:maintenancechange',{detail:{profileId:p.id,id:next.id}}));
+  }
+  function deleteEntry(id){
+    const p=activeProfile();if(!p)return;const list=entries(p.id),e=list.find(x=>x.id===id);if(!e)return;
+    if(!confirm(`Delete ${e.description||'this maintenance expense'}?`))return;
+    store()[p.id]=list.filter(x=>x.id!==id);try{saveState?.();}catch(err){}render();document.dispatchEvent(new CustomEvent('fueltracker:maintenancechange',{detail:{profileId:p.id,id,deleted:true}}));
+  }
+
+  function refreshSoon(){setTimeout(render,70);}
+  installStyles();render();
+  document.addEventListener('click',e=>{if(e.target.closest('[data-profile-switch],[data-profile-open],#bikeBtn,#carBtn'))refreshSoon();});
+  document.addEventListener('fueltracker:datachange',refreshSoon);
+  document.addEventListener('fueltracker:pagechange',e=>{if(e.detail?.page==='dashboard')refreshSoon();});
+  window.FuelTrackerGarageMaintenanceV16={revision:REV,render,entries,allEntries,openModal};
+})();
