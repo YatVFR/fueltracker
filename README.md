@@ -1,6 +1,6 @@
 # Fuel Tracker
 
-Active validation version: **v16.3 Garage Maintenance**
+Active validation version: **v16.3.2 Maintenance Page Trial**
 
 Current approved stable rollback baseline: **v15.8 Garage**
 
@@ -9,23 +9,32 @@ Current approved stable rollback baseline: **v15.8 Garage**
 - `smart-refuel-inbox-v16.js` remains in the repository as unfinished work but is not loaded by the active app shell.
 - v16.1 Smart Stations remains the active automation feature line.
 - v16.1.5 added the Refresh update-state indicator: **Latest** when current and **Updates Available** when a newer service worker is waiting.
-- **v16.3 adds Garage Maintenance Expenses as a separate per-vehicle ledger.**
+- v16.3 introduced per-vehicle Garage Maintenance Expenses.
+- **v16.3.2 is a reversible UI trial:** Maintenance is now a dedicated page, maintenance categories receive visual icons, the iPhone form layout is stacked safely, and each Garage vehicle can store its own real dashboard photo locally.
+- Vehicle photos are compressed on-device before being stored under Garage state; they are never uploaded to a server by Fuel Tracker.
 - Fuel records are not modified by maintenance entries.
-- Maintenance data is stored inside Garage state so Whole Garage backup/recovery carries it together with vehicle profiles.
 - The top-left app label is a release requirement and must be updated with every app change.
-- Active validation PWA cache: `fueltracker-v16-3-garage-maintenance-2`
+- Active validation PWA cache: `fueltracker-v16-3-2-maintenance-page-trial-1`
+
+## v16.3.2 — Maintenance Page Trial
+- Four-page navigation: **Dashboard / Refuel / Maintenance / Settings**
+- Maintenance ledger removed from the Dashboard flow and shown as its own page
+- Category icons added to maintenance entries and summary segments
+- Narrow iPhone maintenance form rows stack vertically to avoid native Date/Select overlap
+- Dashboard hero includes **Vehicle Photo** control
+- User can select a real vehicle photo from the device
+- Selected photo is resized/compressed locally and remembered separately per Garage vehicle profile
+- Existing theme, model and registration text remain overlaid on the photo
+- Trial is designed to be reverted if the layout does not meet requirements
 
 ## v16.3 — Garage Maintenance Expenses
 - Separate maintenance ledger for every Garage vehicle profile
-- Dashboard **Maintenance Expenses** section positioned with Garage Overview / Garage Analytics
 - Summary KPIs: active vehicle total, whole Garage total, current-year Garage maintenance spend and active-vehicle entry count
 - Add, edit and delete maintenance expenses
 - Categories: **Service, Repair, Tyres, Parts, Accessories, Inspection, Cleaning, Other**
 - Expense fields: date, category, description, cost, currency, optional odometer and notes
 - SGD and MYR supported
 - MYR maintenance entries store their own historical SGD/MYR exchange rate
-- Last maintenance MYR rate is remembered locally and can reuse the latest known MYR fuel-record rate as an initial value
-- Latest maintenance entries are shown directly on the Dashboard for the selected Garage vehicle
 - Maintenance spending remains independent from fuel spending and does not alter fuel efficiency calculations
 - Maintenance entries are stored under Garage state and therefore included in Whole Garage backup/recovery
 
@@ -34,58 +43,32 @@ Current approved stable rollback baseline: **v15.8 Garage**
 - Each station tracks confirmation count and last confirmed date locally
 - Confidence labels: **New**, **Known** or **Frequent**
 - When several saved petrol stations fall within the GPS radius, the confirmation sheet ranks frequently confirmed stations ahead of less familiar stations while still showing distance
-- The highest-ranked previously confirmed station is visually emphasized, but Fuel Tracker never auto-selects it
 - User confirmation remains mandatory before dwell timing begins
-- Saved station cards in Settings show confirmation history and confidence
-- Station UI observation is scoped to relevant automation UI and ignores v16.1's own annotations to prevent self-triggering DOM churn
 - No fuel-record schema change is introduced
 
 ## v16.0 — Refuel Automation Foundation
 - Refuel Automation card in Settings
 - Foreground petrol-station geofence monitoring using device location while Fuel Tracker is open
 - User can save the current location as a known petrol-station geofence
-- Configurable station radius: 100 m, 150 m or 250 m
-- User-defined minimum stop duration from **1 to 60 minutes**; **3 minutes** is the default
-- A compact **AUTO ON / AUTO OFF** indicator is shown in the app header
-- Tapping the header automation indicator opens **Settings → Refuel Automation** directly
-- GPS proximity does not automatically assume the nearest saved petrol station
-- When one or more saved petrol stations are within the configured radius, Fuel Tracker asks the user to confirm the actual station before starting the dwell timer
-- Nearby station choices show their approximate GPS distance
-- The station confirmation sheet includes a **Not at a petrol station** option
-- A qualifying confirmed stop creates a **Possible Refuel** only; it never writes a fuel record automatically
-- Notification permission and test-notification controls are included for supported installed web-app environments
-- Service-worker notification clicks deep-link back to the relevant Possible Refuel
-- A native bridge hook (`FuelTrackerAutomation.receiveDetection`) is available for a future iOS background geofence companion
-- No fuel-record schema change is introduced
+- User-defined minimum stop duration from **1 to 60 minutes**
+- AUTO ON/OFF header indicator
+- Explicit station confirmation before dwell timing
+- Possible Refuel workflow only; no automatic fuel-record creation
 
 ### Important iPhone limitation
-The GitHub Pages PWA cannot reliably monitor geolocation while suspended or fully closed. v16.x therefore provides the web-side automation workflow and foreground geofence validation. Reliable closed-app petrol-station detection will require a small native iOS companion using Core Location region monitoring, which can feed detections into the same Possible Refuel workflow.
+The GitHub Pages PWA cannot reliably monitor geolocation while suspended or fully closed. Reliable closed-app petrol-station detection will require a native iOS companion using Core Location region monitoring.
 
 ## Stable baseline retained from v15.8
-- Dedicated Dashboard / Refuel / Settings pages
-- Remembered active page
+- Dashboard / Refuel / Settings navigation foundation
 - Fuel Age header metric
-- Startup Garage stabilization guard
-- Per-profile monthly dashboard state
-- Data Health exact-record locating and REVIEW highlighting
-- Whole Garage backup compatibility guard
-- Browser direct-download exports
-- Installed iOS PWA native Share Sheet exports for CSV, MasterDB and Whole Garage backup
-- Whole Garage backup and recovery
-- Per-vehicle MasterDB backup and restore
-- Garage Analytics and Garage Overview
-- Enhanced Vehicle Profiles
-- Multi-vehicle Garage profiles
-- Soft Refresh / Check Update flow
-- 3-decimal fuel volume precision
-- Current Odometer and live economy calculations
+- Garage Overview and Garage Analytics
+- Current Odometer and Current Tank calculations
+- Per-vehicle MasterDB
+- Whole Garage backup/recovery
+- iOS Share Sheet export compatibility
 - Local-first PWA storage
 - Mobile-safe iPhone layout
 
 Live app: https://yatvfr.github.io/fueltracker/
 
 v15.8 remains the approved stable rollback point while v16.x features undergo validation.
-
-Validated automation items so far: installed web-app notification permission/test, notification tap opening the Refuel page, custom dwell persistence, and AUTO ON/OFF header redirection to Automation settings.
-
-Pending field validation: actual GPS geofence detection, multi-station confirmation, dwell timing, Possible Refuel creation, and v16.1 station-learning/ranking during real petrol-station visits.
