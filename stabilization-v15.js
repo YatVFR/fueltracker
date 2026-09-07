@@ -1,7 +1,7 @@
 (function(){
   'use strict';
 
-  const REV='v15.7-stabilization-5';
+  const REV='v15.7-stabilization-6';
   const APP_VERSION='v15.7 Garage';
   const APP_NUMBER='15.7';
   const LEGACY_MONTH_KEY='fueltrackerV14SelectedMonth';
@@ -95,7 +95,23 @@
     return {changed,repairs,issues};
   }
 
+  function versionParts(v){
+    return String(v||'').match(/\d+(?:\.\d+)*/)?.[0]?.split('.').map(n=>Number(n)||0)||[];
+  }
+  function isNewerThanLegacy(){
+    const parts=versionParts(window.FUEL_TRACKER_DISPLAY_VERSION||window.FUEL_TRACKER_VERSION||window.FUEL_TRACKER_VERSION_NUMBER);
+    const legacy=[15,7,0];
+    for(let i=0;i<Math.max(parts.length,legacy.length);i++){
+      const a=parts[i]||0,b=legacy[i]||0;
+      if(a>b)return true;
+      if(a<b)return false;
+    }
+    return false;
+  }
   function setVersion(){
+    // v15.7 is a compatibility/stability layer only. Once a newer release has
+    // claimed the UI, never overwrite its visible version label or title.
+    if(isNewerThanLegacy())return;
     window.FUEL_TRACKER_VERSION=APP_VERSION;
     window.FUEL_TRACKER_VERSION_NUMBER=APP_NUMBER;
     const badge=document.querySelector('.brand small');
