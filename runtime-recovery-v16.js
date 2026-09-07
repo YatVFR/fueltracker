@@ -2,10 +2,10 @@
   'use strict';
   if(window.FuelTrackerRuntimeRecoveryV16)return;
 
-  const REV='v16.1.4-runtime-recovery-1';
-  const VERSION='v16.1.4 Runtime Recovery';
-  const DISPLAY='16.1.4';
-  const COMPAT='16.14';
+  const REV='v16.1.5-runtime-recovery-1';
+  const VERSION='v16.1.5 Update Status';
+  const DISPLAY='16.1.5';
+  const COMPAT='16.15';
 
   const sleep=ms=>new Promise(r=>setTimeout(r,ms));
   function applyVersion(){
@@ -32,23 +32,24 @@
     addCss('./garage-v15.css','v1614Garage');
     applyVersion();
 
-    try{if(typeof renderAll==='function')renderAll();}catch(e){console.warn('v16.1.4 render recovery',e);}
+    try{if(typeof renderAll==='function')renderAll();}catch(e){console.warn('v16.1.5 render recovery',e);}
     await sleep(80);
 
     if(!(window.state?.garageV15?.profiles?.length)){
-      await load('v1614GarageScript','./garage-v15.js?v=1614');
+      await load('v1614GarageScript','./garage-v15.js?v=1615');
       try{if(typeof renderAll==='function')renderAll();}catch(e){}
       await sleep(80);
     }
-    if(!document.getElementById('garageOverviewBox'))await load('v1614OverviewScript','./garage-overview-v15.js?v=1614');
-    if(!document.getElementById('garageAnalyticsBox'))await load('v1614AnalyticsScript','./garage-analytics-v15.js?v=1614');
-    if(!document.getElementById('odometerGrid')?.children.length)await load('v1614OdoScript','./odometer-live-v15.js?v=1614');
-    if(!document.getElementById('v158PageNav'))await load('v1614NavScript','./navigation-v15-8.js?v=1614');
+    if(!document.getElementById('garageOverviewBox'))await load('v1614OverviewScript','./garage-overview-v15.js?v=1615');
+    if(!document.getElementById('garageAnalyticsBox'))await load('v1614AnalyticsScript','./garage-analytics-v15.js?v=1615');
+    if(!document.getElementById('odometerGrid')?.children.length)await load('v1614OdoScript','./odometer-live-v15.js?v=1615');
+    if(!document.getElementById('v158PageNav'))await load('v1614NavScript','./navigation-v15-8.js?v=1615');
     await sleep(120);
-    if(!window.FuelTrackerAutomation)await load('v1614AutomationScript','./automation-v16.js?v=1614');
+    if(!window.FuelTrackerAutomation)await load('v1614AutomationScript','./automation-v16.js?v=1615');
 
     try{window.FuelTrackerNavigation?.updateFuelAge?.();}catch(e){}
     try{window.FuelTrackerAutomation?.updateAutoIndicator?.();}catch(e){}
+    try{window.FuelTrackerUpdateStatusV16?.inspect?.({network:false});}catch(e){}
     applyVersion();
   }
 
