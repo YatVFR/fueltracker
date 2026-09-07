@@ -1,41 +1,13 @@
-const CACHE_NAME='fueltracker-v16-2-recovery-1';
-const APP_SHELL=['./','./index.html','./app.css','./dashboard-restored.css','./bike-alignment.css','./mobile-header-fix.css','./garage-v15.css','./config.js','./app.js','./masterdb-compat.js','./dashboard-restored.js','./masterdb-seed.js','./schema-native.js','./bike-alignment.js','./garage-v15.js','./v15-hotfix.js','./masterdb-v15.js','./vehicle-model-v15.js','./user-guide-v15.js','./odometer-live-v15.js','./garage-overview-v15.js','./garage-analytics-v15.js','./garage-backup-v15.js','./stabilization-v15.js','./download-compat-v15.js','./navigation-v15-8.js','./automation-v16.js','./automation-dwell-v16.js','./smart-stations-v16.js','./smart-refuel-inbox-v16.js','./manifest.webmanifest'];
-const FRESH_ON_INSTALL=new Set(['./','./index.html','./smart-stations-v16.js','./smart-refuel-inbox-v16.js']);
-
-async function buildAppShell(){
-  const next=await caches.open(CACHE_NAME);
-
-  // Install is atomic: this promise must complete before the new worker can
-  // activate. Existing Fuel Tracker caches remain available until activation.
-  for(const asset of APP_SHELL){
-    let response=null;
-
-    // Reuse proven unchanged assets to keep updates light, but always fetch
-    // version-sensitive files fresh. Store every response under the exact URL
-    // used by index.html so normal launches never depend on the network.
-    if(!FRESH_ON_INSTALL.has(asset))response=await caches.match(asset);
-    if(!response){
-      response=await fetch(asset,{cache:'no-store'});
-      if(!response||!response.ok)throw new Error('Unable to cache '+asset);
-    }
-    await next.put(asset,response.clone());
-  }
-}
+const CACHE_NAME='fueltracker-v16-1-rollback-1';
+const APP_SHELL=['./','./index.html','./app.css','./dashboard-restored.css','./bike-alignment.css','./mobile-header-fix.css','./garage-v15.css','./config.js','./app.js','./masterdb-compat.js','./dashboard-restored.js','./masterdb-seed.js','./schema-native.js','./bike-alignment.js','./garage-v15.js','./v15-hotfix.js','./masterdb-v15.js','./vehicle-model-v15.js','./user-guide-v15.js','./odometer-live-v15.js','./garage-overview-v15.js','./garage-analytics-v15.js','./garage-backup-v15.js','./stabilization-v15.js','./download-compat-v15.js','./navigation-v15-8.js','./automation-v16.js','./automation-dwell-v16.js','./smart-stations-v16.js','./manifest.webmanifest'];
 
 self.addEventListener('install',event=>{
-  event.waitUntil((async()=>{
-    await buildAppShell();
-    await self.skipWaiting();
-  })());
+  event.waitUntil(caches.open(CACHE_NAME).then(cache=>cache.addAll(APP_SHELL)));
+  self.skipWaiting();
 });
 
 self.addEventListener('activate',event=>{
-  event.waitUntil((async()=>{
-    // Only remove old caches after the complete new app shell installed.
-    const keys=await caches.keys();
-    await Promise.all(keys.filter(k=>k!==CACHE_NAME).map(k=>caches.delete(k)));
-    await self.clients.claim();
-  })());
+  event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE_NAME).map(k=>caches.delete(k)))).then(()=>self.clients.claim()));
 });
 
 self.addEventListener('message',event=>{
@@ -79,29 +51,27 @@ async function refreshCurtainResponse(response,request){
 }
 
 self.addEventListener('fetch',event=>{
-  if(event.request.method!=='GET')return;
+  if(event.request.method!=='GET') return;
   const request=event.request;
-
   if(request.mode==='navigate'){
     event.respondWith((async()=>{
-      // Installed PWA launches entirely from the complete cached shell.
-      const cached=await caches.match('./index.html');
-      if(cached)return refreshCurtainResponse(cached,request);
-
-      // First run / recovery only.
       try{
         const fresh=await fetch(request,{cache:'no-store'});
-        if(fresh&&fresh.ok)return refreshCurtainResponse(fresh,request);
+        if(fresh&&fresh.ok){
+          const cache=await caches.open(CACHE_NAME);
+          const clean=await fetch('./index.html',{cache:'no-store'}).catch(()=>null);
+          if(clean&&clean.ok)cache.put('./index.html',clean.clone());
+          return refreshCurtainResponse(fresh,request);
+        }
       }catch(e){}
+      const cached=await caches.match('./index.html');
+      if(cached)return refreshCurtainResponse(cached,request);
       return new Response('Fuel Tracker unavailable offline until opened once.',{status:503});
     })());
     return;
   }
-
-  // App-shell resources are cache-first. Because cache keys now exactly match
-  // index.html, a normal launch cannot become partially network-dependent.
   event.respondWith(caches.match(request).then(cached=>cached||fetch(request).then(response=>{
-    if(response&&response.ok)caches.open(CACHE_NAME).then(cache=>cache.put(request,response.clone()));
+    if(response&&response.ok){caches.open(CACHE_NAME).then(cache=>cache.put(request,response.clone()));}
     return response;
   })));
 });
