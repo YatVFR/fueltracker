@@ -1,27 +1,14 @@
 # Fuel Tracker
 
-Active validation version: **v16.2 Smart Inbox**
+Active validation version: **v16.1 Smart Stations**
 
 Current approved stable rollback baseline: **v15.8 Garage**
 
-## v16.2 — Smart Refuel Inbox
-- Dedicated **Possible Refuels** inbox added to the Refuel page
-- Pending detections are visible without opening Automation Settings
-- Inbox statuses: **Pending**, **Opened**, **Dismissed** and **Completed**
-- Compact counters summarize each inbox state
-- Filter between active items, all items, or a specific status
-- Enter Refuel opens the existing Refuel form using the automation prefill workflow
-- Dismiss moves a candidate out of the active queue without changing fuel history
-- Dismissed items can be reopened
-- When a refuel is saved from an opened Possible Refuel, v16.2 records the newly created refuel record ID in automation inbox metadata and marks the detection **Completed**
-- The fuel record itself is not modified, preserving the existing fuel-record schema
-- The Refuel navigation tab shows a pending-count badge when unresolved Possible Refuels exist
-- Existing v16.1 Smart Station Recognition and v16.0 automation behavior remains intact
-- v16.2 hotfix prevents older v16 version observers from competing with the active v16.2 UI owner
-- Mobile-network performance improvement: installed PWA navigation now launches from the local cache immediately instead of waiting for a network-first GitHub Pages response
-- **Refresh → Check update** remains the explicit release-update path
-- Service-worker updates reuse unchanged cached app-shell assets and fetch only version-sensitive files, reducing repeated downloads on 4G/mobile data
-- Validation PWA cache: `fueltracker-v16-2-mobile-performance-2`
+## Release status
+- **v16.2 Smart Inbox has been rolled back from the live app due to startup / loading instability, especially on mobile networks.**
+- `smart-refuel-inbox-v16.js` remains in the repository as unfinished work but is not loaded by `index.html` and is not included in the active PWA app shell.
+- Live app has been restored to the previously working **v16.1 Smart Stations** code path.
+- Recovery PWA cache: `fueltracker-v16-1-rollback-1`
 
 ## v16.1 — Smart Station Recognition
 - Saved petrol stations learn from explicit user confirmations
@@ -81,4 +68,4 @@ v15.8 remains the approved stable rollback point while v16.x automation undergoe
 
 Validated so far: installed web-app notification permission/test, notification tap opening the Refuel page, custom dwell persistence, and AUTO ON/OFF header redirection to Automation settings.
 
-Pending validation: v16.2 mobile-network launch/update performance, actual GPS geofence detection, multi-station confirmation, dwell timing, Possible Refuel creation, v16.1 station-learning/ranking during real petrol-station visits, and v16.2 end-to-end inbox completion linking after a detected refuel is saved.
+Pending field validation: actual GPS geofence detection, multi-station confirmation, dwell timing, Possible Refuel creation, and v16.1 station-learning/ranking during real petrol-station visits.
