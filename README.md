@@ -5,10 +5,11 @@ Active validation version: **v16.1 Smart Stations**
 Current approved stable rollback baseline: **v15.8 Garage**
 
 ## Release status
-- **v16.2 Smart Inbox has been rolled back from the live app due to startup / loading instability, especially on mobile networks.**
+- **v16.2 Smart Inbox remains rolled back from the live app due to startup / loading instability.**
 - `smart-refuel-inbox-v16.js` remains in the repository as unfinished work but is not loaded by `index.html` and is not included in the active PWA app shell.
-- Live app has been restored to the previously working **v16.1 Smart Stations** code path.
-- Recovery PWA cache: `fueltracker-v16-1-rollback-1`
+- v16.1 Smart Stations has been re-pushed after the stability fix for its station UI observer.
+- A lightweight `version-owner-v16.js` now owns the visible v16.1 header/title at known lifecycle events only; it does not use a MutationObserver or repeating timer.
+- Active validation PWA cache: `fueltracker-v16-1-repush-1`
 
 ## v16.1 — Smart Station Recognition
 - Saved petrol stations learn from explicit user confirmations
@@ -18,6 +19,7 @@ Current approved stable rollback baseline: **v15.8 Garage**
 - The highest-ranked previously confirmed station is visually emphasized, but Fuel Tracker never auto-selects it
 - User confirmation remains mandatory before dwell timing begins
 - Saved station cards in Settings show confirmation history and confidence
+- Station UI observation is scoped to relevant automation UI and ignores v16.1's own annotations to prevent self-triggering DOM churn
 - No fuel-record schema change is introduced
 
 ## v16.0 — Refuel Automation Foundation
