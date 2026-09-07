@@ -1,0 +1,17 @@
+/* v16.3.1 Maintenance Form Fix */
+.gm-grid2 > *{min-width:0}
+.gm-modal .field{min-width:0}
+.gm-modal .field input,
+.gm-modal .field select,
+.gm-modal .field textarea{
+  width:100%;
+  min-width:0;
+  max-width:100%;
+  box-sizing:border-box;
+}
+@media(max-width:480px){
+  .gm-grid2{grid-template-columns:1fr!important;gap:0!important}
+  .gm-grid2 .field{margin-top:9px}
+  .gm-modal{width:100%;max-height:90vh;padding:14px}
+  .gm-modal-backdrop{padding:8px}
+}
