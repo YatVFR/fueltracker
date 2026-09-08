@@ -1,6 +1,6 @@
 # Fuel Tracker
 
-Active validation version: **v16.3.7 Backup & Context**
+Active validation version: **v16.3.8 iCloud Backup Target**
 
 Current approved stable rollback baseline: **v15.8 Garage**
 
@@ -11,17 +11,26 @@ Current approved stable rollback baseline: **v15.8 Garage**
 - v16.3.4 added Vendor/Workshop, REVIEW/VERIFIED handling and a separate Upgrades & Accessories section.
 - v16.3.5 added Maintenance vs Upgrade/Accessory record type selection and reclassification.
 - v16.3.6 hardened Whole Garage backup schema and restore normalization.
-- **v16.3.7 fixes export feedback, restore verification auditing, current MasterDB version metadata, and identifies Browser vs Home Screen Web App local data contexts.**
+- v16.3.7 fixed export feedback, restore verification auditing, current MasterDB version metadata, and Browser vs Home Screen Web App local-data context identification.
+- **v16.3.8 adds the preferred iCloud Drive Garage backup destination: iCloud Drive → Apps → GitHub → Fuel_Tracker.**
 - The top-left app label is a release requirement and must be updated with every app change.
-- Active validation PWA cache: `fueltracker-v16-3-7-backup-context-1`
+- Active validation PWA cache: `fueltracker-v16-3-8-icloud-backup-target-1`
+
+## v16.3.8 — iCloud Backup Target
+- Settings → Whole Garage Backup shows the preferred iCloud path.
+- **SAVE LATEST TO ICLOUD** creates `FuelTracker-Garage-Latest.json`.
+- **SAVE DATED ARCHIVE** creates a timestamped Garage JSON backup.
+- On supported iPhone/PWA environments, export uses the native Share Sheet so the file can be saved to the preferred iCloud folder.
+- The preferred backup target is recorded inside Garage state and backup metadata.
+- Whole Garage remains the portability mechanism between Browser and installed Web App local stores.
+- iOS still requires the user to confirm the Save to Files/Share Sheet destination; a browser/PWA cannot silently write to an arbitrary iCloud Drive folder in the background.
 
 ## v16.3.7 — Backup & Context
 - Whole Garage export uses the iOS Share Sheet when available; browser downloads show a clear download-started confirmation and filename.
 - Whole Garage restore validates Vehicles, Fuel Records, Maintenance, Upgrades, REVIEW, VERIFIED and Vehicle Photo counts before replacing local state.
 - A post-reload restore audit confirms REVIEW/VERIFIED counts were restored correctly.
-- Per-vehicle MasterDB exports identify the current format as **v16.3.7** instead of legacy v15.x metadata.
+- Per-vehicle MasterDB exports identify the current format instead of legacy v15.x metadata.
 - Settings shows the active local data context: **Web App Local Store** or **Browser Local Store**.
-- Safari and the Home Screen Web App keep separate local website data on iPhone; use Whole Garage Export/Restore to transfer state between those contexts while Fuel Tracker remains local-first.
 
 ## Maintenance data model
 Each Garage profile can store Maintenance and Upgrade/Accessory records with `recordType`, category, Vendor/Workshop, description, cost/currency, historical MYR FX rate, odometer, notes, REVIEW/VERIFIED state, imported-source metadata and timestamps.
@@ -33,8 +42,8 @@ Whole Garage Backup includes maintenance, upgrades/accessories, verification sta
 - User confirmation remains mandatory before dwell timing begins.
 - No automatic fuel record creation.
 
-### Important iPhone limitation
-The GitHub Pages PWA cannot reliably monitor geolocation while suspended or fully closed. Reliable closed-app petrol-station detection will require a native iOS companion using Core Location region monitoring.
+### Important iPhone limitations
+The GitHub Pages PWA cannot reliably monitor geolocation while suspended or fully closed. It also cannot silently retain unrestricted background file-system access to an arbitrary iCloud Drive directory. Native iOS capabilities would be required for fully automatic iCloud/CloudKit synchronization and closed-app geofencing.
 
 ## Stable baseline retained from v15.8
 - Dashboard / Refuel / Settings navigation foundation
