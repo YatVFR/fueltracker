@@ -1,0 +1,112 @@
+/* Fuel Tracker v16.4.4 — Collapsible sections */
+.ft-collapsible{
+  position:relative;
+  overflow:hidden;
+}
+
+.ft-collapse-bar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  min-height:36px;
+  padding:7px 10px;
+  border-bottom:1px solid rgba(93,111,124,.22);
+  background:linear-gradient(180deg,rgba(14,22,29,.82),rgba(9,16,22,.62));
+}
+
+.ft-collapse-title{
+  min-width:0;
+  color:#d9e1e7;
+  font-size:9px;
+  font-weight:900;
+  letter-spacing:.085em;
+  text-transform:uppercase;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.ft-collapse-toggle{
+  flex:0 0 auto;
+  width:30px;
+  height:26px;
+  padding:0;
+  border:1px solid #33424d;
+  border-radius:8px;
+  background:#0b141b;
+  color:#aab5bd;
+  font-size:14px;
+  font-weight:900;
+  line-height:1;
+  display:grid;
+  place-items:center;
+  cursor:pointer;
+}
+
+.ft-collapse-toggle:active{transform:scale(.96)}
+.ft-collapse-toggle:focus-visible{outline:2px solid var(--accent,#137fe8);outline-offset:2px}
+
+.ft-collapse-body{
+  min-width:0;
+}
+
+.ft-collapsible.ft-collapsed .ft-collapse-body{
+  display:none!important;
+}
+
+.ft-collapsible.ft-collapsed .ft-collapse-bar{
+  border-bottom:0;
+  background:linear-gradient(180deg,rgba(14,22,29,.96),rgba(9,16,22,.90));
+}
+
+.ft-collapsible.ft-collapsed{
+  min-height:0!important;
+}
+
+.ft-collapse-toolbar{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:6px;
+  margin:0 0 8px;
+  padding:0 2px;
+}
+
+.ft-collapse-toolbar button{
+  border:1px solid #2d3b46;
+  border-radius:999px;
+  background:#0a1218;
+  color:#8f9aa3;
+  padding:6px 9px;
+  font-size:7px;
+  font-weight:900;
+  letter-spacing:.055em;
+  text-transform:uppercase;
+}
+
+.ft-collapse-toolbar button:active{transform:scale(.97)}
+.ft-collapse-toolbar button:hover{color:#fff;border-color:#415361}
+
+/* Refuel cards and Settings cards were not originally overflow containers. */
+.lower > .card.ft-collapsible,
+#settingsBox .setting.ft-collapsible{
+  padding:0!important;
+}
+
+.lower > .card.ft-collapsible > .ft-collapse-body,
+#settingsBox .setting.ft-collapsible > .ft-collapse-body{
+  padding:inherit;
+}
+
+#settingsBox .setting.ft-collapsible > .ft-collapse-body{
+  padding:14px;
+}
+
+@media(max-width:580px){
+  .ft-collapse-bar{min-height:34px;padding:6px 8px}
+  .ft-collapse-title{font-size:8px}
+  .ft-collapse-toggle{width:28px;height:24px;font-size:13px}
+  .ft-collapse-toolbar{margin-bottom:6px}
+  .ft-collapse-toolbar button{padding:5px 8px;font-size:6.5px}
+}
