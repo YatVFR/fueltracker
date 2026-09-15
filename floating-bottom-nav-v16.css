@@ -1,0 +1,112 @@
+/* Fuel Tracker v16.4.3 — Floating bottom navigation */
+:root{
+  --ft-bottom-nav-height:72px;
+  --ft-bottom-nav-gap:10px;
+}
+
+.v158-page-nav{
+  position:fixed!important;
+  top:auto!important;
+  left:50%!important;
+  right:auto!important;
+  bottom:max(var(--ft-bottom-nav-gap), env(safe-area-inset-bottom))!important;
+  transform:translateX(-50%)!important;
+  width:min(680px, calc(100vw - 24px))!important;
+  margin:0!important;
+  padding:7px!important;
+  display:grid!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:5px!important;
+  border:1px solid rgba(98,116,130,.42)!important;
+  border-radius:20px!important;
+  background:rgba(7,14,20,.90)!important;
+  box-shadow:0 14px 44px rgba(0,0,0,.48), 0 1px 0 rgba(255,255,255,.05) inset!important;
+  -webkit-backdrop-filter:blur(18px) saturate(145%);
+  backdrop-filter:blur(18px) saturate(145%);
+  z-index:2147482000!important;
+}
+
+.v158-page-nav button{
+  min-height:56px!important;
+  padding:7px 4px 6px!important;
+  border-radius:14px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:2px!important;
+  font-size:8px!important;
+  line-height:1.1!important;
+  transition:background .18s ease, color .18s ease, transform .18s ease!important;
+}
+
+.v158-page-nav button:active{
+  transform:scale(.97)!important;
+}
+
+.v158-page-nav button.active{
+  box-shadow:0 7px 20px color-mix(in srgb,var(--accent,#137fe8) 28%,transparent)!important;
+}
+
+.v158-page-nav button b{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  min-width:0!important;
+  font-size:8.5px!important;
+  line-height:1.05!important;
+}
+
+.v158-page-nav button .v1633-tab-icon{
+  display:block!important;
+  margin:0 0 3px!important;
+  font-size:17px!important;
+  line-height:1!important;
+}
+
+.v158-page-nav button span:not(.v1633-tab-icon){
+  display:none!important;
+}
+
+/* Keep the final page content and footer clear of the floating control. */
+body{
+  padding-bottom:calc(var(--ft-bottom-nav-height) + 28px + env(safe-area-inset-bottom))!important;
+}
+
+.app{
+  overflow:visible!important;
+}
+
+@media(max-width:580px){
+  :root{
+    --ft-bottom-nav-height:68px;
+    --ft-bottom-nav-gap:8px;
+  }
+
+  .v158-page-nav{
+    width:calc(100vw - 18px)!important;
+    padding:6px!important;
+    gap:3px!important;
+    border-radius:18px!important;
+  }
+
+  .v158-page-nav button{
+    min-height:54px!important;
+    padding:6px 2px 5px!important;
+  }
+
+  .v158-page-nav button b{
+    font-size:7.6px!important;
+    letter-spacing:.025em!important;
+  }
+
+  .v158-page-nav button .v1633-tab-icon{
+    font-size:16px!important;
+  }
+}
+
+@media(max-width:360px){
+  .v158-page-nav button b{
+    font-size:7px!important;
+  }
+}
