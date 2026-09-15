@@ -2,12 +2,12 @@
   'use strict';
   if(window.FuelTrackerSmartCaptureV16)return;
 
-  const REV='v16.4.0-smart-capture-1';
+  const REV='v16.4.0-smart-capture-2';
   const OCR_SRC='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
   let ocrPromise=null,lastOcrText='';
 
   function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
-  function num(v){const n=Number(String(v??'').replace(',','.'));return Number.isFinite(n)?n:null;}
+  function num(v){const s=String(v??'').trim();if(!s)return null;const n=Number(s.replace(',','.'));return Number.isFinite(n)?n:null;}
   function field(id){return document.getElementById(id);}
   function records(){try{return typeof currentRecords==='function'?currentRecords():[];}catch(e){return [];}}
   function save(){try{saveState?.();}catch(e){}}
@@ -59,24 +59,24 @@
 
   function numericTokens(text){return (String(text).match(/\b\d{1,7}(?:[.,]\d{1,3})?\b/g)||[]).map((raw,i)=>({raw,value:num(raw),i})).filter(x=>x.value!=null);}
   function parsePump(text){
-    const t=String(text).toUpperCase(),tok=numericTokens(t);let best=null;
+    const t=String(text).toUpperCase(),tok=numericTokens(t).slice(0,60);let best=null;
     for(const a of tok)for(const l of tok)for(const p of tok){if(a===l||a===p||l===p)continue;if(!(a.value>=1&&a.value<=1000&&l.value>=0.5&&l.value<=150&&p.value>=50&&p.value<=1000))continue;const expected=l.value*p.value/100,err=Math.abs(expected-a.value)/Math.max(a.value,.01);if(!best||err<best.err)best={amount:a.value,litres:l.value,senPerLitre:p.value,err};}
     const station=/(PETRONAS|PETRON\b|SHELL|CALTEX|BHPETROL|BHP\b|ESSO|SPC\b|SINOPEC)/i.exec(t)?.[1]||null;
     let discount=null;const dm=/(?:DISCOUNT|REBATE|SAVING)[^\d]{0,12}(\d+(?:[.,]\d{1,2})?)/i.exec(t);if(dm)discount=num(dm[1]);
     return best&&best.err<=0.08?{...best,unitPrice:best.senPerLitre/100,station,discount,currency:/RINGGIT|\bRM\b|SEN\s*\/\s*LITRE/i.test(t)?'MYR':null}:null;
   }
   function parseOdo(text){
-    const t=String(text).replace(/,/g,'.');let total=null,trip=null,consumption=null;
+    const raw=String(text),t=raw.replace(/(?<=\d),(?=\d{3}\b)/g,'');let total=null,trip=null,consumption=null;
     const tm=/(?:TOTAL|ODO(?:METER)?)\D{0,12}(\d{4,7})/i.exec(t);if(tm)total=num(tm[1]);
-    const tripm=/(?:TRIP(?:\s*CURRENT)?|CURRENT)\D{0,12}(\d{1,4}(?:\.\d)?)/i.exec(t);if(tripm)trip=num(tripm[1]);
-    const cm=/(?:CONSUM(?:P\.?|PTION)?|KM\s*\/\s*L)\D{0,15}(\d{1,3}(?:\.\d)?)/i.exec(t);if(cm)consumption=num(cm[1]);
+    const tripm=/(?:TRIP(?:\s*CURRENT)?|CURRENT)\D{0,12}(\d{1,4}(?:[.,]\d)?)/i.exec(t);if(tripm)trip=num(tripm[1]);
+    const cm=/(?:CONSUM(?:P\.?|PTION)?|KM\s*\/\s*L)\D{0,15}(\d{1,3}(?:[.,]\d)?)/i.exec(t);if(cm)consumption=num(cm[1]);
     const tok=numericTokens(t);if(total==null){const ints=tok.map(x=>x.value).filter(v=>Number.isInteger(v)&&v>=1000&&v<=9999999);if(ints.length)total=Math.max(...ints);}
     return total!=null?{total,trip,consumption}:null;
   }
   function stationOption(name){if(!name)return null;const map={PETRONAS:'Petronas (MY)',PETRON:'Petron (MY)',SHELL:'Shell (MY)',CALTEX:'Caltex (MY)',BHPETROL:'BHPetrol (MY)',BHP:'BHPetrol (MY)',ESSO:'Esso (SG)',SPC:'SPC (SG)',SINOPEC:'Sinopec (SG)'};return map[String(name).toUpperCase()]||null;}
   function applyPump(data,confidence){
     if(!data){setStatus('Values need review.','I could not confidently match amount × litres × unit price.',100);field('ftDiscountDetails').open=true;return;}
-    field('ftPumpAmount').value=data.amount.toFixed(2);field('volume').value=data.litres.toFixed(3);field('ftUnitPrice').value=data.unitPrice.toFixed(3);if(data.currency){field('currency').value=data.currency;field('currency').dispatchEvent(new Event('change',{bubbles:true}));}const opt=stationOption(data.station);if(opt&&[...field('station').options].some(o=>o.value===opt))field('station').value=opt;if(data.discount!=null){field('ftDiscountType').value='fixed';field('ftDiscountValue').value=data.discount.toFixed(2);field('ftDiscountDetails').open=true;}recalcPayment();const pct=Math.round(Number(confidence)||0);setStatus('Pump values prefilling complete.',`${data.litres.toFixed(3)} L · ${currencyPrefix()}${data.amount.toFixed(2)} · ${data.senPerLitre.toFixed(1)} ${data.currency==='MYR'?'sen/L':'¢/L'} · OCR ${pct}%`,100);
+    field('ftPumpAmount').value=data.amount.toFixed(2);field('volume').value=data.litres.toFixed(3);field('ftUnitPrice').value=data.unitPrice.toFixed(3);if(data.currency){field('currency').value=data.currency;field('currency').dispatchEvent(new Event('change',{bubbles:true}));}const opt=stationOption(data.station);if(opt&&[...field('station').options].some(o=>o.value===opt))field('station').value=opt;if(data.discount!=null){field('ftDiscountType').value='fixed';field('ftDiscountValue').value=data.discount.toFixed(2);field('ftDiscountDetails').open=true;}recalcPayment();const pct=Math.round(Number(confidence)||0);setStatus('Pump values prefilling complete.',`${data.litres.toFixed(3)} L · ${currencyPrefix()}${data.amount.toFixed(2)} · ${currencyPrefix()}${data.unitPrice.toFixed(3)}/L · OCR ${pct}%`,100);
   }
   function applyOdo(data,confidence){
     if(!data){setStatus('Odometer needs review.','No reliable total odometer was detected.',100);return;}
