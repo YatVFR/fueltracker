@@ -1,21 +1,29 @@
 # Fuel Tracker
 
-Active validation version: **v16.4.1 Guided Setup & Station Reliability DEV**
+Active validation version: **v16.4.2 Data Sanitization DEV**
 
 Current approved production rollback baseline: **v16.3.8 iCloud Backup Target**  
-Pre-onboarding DEV checkpoint: **checkpoint/v16.4.0-pre-onboarding**
+Pre-onboarding DEV checkpoint: **checkpoint/v16.4.0-pre-onboarding**  
+Pre-sanitization DEV checkpoint: **checkpoint/v16.4.1-pre-sanitize**
 
 ## Current DEV release
-### v16.4.1 — Guided Setup & Station Reliability
+### v16.4.2 — Data Sanitization
+- Removed hard-coded demo refuel records, demo odometers and preset registrations from the default application state.
+- Removed bundled compressed Bike/Car MasterDB payloads from source code. Fresh installs no longer ingest source-coded fuel history.
+- Removed hard-coded vehicle-specific maintenance/accessory seed history and source-specific maintenance classification rules.
+- Fresh installs now start with empty Bike and Car fuel histories, empty registrations and unset odometers, then use Guided Setup to collect user data.
+- Existing browser/PWA local data is **not deleted** by this update. User-created records remain local unless the user explicitly clears or replaces them.
+- A compatibility stub remains for older startup/schema code, but it contains no records, odometers, registrations, locations or other user data.
+- DEV PWA caching is now environment-specific and cleans older DEV Smart Capture/onboarding caches without deleting UAT/PROD caches.
+- Active DEV PWA cache: `fueltracker-dev-v16-4-2-data-sanitization-1`.
+
+### v16.4.1 — Guided Setup & Station Reliability included
 - First-run startup collects vehicle type, registration, vehicle name/model, current odometer, default currency, Auto Detect preference and preferred iCloud backup folder.
 - App Tour walks through Garage, Dashboard, Refuel/Smart Scan, Auto Detect and Settings/Backups.
 - Setup and tour can be re-run from Settings.
 - Preferred iCloud path defaults to `Apps/GitHub/Fuel_Tracker` and can be changed by the user.
 - iPhone/iPad still requires the user to confirm the actual Save to Files / Share Sheet destination; a PWA cannot silently write to an arbitrary iCloud folder.
-- Petrol-station Auto Detect gets foreground GPS heartbeat, resume/restart handling, automatic dwell start for one unambiguous **saved** station, and Detection Health diagnostics.
-- Detection Health reports permission/location errors, GPS accuracy, last fix age, nearest saved station and saved-geofence count.
-- Multiple overlapping saved stations still require user selection.
-- Active DEV PWA cache: `fueltracker-v16-4-1-guided-setup-station-reliability-dev-3`.
+- Petrol-station Auto Detect includes foreground GPS heartbeat, resume/restart handling, automatic dwell start for one unambiguous **saved** station, and Detection Health diagnostics.
 
 ### v16.4.0 — Smart Refuel Capture included
 - Scan pump/receipt images to prefill amount, litres, unit price and recognized station where possible.
@@ -27,11 +35,8 @@ Pre-onboarding DEV checkpoint: **checkpoint/v16.4.0-pre-onboarding**
 - Scan images are not stored in MasterDB; only extracted values are retained.
 
 ## Petrol-station Auto Detect behavior
-The previous implementation only monitored stations already saved as Fuel Tracker geofences and required the user to confirm the station **before** the dwell timer began. That explains why a five-minute stop could produce no result if the station was not saved, the confirmation was missed, or iOS paused location updates.
-
-v16.4.1 changes this behavior:
 1. Detection must be enabled.
-2. The station must still be saved once as a geofence.
+2. The station must be saved once as a geofence.
 3. Fuel Tracker must remain active enough for iOS to provide location updates.
 4. When one saved station is clearly matched, the dwell timer can start automatically after stable GPS fixes.
 5. If several saved stations overlap, Fuel Tracker asks the user to choose.
@@ -51,15 +56,16 @@ This remains foreground geofencing. It does not discover arbitrary petrol statio
 - Mileage, efficiency and spending analytics
 - Per-vehicle Garage profiles and MasterDB
 - Whole Garage backup/restore
-- Existing Maintenance and Upgrade/Accessory records
+- User-created Maintenance and Upgrade/Accessory records
 - Smart Refuel Capture and discount metadata
 - iOS Share Sheet export compatibility
 - Local-first PWA storage
 - Mobile-safe iPhone layout
 
-## Important iPhone limitations
+## Important data and iPhone notes
+- Source sanitization does not erase records already stored in a browser/PWA local store.
+- Git commit history from before v16.4.2 still contains historical source snapshots unless repository history is explicitly rewritten.
 - Geolocation may pause when the PWA is suspended or fully closed.
-- v16.4.1 improves foreground/resume reliability but is not native background geofencing.
 - Browser-side OCR needs network access the first time the OCR engine/language data is loaded.
 - Native iOS capabilities would be required for true closed-app geofencing and silent iCloud/CloudKit synchronization.
 
