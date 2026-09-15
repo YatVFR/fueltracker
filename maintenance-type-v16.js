@@ -2,7 +2,7 @@
   'use strict';
   if(window.FuelTrackerMaintenanceTypeV16)return;
 
-  const REV='v16.3.5-maintenance-type-1';
+  const REV='v16.4.2-maintenance-type-sanitized-1';
   const MAINTENANCE_CATEGORIES=['Service','Repair','Tyres','Parts','Recovery / Towing','Inspection','Cleaning','Other'];
   const UPGRADE_CATEGORIES=['Accessories','Installation','Parts','Other'];
   let pendingType=null;
@@ -15,7 +15,7 @@
   function inferType(e){
     if(e?.recordType==='upgrade'||e?.recordType==='maintenance')return e.recordType;
     const category=String(e?.category||'');
-    if(e?.source==='FINANCES-2022'||category==='Accessories'||category==='Installation')return 'upgrade';
+    if(category==='Accessories'||category==='Installation')return 'upgrade';
     return 'maintenance';
   }
   function save(){try{saveState?.();}catch(e){}}
