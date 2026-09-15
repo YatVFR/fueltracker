@@ -2,7 +2,7 @@
   'use strict';
   if(window.FuelTrackerOnboardingV16)return;
 
-  const REV='v16.4.1-onboarding-2';
+  const REV='v16.4.1-onboarding-3';
   const KEY='fueltrackerV164Onboarding';
   const BACKUP_KEY='fueltrackerV164BackupPreference';
   const AUTOMATION_KEY='fueltrackerV160AutomationSettings';
@@ -59,17 +59,19 @@
   }
 
   const STEPS=[
-    {sel:'.vehicle-switch',title:'Your Garage',text:'Switch between Bike and Car profiles here.'},
-    {sel:'.dashboard',title:'Fuel Dashboard',text:'Review efficiency, spending and your selected reporting period.'},
-    {sel:'.refuel-card',title:'Add a Refuel',text:'Enter manually or use Scan & Prefill for pump and odometer photos.'},
-    {sel:'#v160AutoIndicator',title:'Auto Detect',text:'Monitors saved station geofences while Fuel Tracker is active. Save each station once first.'},
-    {sel:'#settingsBtn',title:'Settings & Backups',text:'Manage Garage profiles, detection health and your preferred iCloud backup target.'}
+    {page:'dashboard',sel:'.vehicle-switch',title:'Your Garage',text:'Switch between Bike and Car profiles here.'},
+    {page:'dashboard',sel:'.dashboard',title:'Fuel Dashboard',text:'Review efficiency, spending and your selected reporting period.'},
+    {page:'refuel',sel:'.refuel-card',title:'Add a Refuel',text:'Enter manually or use Scan & Prefill for pump and odometer photos.'},
+    {page:'settings',sel:'#v160AutoIndicator',title:'Auto Detect',text:'Monitors saved station geofences while Fuel Tracker is active. Save each station once first.'},
+    {page:'settings',sel:'[data-v158-page="settings"]',title:'Settings & Backups',text:'Manage Garage profiles, detection health and your preferred iCloud backup target.'}
   ];
   let tourIndex=0,tourTarget=null;
   function clearTarget(){tourTarget?.classList.remove('ft-tour-target');tourTarget=null;}
   function startTour(){installStyles();tourIndex=0;renderTour();}
-  function renderTour(){clearTarget();field('ftTour')?.remove();if(tourIndex>=STEPS.length){finishTour();return;}const step=STEPS[tourIndex],target=document.querySelector(step.sel);if(target){tourTarget=target;target.classList.add('ft-tour-target');target.scrollIntoView?.({behavior:'smooth',block:'center'});}const wrap=document.createElement('div');wrap.id='ftTour';wrap.className='ft-tour';wrap.innerHTML=`<div class="ft-tour-card"><small>App Tour · ${tourIndex+1}/${STEPS.length}</small><h3>${esc(step.title)}</h3><p>${esc(step.text)}</p><div class="ft-tour-actions"><button type="button" class="secondary" id="ftTourSkip">SKIP TOUR</button><button type="button" class="primary" id="ftTourNext">${tourIndex===STEPS.length-1?'FINISH':'NEXT'}</button></div></div>`;document.body.appendChild(wrap);field('ftTourSkip').onclick=finishTour;field('ftTourNext').onclick=()=>{tourIndex++;renderTour();};}
-  function finishTour(){clearTarget();field('ftTour')?.remove();const x=load()||{};x.tourCompleted=true;x.tourCompletedAt=new Date().toISOString();save(x);}
+  function renderTour(){
+    clearTarget();field('ftTour')?.remove();if(tourIndex>=STEPS.length){finishTour();return;}const step=STEPS[tourIndex];if(step.page)window.FuelTrackerNavigation?.showPage?.(step.page,false);setTimeout(()=>{const target=document.querySelector(step.sel);if(target){tourTarget=target;target.classList.add('ft-tour-target');target.scrollIntoView?.({behavior:'smooth',block:'center'});}const wrap=document.createElement('div');wrap.id='ftTour';wrap.className='ft-tour';wrap.innerHTML=`<div class="ft-tour-card"><small>App Tour · ${tourIndex+1}/${STEPS.length}</small><h3>${esc(step.title)}</h3><p>${esc(step.text)}</p><div class="ft-tour-actions"><button type="button" class="secondary" id="ftTourSkip">SKIP TOUR</button><button type="button" class="primary" id="ftTourNext">${tourIndex===STEPS.length-1?'FINISH':'NEXT'}</button></div></div>`;document.body.appendChild(wrap);field('ftTourSkip').onclick=finishTour;field('ftTourNext').onclick=()=>{tourIndex++;renderTour();};},60);
+  }
+  function finishTour(){clearTarget();field('ftTour')?.remove();const x=load()||{};x.tourCompleted=true;x.tourCompletedAt=new Date().toISOString();save(x);window.FuelTrackerNavigation?.showPage?.('dashboard',false);}
   function addRestartButton(){const root=document.querySelector('#settingsBox .settings');if(!root||field('ftTourRestart'))return;const b=document.createElement('button');b.id='ftTourRestart';b.type='button';b.className='ft-tour-restart';b.textContent='RUN APP TOUR / STARTUP SETUP';b.onclick=()=>showSetup(true);root.appendChild(b);}
 
   installStyles();[200,700,1500].forEach(ms=>setTimeout(()=>{hookDefaultCurrency();addRestartButton();showSetup(false);},ms));document.addEventListener('fueltracker:pagechange',e=>{if(e.detail?.page==='settings')setTimeout(addRestartButton,80);});window.FuelTrackerOnboardingV16={revision:REV,showSetup,startTour,backupPreference,applyDefaultCurrency};
