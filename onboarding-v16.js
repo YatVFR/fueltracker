@@ -2,11 +2,11 @@
   'use strict';
   if(window.FuelTrackerOnboardingV16)return;
 
-  const REV='v16.4.1-onboarding-1';
+  const REV='v16.4.1-onboarding-2';
   const KEY='fueltrackerV164Onboarding';
   const BACKUP_KEY='fueltrackerV164BackupPreference';
+  const AUTOMATION_KEY='fueltrackerV160AutomationSettings';
   const DEFAULT_PATH='Apps/GitHub/Fuel_Tracker';
-  const DEFAULT_LABEL='iCloud Drive → Apps → GitHub → Fuel_Tracker';
 
   const field=id=>document.getElementById(id);
   const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
@@ -14,6 +14,7 @@
   const save=v=>localStorage.setItem(KEY,JSON.stringify(v));
   const activeProfile=()=>{try{const g=state?.garageV15;return g?.profiles?.find(p=>p.id===g.activeProfileId)||g?.profiles?.[0]||null;}catch(e){return null;}};
   const profileData=p=>{try{if(!p)return null;return p.legacy?state.garageV15.legacy[p.type]:p.data;}catch(e){return null;}};
+  function automationSettings(){try{return Object.assign({enabled:false,radius:150,dwellMinutes:3,notifications:false},JSON.parse(localStorage.getItem(AUTOMATION_KEY)||'{}'));}catch(e){return {enabled:false,radius:150,dwellMinutes:3,notifications:false};}}
 
   function installStyles(){
     if(field('v1641OnboardingStyles'))return;
@@ -27,56 +28,49 @@
     const pref={provider:'iCloud Drive',path:p,displayPath:'iCloud Drive → '+p.split('/').filter(Boolean).join(' → '),mode:'user-mediated-files-save',updatedAt:new Date().toISOString()};
     localStorage.setItem(BACKUP_KEY,JSON.stringify(pref));
     try{const g=state?.garageV15;if(g){g.backupTarget={...(g.backupTarget||{}),...pref};saveState?.();}}catch(e){}
-    document.dispatchEvent(new CustomEvent('fueltracker:backuptargetchange',{detail:pref}));
-    return pref;
+    document.dispatchEvent(new CustomEvent('fueltracker:backuptargetchange',{detail:pref}));return pref;
   }
 
   function currentDefaults(){
-    const p=activeProfile(),d=profileData(p)||{};let odo='';
-    try{odo=state?.currentOdometer?.[p?.type||state?.mode]?.value??d?.odometer?.value??'';}catch(e){}
+    const p=activeProfile(),d=profileData(p)||{};let odo='';try{odo=state?.currentOdometer?.[p?.type||state?.mode]?.value??d?.odometer?.value??'';}catch(e){}
     let bp;try{bp=JSON.parse(localStorage.getItem(BACKUP_KEY)||'null');}catch(e){}
-    return {type:p?.type||state?.mode||'bike',registration:d.registration||state?.registrations?.[p?.type||state?.mode]||'',name:p?.name||'',make:p?.make||'',model:p?.model||'',year:p?.year||'',odometer:odo,currency:localStorage.getItem('fueltrackerDefaultCurrency')||'SGD',backupPath:bp?.path||DEFAULT_PATH};
+    const a=automationSettings();return {type:p?.type||state?.mode||'bike',registration:d.registration||state?.registrations?.[p?.type||state?.mode]||'',name:p?.name||'',make:p?.make||'',model:p?.model||'',odometer:odo,currency:localStorage.getItem('fueltrackerDefaultCurrency')||'SGD',backupPath:bp?.path||DEFAULT_PATH,autoDetect:!!a.enabled};
   }
 
   function showSetup(force=false){
-    installStyles();if(field('ftOnboarding'))return;const existing=load();if(existing?.completed&&!force)return;
-    const d=currentDefaults(),wrap=document.createElement('div');wrap.id='ftOnboarding';wrap.className='ft-onboard';
-    wrap.innerHTML=`<div class="ft-onboard-card"><h2>Welcome to Fuel Tracker</h2><p>Set up your first vehicle, preferred currency and backup location. You can change these later.</p><div class="ft-ob-grid"><div class="field"><label>Vehicle Type</label><select id="ftObType"><option value="bike" ${d.type==='bike'?'selected':''}>Bike</option><option value="car" ${d.type==='car'?'selected':''}>Car</option></select></div><div class="field"><label>Registration</label><input id="ftObReg" value="${esc(d.registration)}" placeholder="e.g. FXX1234A"></div><div class="field"><label>Vehicle Name</label><input id="ftObName" value="${esc(d.name)}" placeholder="e.g. My Bike"></div><div class="field"><label>Make / Model</label><input id="ftObModel" value="${esc([d.make,d.model].filter(Boolean).join(' '))}" placeholder="e.g. BMW R1250 GS"></div><div class="field"><label>Current Odometer (KM)</label><input id="ftObOdo" type="number" min="0" step="1" value="${esc(d.odometer)}" placeholder="Optional"></div><div class="field"><label>Default Currency</label><select id="ftObCurrency"><option value="SGD" ${d.currency==='SGD'?'selected':''}>SGD</option><option value="MYR" ${d.currency==='MYR'?'selected':''}>MYR</option></select></div></div><div class="field" style="margin-top:9px"><label>Preferred iCloud Backup Folder</label><input id="ftObBackup" value="${esc(d.backupPath)}" placeholder="Apps/GitHub/Fuel_Tracker"></div><div class="ft-ob-note"><strong>iCloud note:</strong> On iPhone/iPad, Fuel Tracker cannot silently choose or write to an iCloud folder. We remember this preferred path and open the Share/Save to Files flow when you export a backup.</div><div class="ft-ob-actions"><button type="button" class="secondary" id="ftObSkip">SKIP FOR NOW</button><button type="button" class="primary" id="ftObSave">SAVE & START TOUR</button></div></div>`;
-    document.body.appendChild(wrap);
-    field('ftObSkip').onclick=()=>{save({completed:true,skipped:true,completedAt:new Date().toISOString()});wrap.remove();};
-    field('ftObSave').onclick=()=>completeSetup();
+    installStyles();if(field('ftOnboarding'))return;const existing=load();if(existing?.completed&&!force)return;const d=currentDefaults(),wrap=document.createElement('div');wrap.id='ftOnboarding';wrap.className='ft-onboard';
+    wrap.innerHTML=`<div class="ft-onboard-card"><h2>Welcome to Fuel Tracker</h2><p>Set up your vehicle, refuel defaults and backup preference. You can change these later.</p><div class="ft-ob-grid"><div class="field"><label>Vehicle Type</label><select id="ftObType"><option value="bike" ${d.type==='bike'?'selected':''}>Bike</option><option value="car" ${d.type==='car'?'selected':''}>Car</option></select></div><div class="field"><label>Registration</label><input id="ftObReg" value="${esc(d.registration)}" placeholder="e.g. FXX1234A"></div><div class="field"><label>Vehicle Name</label><input id="ftObName" value="${esc(d.name)}" placeholder="e.g. My Bike"></div><div class="field"><label>Make / Model</label><input id="ftObModel" value="${esc([d.make,d.model].filter(Boolean).join(' '))}" placeholder="e.g. BMW R1250 GS"></div><div class="field"><label>Current Odometer (KM)</label><input id="ftObOdo" type="number" min="0" step="1" value="${esc(d.odometer)}" placeholder="Optional"></div><div class="field"><label>Default Currency</label><select id="ftObCurrency"><option value="SGD" ${d.currency==='SGD'?'selected':''}>SGD</option><option value="MYR" ${d.currency==='MYR'?'selected':''}>MYR</option></select></div><div class="field"><label>Auto Detect Stations</label><select id="ftObAuto"><option value="0" ${!d.autoDetect?'selected':''}>Off</option><option value="1" ${d.autoDetect?'selected':''}>On</option></select></div></div><div class="field" style="margin-top:9px"><label>Preferred iCloud Backup Folder</label><input id="ftObBackup" value="${esc(d.backupPath)}" placeholder="Apps/GitHub/Fuel_Tracker"></div><div class="ft-ob-note"><strong>Auto Detect:</strong> Fuel Tracker can monitor saved station geofences while the app is active. Turning it on requests Location permission. A station must be saved once before it can be recognized automatically.</div><div class="ft-ob-note"><strong>iCloud:</strong> On iPhone/iPad, Fuel Tracker remembers this preferred path but you still confirm the destination in Share/Save to Files.</div><div class="ft-ob-actions"><button type="button" class="secondary" id="ftObSkip">SKIP FOR NOW</button><button type="button" class="primary" id="ftObSave">SAVE & START TOUR</button></div></div>`;
+    document.body.appendChild(wrap);field('ftObSkip').onclick=()=>{save({completed:true,skipped:true,completedAt:new Date().toISOString()});wrap.remove();};field('ftObSave').onclick=completeSetup;
   }
 
+  function chooseProfile(type){try{const g=state?.garageV15,p=g?.profiles?.find(x=>x.type===type);if(p){g.activeProfileId=p.id;return p;}}catch(e){}return activeProfile();}
+  function applyDefaultCurrency(){const c=localStorage.getItem('fueltrackerDefaultCurrency')||'SGD',el=field('currency');if(el){el.value=c;el.dispatchEvent(new Event('change',{bubbles:true}));}}
+  function hookDefaultCurrency(){if(window.__ftCurrencyResetHook)return;const base=window.resetForm;if(typeof base!=='function')return;window.__ftCurrencyResetHook=true;window.resetForm=function(){base();applyDefaultCurrency();};applyDefaultCurrency();}
+
   function completeSetup(){
-    const type=field('ftObType').value,reg=field('ftObReg').value.trim().toUpperCase(),name=field('ftObName').value.trim(),modelText=field('ftObModel').value.trim(),odo=Number(field('ftObOdo').value),currency=field('ftObCurrency').value,path=field('ftObBackup').value.trim()||DEFAULT_PATH;
+    const type=field('ftObType').value,reg=field('ftObReg').value.trim().toUpperCase(),name=field('ftObName').value.trim(),modelText=field('ftObModel').value.trim(),odoRaw=field('ftObOdo').value,currency=field('ftObCurrency').value,path=field('ftObBackup').value.trim()||DEFAULT_PATH,auto=field('ftObAuto').value==='1';
     try{
-      if(typeof setMode==='function')setMode(type);else state.mode=type;
-      state.registrations=state.registrations||{};state.registrations[type]=reg;
-      const p=activeProfile();if(p&&p.type===type){if(name)p.name=name;const parts=modelText.split(/\s+/);if(modelText){p.make=parts.shift()||p.make||'';p.model=parts.join(' ')||p.model||'';}const d=profileData(p);if(d)d.registration=reg;}
-      if(Number.isFinite(odo)&&odo>=0){state.currentOdometer=state.currentOdometer||{};state.currentOdometer[type]={value:odo,updatedAt:new Date().toISOString()};const p2=activeProfile(),d2=profileData(p2);if(d2)d2.odometer={value:odo,updatedAt:new Date().toISOString()};}
-      localStorage.setItem('fueltrackerDefaultCurrency',currency);saveState?.();renderAll?.();
+      const p=chooseProfile(type);state.mode=type;state.registrations=state.registrations||{};state.registrations[type]=reg;if(p){if(name)p.name=name;const parts=modelText.split(/\s+/).filter(Boolean);if(parts.length){p.make=parts.shift()||p.make||'';p.model=parts.join(' ')||p.model||'';}const d=profileData(p);if(d)d.registration=reg;}
+      const odo=odoRaw===''?null:Number(odoRaw);if(odo!=null&&Number.isFinite(odo)&&odo>=0){state.currentOdometer=state.currentOdometer||{};state.currentOdometer[type]={value:odo,updatedAt:new Date().toISOString()};const d=profileData(p);if(d)d.odometer={value:odo,updatedAt:new Date().toISOString()};}
+      localStorage.setItem('fueltrackerDefaultCurrency',currency);const a=automationSettings();a.enabled=auto;localStorage.setItem(AUTOMATION_KEY,JSON.stringify(a));saveState?.();renderAll?.();applyDefaultCurrency();
+      if(auto&&navigator.geolocation)navigator.geolocation.getCurrentPosition(()=>window.FuelTrackerStationReliabilityV16?.restart?.(),()=>{}, {enableHighAccuracy:true,timeout:12000,maximumAge:0});
     }catch(e){console.warn('Onboarding profile save',e);}
-    backupPreference(path);save({completed:true,completedAt:new Date().toISOString(),type,registration:reg,currency});field('ftOnboarding')?.remove();setTimeout(()=>startTour(),120);
+    backupPreference(path);save({completed:true,completedAt:new Date().toISOString(),type,registration:reg,currency,autoDetect:auto});field('ftOnboarding')?.remove();setTimeout(()=>startTour(),120);
   }
 
   const STEPS=[
     {sel:'.vehicle-switch',title:'Your Garage',text:'Switch between Bike and Car profiles here.'},
     {sel:'.dashboard',title:'Fuel Dashboard',text:'Review efficiency, spending and your selected reporting period.'},
-    {sel:'.refuel-card',title:'Add a Refuel',text:'Enter a refuel manually or use Scan & Prefill for pump and odometer photos.'},
-    {sel:'#v160AutoIndicator',title:'Auto Detect',text:'Auto Detect watches your saved station geofences while Fuel Tracker is active.'},
-    {sel:'#settingsBtn',title:'Settings & Backups',text:'Manage Garage profiles, automation and your preferred iCloud backup target.'}
+    {sel:'.refuel-card',title:'Add a Refuel',text:'Enter manually or use Scan & Prefill for pump and odometer photos.'},
+    {sel:'#v160AutoIndicator',title:'Auto Detect',text:'Monitors saved station geofences while Fuel Tracker is active. Save each station once first.'},
+    {sel:'#settingsBtn',title:'Settings & Backups',text:'Manage Garage profiles, detection health and your preferred iCloud backup target.'}
   ];
   let tourIndex=0,tourTarget=null;
   function clearTarget(){tourTarget?.classList.remove('ft-tour-target');tourTarget=null;}
   function startTour(){installStyles();tourIndex=0;renderTour();}
-  function renderTour(){
-    clearTarget();field('ftTour')?.remove();if(tourIndex>=STEPS.length){finishTour();return;}const step=STEPS[tourIndex],target=document.querySelector(step.sel);if(target){tourTarget=target;target.classList.add('ft-tour-target');target.scrollIntoView?.({behavior:'smooth',block:'center'});}const wrap=document.createElement('div');wrap.id='ftTour';wrap.className='ft-tour';wrap.innerHTML=`<div class="ft-tour-card"><small>App Tour · ${tourIndex+1}/${STEPS.length}</small><h3>${esc(step.title)}</h3><p>${esc(step.text)}</p><div class="ft-tour-actions"><button type="button" class="secondary" id="ftTourSkip">SKIP TOUR</button><button type="button" class="primary" id="ftTourNext">${tourIndex===STEPS.length-1?'FINISH':'NEXT'}</button></div></div>`;document.body.appendChild(wrap);field('ftTourSkip').onclick=finishTour;field('ftTourNext').onclick=()=>{tourIndex++;renderTour();};
-  }
+  function renderTour(){clearTarget();field('ftTour')?.remove();if(tourIndex>=STEPS.length){finishTour();return;}const step=STEPS[tourIndex],target=document.querySelector(step.sel);if(target){tourTarget=target;target.classList.add('ft-tour-target');target.scrollIntoView?.({behavior:'smooth',block:'center'});}const wrap=document.createElement('div');wrap.id='ftTour';wrap.className='ft-tour';wrap.innerHTML=`<div class="ft-tour-card"><small>App Tour · ${tourIndex+1}/${STEPS.length}</small><h3>${esc(step.title)}</h3><p>${esc(step.text)}</p><div class="ft-tour-actions"><button type="button" class="secondary" id="ftTourSkip">SKIP TOUR</button><button type="button" class="primary" id="ftTourNext">${tourIndex===STEPS.length-1?'FINISH':'NEXT'}</button></div></div>`;document.body.appendChild(wrap);field('ftTourSkip').onclick=finishTour;field('ftTourNext').onclick=()=>{tourIndex++;renderTour();};}
   function finishTour(){clearTarget();field('ftTour')?.remove();const x=load()||{};x.tourCompleted=true;x.tourCompletedAt=new Date().toISOString();save(x);}
-
   function addRestartButton(){const root=document.querySelector('#settingsBox .settings');if(!root||field('ftTourRestart'))return;const b=document.createElement('button');b.id='ftTourRestart';b.type='button';b.className='ft-tour-restart';b.textContent='RUN APP TOUR / STARTUP SETUP';b.onclick=()=>showSetup(true);root.appendChild(b);}
 
-  installStyles();[200,700,1500].forEach(ms=>setTimeout(()=>{addRestartButton();showSetup(false);},ms));
-  document.addEventListener('fueltracker:pagechange',e=>{if(e.detail?.page==='settings')setTimeout(addRestartButton,80);});
-  window.FuelTrackerOnboardingV16={revision:REV,showSetup,startTour,backupPreference};
+  installStyles();[200,700,1500].forEach(ms=>setTimeout(()=>{hookDefaultCurrency();addRestartButton();showSetup(false);},ms));document.addEventListener('fueltracker:pagechange',e=>{if(e.detail?.page==='settings')setTimeout(addRestartButton,80);});window.FuelTrackerOnboardingV16={revision:REV,showSetup,startTour,backupPreference,applyDefaultCurrency};
 })();
