@@ -1,21 +1,30 @@
 # Fuel Tracker
 
-Active validation version: **v16.4.2 Data Sanitization DEV**
+Active validation version: **v16.4.3 Floating Bottom Menu DEV**
 
 Current approved production rollback baseline: **v16.3.8 iCloud Backup Target**  
 Pre-onboarding DEV checkpoint: **checkpoint/v16.4.0-pre-onboarding**  
-Pre-sanitization DEV checkpoint: **checkpoint/v16.4.1-pre-sanitize**
+Pre-sanitization DEV checkpoint: **checkpoint/v16.4.1-pre-sanitize**  
+Pre-floating-menu DEV checkpoint: **checkpoint/v16.4.2-pre-floating-menu**
 
 ## Current DEV release
-### v16.4.2 — Data Sanitization
+### v16.4.3 — Floating Bottom Menu
+- Dashboard / Refuel / Maintenance / Settings navigation now floats at the bottom of the app instead of remaining at the top.
+- Bottom navigation is centered on larger displays and uses a compact four-item layout on iPhone-sized screens.
+- iPhone safe-area spacing is respected so the menu stays above the Home indicator.
+- The selected page remains highlighted with the active vehicle theme accent.
+- Secondary navigation descriptions are hidden in the compact floating layout to improve touch target size and reduce clutter.
+- Additional bottom page spacing prevents forms, history tables and footer content from being obscured by the floating control.
+- Existing page switching, remembered active page and page-change events are retained.
+- Active DEV PWA cache: `fueltracker-dev-v16-4-3-floating-bottom-menu-1`.
+
+### v16.4.2 — Data Sanitization included
 - Removed hard-coded demo refuel records, demo odometers and preset registrations from the default application state.
 - Removed bundled compressed Bike/Car MasterDB payloads from source code. Fresh installs no longer ingest source-coded fuel history.
 - Removed hard-coded vehicle-specific maintenance/accessory seed history and source-specific maintenance classification rules.
-- Fresh installs now start with empty Bike and Car fuel histories, empty registrations and unset odometers, then use Guided Setup to collect user data.
-- Existing browser/PWA local data is **not deleted** by this update. User-created records remain local unless the user explicitly clears or replaces them.
-- A compatibility stub remains for older startup/schema code, but it contains no records, odometers, registrations, locations or other user data.
-- DEV PWA caching is now environment-specific and cleans older DEV Smart Capture/onboarding caches without deleting UAT/PROD caches.
-- Active DEV PWA cache: `fueltracker-dev-v16-4-2-data-sanitization-1`.
+- Fresh installs start with empty Bike and Car fuel histories, empty registrations and unset odometers, then use Guided Setup to collect user data.
+- Existing browser/PWA local data is **not deleted** by the sanitization update.
+- DEV PWA caching remains environment-specific so DEV cache changes do not delete UAT/PROD caches.
 
 ### v16.4.1 — Guided Setup & Station Reliability included
 - First-run startup collects vehicle type, registration, vehicle name/model, current odometer, default currency, Auto Detect preference and preferred iCloud backup folder.
