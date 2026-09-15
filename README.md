@@ -1,64 +1,88 @@
 # Fuel Tracker
 
-Active validation version: **v16.4.0 Smart Refuel Capture DEV**
+Active validation version: **v16.4.1 Guided Setup & Station Reliability DEV**
 
-Current approved stable rollback baseline: **v16.3.8 iCloud Backup Target**
+Current approved stable rollback baseline: **v16.3.8 iCloud Backup Target**  
+Pre-onboarding DEV checkpoint: **checkpoint/v16.4.0-pre-onboarding**
 
 ## Release status
-- **v16.4.0 DEV adds Smart Refuel Capture** for pump/receipt photos and onboard odometer photos.
-- Pump/receipt scan can prefill fuel volume, displayed amount, unit price and known station when recognizable.
-- Odometer scan prefills the vehicle total odometer; trip meter and onboard average consumption are retained as optional supporting metadata when detected.
-- Discounts can be entered as fixed amount, sen/cents per litre, or percentage; the existing `cost` field remains the actual final amount paid for backward-compatible dashboards.
-- Refuel history can be collapsed to reduce long-page scrolling, especially on mobile.
-- Scan images are not stored inside the MasterDB; only extracted values are retained.
-- OCR is loaded lazily on first scan and therefore needs internet access for the first recognition session.
-- Pre-commit hardening prevents blank scan fields from being treated as zero and preserves Smart Capture metadata across per-vehicle MasterDB export/import.
-- v16.3.8 remains the approved rollback baseline while v16.4 is validated in DEV.
+- **v16.4.1 DEV adds first-run Guided Setup and App Tour.**
+- Startup collects vehicle type, registration, vehicle name/model, current odometer, preferred currency and preferred iCloud backup folder.
+- The preferred iCloud folder is remembered, but iPhone/iPad users still confirm the real destination through Share/Save to Files.
+- Settings can re-run the startup setup and tour.
+- Petrol-station detection gains a reliability layer with foreground GPS heartbeat, resume/restart handling and live diagnostics.
+- One unambiguous **saved** station can start dwell detection automatically; multiple nearby saved stations still require user selection.
+- Detection Health now shows GPS accuracy, last fix age, nearest saved station and whether station geofences exist.
+- **v16.4.0 Smart Refuel Capture** remains included: pump/receipt scan, odometer scan, discount handling and grouped refuel history.
+- Smart Capture metadata survives per-vehicle MasterDB schema 3 export/import.
+- v16.3.8 remains the approved production rollback baseline while v16.4.x is validated in DEV.
 - **v16.2 Smart Inbox remains rolled back** due to startup/loading instability.
-- v16.1 Smart Stations remains the active automation feature line.
-- v16.3 introduced per-vehicle Garage Maintenance.
-- v16.3.4 added Vendor/Workshop, REVIEW/VERIFIED handling and a separate Upgrades & Accessories section.
-- v16.3.5 added Maintenance vs Upgrade/Accessory record type selection and reclassification.
-- v16.3.6 hardened Whole Garage backup schema and restore normalization.
-- v16.3.7 fixed export feedback, restore verification auditing, current MasterDB version metadata, and Browser vs Home Screen Web App local-data context identification.
-- v16.3.8 added the preferred iCloud Drive Garage backup destination: iCloud Drive → Apps → GitHub → Fuel_Tracker.
 - The top-left app label is a release requirement and must be updated with every app change.
-- Active DEV PWA cache: `fueltracker-v16-4-0-smart-refuel-capture-dev-2`
+- Active DEV PWA cache: `fueltracker-v16-4-1-guided-setup-station-reliability-dev-1`
+
+## v16.4.1 — Guided Setup & Station Reliability DEV
+### First-run setup
+- Vehicle type: Bike / Car.
+- Registration, vehicle name and make/model.
+- Current odometer.
+- Default currency: SGD / MYR.
+- Preferred iCloud backup path, defaulting to `Apps/GitHub/Fuel_Tracker`.
+- Setup details remain local to Fuel Tracker unless included in an exported backup.
+
+### App tour
+- Garage selector.
+- Fuel dashboard.
+- Add Refuel and Smart Scan.
+- Auto Detect.
+- Settings and backups.
+- Tour/startup setup can be restarted from Settings.
+
+### Petrol-station reliability
+Auto Detect is a foreground geofence feature. It does **not** identify arbitrary petrol stations from the internet. A location must first exist in Fuel Tracker's saved-station list.
+
+Improvements in v16.4.1:
+- Extra foreground location heartbeat while Fuel Tracker is visible.
+- Detection restarts after focus, page-show and return from app suspension.
+- A single unambiguous saved station can auto-start dwell tracking after stable location fixes.
+- If multiple saved stations overlap, Fuel Tracker keeps the station-selection prompt.
+- Detection Health reports permission/location errors, GPS accuracy and nearest saved station distance.
+- `TEST LOCATION NOW` and `RESTART DETECTION` controls are available in Settings.
+
+### Why a five-minute stop may previously have produced nothing
+The older flow required all of the following:
+1. Detection enabled.
+2. The petrol station already saved as a Fuel Tracker geofence.
+3. Fuel Tracker remaining active enough for iOS to provide location updates.
+4. The user confirming the station **before** the dwell timer began.
+
+v16.4.1 removes the confirmation-before-timer requirement when only one saved station is clearly matched.
 
 ## v16.4.0 — Smart Refuel Capture DEV
-- **SCAN PUMP / RECEIPT** processes a selected photo locally in the browser and attempts to identify amount, litres and unit price.
-- Pump parsing validates candidates against `litres × unit price ≈ amount` to reduce seven-segment OCR mistakes.
-- Recognized Malaysian pump displays automatically select MYR and can recognize common station names when present.
-- **SCAN ODOMETER** attempts to identify the total odometer for form prefill. Supporting Trip Current and onboard consumption values are stored when confidently identified.
-- Odometer parsing accepts compact total odometer formats and removes common thousands separators before mapping.
-- Discount handling supports no discount, fixed amount, sen/cents-per-litre, or percentage.
-- `pumpAmount`, `unitPrice`, discount metadata, `netPaid`, `effectiveUnitPrice`, scanned trip meter and onboard consumption are optional refuel fields and do not invalidate older records.
-- Per-vehicle MasterDB schema 3 export/import preserves the optional Smart Capture fields.
-- Extended CSV export includes the new optional scan and discount fields.
-- Refuel History gains collapse/expand grouping for lengthy displays.
-- Planned follow-up: per-vehicle learned odometer display profiles so users can teach Fuel Tracker how their dashboard layout maps to Total Odometer, Trip, Economy and Range.
+- **SCAN PUMP / RECEIPT** attempts to identify amount, litres and unit price.
+- Pump parsing validates `litres × unit price ≈ amount` to reduce OCR mistakes.
+- **SCAN ODOMETER** prefills total odometer and can retain Trip Current / onboard economy as supporting metadata.
+- Discounts support fixed amount, sen/cents per litre, percentage or no discount.
+- Existing `cost` continues to mean actual final amount paid.
+- Optional fields include `pumpAmount`, `unitPrice`, discount metadata, `netPaid`, `effectiveUnitPrice`, trip meter and onboard consumption.
+- Scan photos are not stored in the MasterDB; only extracted values are retained.
+- Refuel History can be collapsed for long displays.
+- Planned follow-up: learned per-vehicle odometer display profiles.
 
-## v16.3.8 — iCloud Backup Target
-- Settings → Whole Garage Backup shows the preferred iCloud path.
+## iCloud backup behavior
+- Default preferred location: **iCloud Drive → Apps → GitHub → Fuel_Tracker**.
+- The user may enter a different preferred iCloud path during setup or in Settings.
 - **SAVE LATEST TO ICLOUD** creates `FuelTracker-Garage-Latest.json`.
 - **SAVE DATED ARCHIVE** creates a timestamped Garage JSON backup.
-- On supported iPhone/PWA environments, export uses the native Share Sheet so the file can be saved to the preferred iCloud folder.
-- The preferred backup target is recorded inside Garage state and backup metadata.
-- Whole Garage remains the portability mechanism between Browser and installed Web App local stores.
-- iOS still requires the user to confirm the Save to Files/Share Sheet destination; a browser/PWA cannot silently write to an arbitrary iCloud Drive folder in the background.
+- iOS browsers/PWAs cannot silently retain unrestricted write access to arbitrary iCloud folders; the user confirms the Save to Files/Share destination.
 
 ## Maintenance data model
-Each Garage profile can store Maintenance and Upgrade/Accessory records with `recordType`, category, Vendor/Workshop, description, cost/currency, historical MYR FX rate, odometer, notes, REVIEW/VERIFIED state, imported-source metadata and timestamps.
+Existing Garage Maintenance and Upgrade/Accessory records remain unchanged and are not part of the v16.4.1 feature scope.
 
-Whole Garage Backup includes maintenance, upgrades/accessories, verification states, source metadata, vehicle photos, fuel records, vehicle profiles and Garage metadata.
-
-## v16.1 — Smart Station Recognition
-- Saved petrol stations learn from explicit confirmations.
-- User confirmation remains mandatory before dwell timing begins.
-- No automatic fuel record creation.
-
-### Important iPhone limitations
-The GitHub Pages PWA cannot reliably monitor geolocation while suspended or fully closed. It also cannot silently retain unrestricted background file-system access to an arbitrary iCloud Drive directory. Smart Capture uses browser-side OCR; initial OCR engine/language loading requires network access. Native iOS capabilities would be required for fully automatic iCloud/CloudKit synchronization and closed-app geofencing.
+## Important iPhone limitations
+- Geolocation cannot be relied on while the PWA is suspended or fully closed.
+- v16.4.1 improves foreground/resume reliability but is not native background geofencing.
+- Browser-side OCR needs network access the first time the OCR engine/language data is loaded.
+- Native iOS capabilities would be required for true closed-app geofencing and silent iCloud/CloudKit synchronization.
 
 ## Stable baseline retained from v16.3.8
 - Dashboard / Refuel / Settings navigation foundation
@@ -72,7 +96,7 @@ The GitHub Pages PWA cannot reliably monitor geolocation while suspended or full
 - Local-first PWA storage
 - Mobile-safe iPhone layout
 
-Production app: https://yatvfr.github.io/fueltracker/
+Production app: https://yatvfr.github.io/fueltracker/  
 DEV validation: https://yatvfr.github.io/fueltracker/dev/
 
-v16.3.8 remains the approved rollback point while v16.4 Smart Refuel Capture undergoes DEV validation.
+v16.3.8 remains the approved production rollback point while v16.4.x undergoes DEV validation.
