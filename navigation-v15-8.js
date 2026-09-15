@@ -1,15 +1,25 @@
 (function(){
   'use strict';
 
-  const REV='v16.3.2-page-navigation-1';
-  const APP_VERSION='v15.8 Garage';
-  const APP_NUMBER='15.8';
+  const REV='v16.4.3-page-navigation-floating-bottom-1';
+  const APP_VERSION='v16.4.3 Floating Bottom Menu DEV';
+  const APP_NUMBER='16.43';
+  const DISPLAY_NUMBER='16.4.3';
   const PAGE_KEY='fueltrackerV158ActivePage';
   const PAGES=new Set(['dashboard','refuel','maintenance','settings']);
 
   function currentPage(){
     const saved=localStorage.getItem(PAGE_KEY);
     return PAGES.has(saved)?saved:'dashboard';
+  }
+
+  function ensureFloatingStyles(){
+    if(document.getElementById('v1643FloatingBottomNavStyles'))return;
+    const link=document.createElement('link');
+    link.id='v1643FloatingBottomNavStyles';
+    link.rel='stylesheet';
+    link.href='./floating-bottom-nav-v16.css';
+    document.head.appendChild(link);
   }
 
   function installStyles(){
@@ -94,13 +104,13 @@
     const oldBrand=document.querySelector('.brand');
     if(oldBrand&&!oldBrand.dataset.v158Owned){const next=oldBrand.cloneNode(true);next.dataset.v158Owned='1';oldBrand.replaceWith(next);}
     const oldTitle=document.querySelector('title');
-    if(oldTitle&&!oldTitle.dataset.v158Owned){const next=document.createElement('title');next.dataset.v158Owned='1';next.textContent='Fuel Tracker v'+APP_NUMBER;oldTitle.replaceWith(next);}
+    if(oldTitle&&!oldTitle.dataset.v158Owned){const next=document.createElement('title');next.dataset.v158Owned='1';next.textContent='Fuel Tracker v'+DISPLAY_NUMBER;oldTitle.replaceWith(next);}
   }
 
   function setVersion(){
-    window.FUEL_TRACKER_VERSION=APP_VERSION;window.FUEL_TRACKER_VERSION_NUMBER=APP_NUMBER;
+    window.FUEL_TRACKER_VERSION=APP_VERSION;window.FUEL_TRACKER_VERSION_NUMBER=APP_NUMBER;window.FUEL_TRACKER_DISPLAY_VERSION=DISPLAY_NUMBER;
     const badge=document.querySelector('.brand small');if(badge&&badge.textContent!==APP_VERSION)badge.textContent=APP_VERSION;
-    if(document.title!=='Fuel Tracker v'+APP_NUMBER)document.title='Fuel Tracker v'+APP_NUMBER;
+    if(document.title!=='Fuel Tracker v'+DISPLAY_NUMBER)document.title='Fuel Tracker v'+DISPLAY_NUMBER;
   }
 
   function removeHeaderSettings(){document.getElementById('settingsBtn')?.remove();}
@@ -128,12 +138,12 @@
   }
 
   function refreshLayout(){
-    classifySections();ensureHeading('refuel');ensureHeading('settings');removeHeaderSettings();updateFuelAge();setVersion();
+    ensureFloatingStyles();classifySections();ensureHeading('refuel');ensureHeading('settings');removeHeaderSettings();updateFuelAge();setVersion();
     const page=document.body.dataset.v158Page||currentPage();
     document.querySelectorAll('main > section.box').forEach(section=>section.classList.toggle('v158-page-hidden',section.dataset.v158Page!==page));
   }
 
-  installStyles();ensureNav();ownVersionNodes();removeHeaderSettings();updateFuelAge();showPage(currentPage(),false);setVersion();
+  installStyles();ensureFloatingStyles();ensureNav();ownVersionNodes();removeHeaderSettings();updateFuelAge();showPage(currentPage(),false);setVersion();
   const main=document.querySelector('main');if(main){let timer;new MutationObserver(()=>{clearTimeout(timer);timer=setTimeout(refreshLayout,0);}).observe(main,{childList:true,subtree:false});}
   const brand=document.querySelector('.brand');if(brand)new MutationObserver(setVersion).observe(brand,{childList:true,subtree:true});
   const title=document.querySelector('title');if(title)new MutationObserver(setVersion).observe(title,{childList:true});
