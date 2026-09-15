@@ -13,6 +13,9 @@
   padding:7px 10px;
   border-bottom:1px solid rgba(93,111,124,.22);
   background:linear-gradient(180deg,rgba(14,22,29,.82),rgba(9,16,22,.62));
+  cursor:pointer;
+  user-select:none;
+  -webkit-user-select:none;
 }
 
 .ft-collapse-title{
@@ -47,22 +50,13 @@
 .ft-collapse-toggle:active{transform:scale(.96)}
 .ft-collapse-toggle:focus-visible{outline:2px solid var(--accent,#137fe8);outline-offset:2px}
 
-.ft-collapse-body{
-  min-width:0;
-}
-
-.ft-collapsible.ft-collapsed .ft-collapse-body{
-  display:none!important;
-}
-
+.ft-collapse-body{min-width:0}
+.ft-collapsible.ft-collapsed .ft-collapse-body{display:none!important}
 .ft-collapsible.ft-collapsed .ft-collapse-bar{
   border-bottom:0;
   background:linear-gradient(180deg,rgba(14,22,29,.96),rgba(9,16,22,.90));
 }
-
-.ft-collapsible.ft-collapsed{
-  min-height:0!important;
-}
+.ft-collapsible.ft-collapsed{min-height:0!important}
 
 .ft-collapse-toolbar{
   display:flex;
@@ -72,7 +66,6 @@
   margin:0 0 8px;
   padding:0 2px;
 }
-
 .ft-collapse-toolbar button{
   border:1px solid #2d3b46;
   border-radius:999px;
@@ -84,24 +77,16 @@
   letter-spacing:.055em;
   text-transform:uppercase;
 }
-
 .ft-collapse-toolbar button:active{transform:scale(.97)}
 .ft-collapse-toolbar button:hover{color:#fff;border-color:#415361}
 
-/* Refuel cards and Settings cards were not originally overflow containers. */
-.lower > .card.ft-collapsible,
-#settingsBox .setting.ft-collapsible{
-  padding:0!important;
-}
-
-.lower > .card.ft-collapsible > .ft-collapse-body,
-#settingsBox .setting.ft-collapsible > .ft-collapse-body{
-  padding:inherit;
-}
-
-#settingsBox .setting.ft-collapsible > .ft-collapse-body{
-  padding:14px;
-}
+/* Preserve existing card padding while allowing the compact bar to use the full card width. */
+.lower > .card.ft-collapsible > .ft-collapse-bar{margin:-14px -14px 12px}
+#settingsBox .setting.ft-collapsible > .ft-collapse-bar{margin:-12px -12px 10px}
+.lower > .card.ft-collapsible.ft-collapsed,
+#settingsBox .setting.ft-collapsible.ft-collapsed{padding-bottom:0!important}
+.lower > .card.ft-collapsible.ft-collapsed > .ft-collapse-bar,
+#settingsBox .setting.ft-collapsible.ft-collapsed > .ft-collapse-bar{margin-bottom:0}
 
 @media(max-width:580px){
   .ft-collapse-bar{min-height:34px;padding:6px 8px}
