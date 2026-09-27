@@ -26,5 +26,5 @@ self.addEventListener('fetch',event=>{
     event.respondWith((async()=>{try{const fresh=await fetch(request,{cache:'no-store'});if(fresh?.ok){const cache=await caches.open(CACHE_NAME);await cache.put('./index.html',fresh.clone());return fresh;}}catch(e){}return (await caches.match('./index.html'))||offlineResponse();})());
     return;
   }
-  event.respondWith((async()=>{const cached=await caches.match(request,{cacheName:CACHE_NAME});if(cached)return cached;try{const response=await fetch(request);if(response?.ok){const cache=await caches.open(CACHE_NAME);event.waitUntil(cache.put(request,response.clone()));}return response;}catch(e){return cached||Response.error();}})());
+  event.respondWith((async()=>{const cached=await caches.match(request,{cacheName:CACHE_NAME});if(cached)return cached;try{const response=await fetch(request);if(response?.ok){const cache=await caches.open(CACHE_NAME);await cache.put(request,response.clone());}return response;}catch(e){return cached||Response.error();}})());
 });
