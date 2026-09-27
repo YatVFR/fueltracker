@@ -205,7 +205,7 @@
   }
   function deliverDetection(x,message){
     const shown=showDetectionPrompt(x);
-    if(!shown||Notification.permission==='granted')notify('⛽ Possible Refuel',message||`Possible refuel detected at ${x.name}.`,x.id);
+    if(!shown||(typeof Notification!=='undefined'&&Notification.permission==='granted'))notify('⛽ Possible Refuel',message||`Possible refuel detected at ${x.name}.`,x.id);
   }
   function completeDwell(visit){
     if(!visit||currentVisit?.stationId!==visit.stationId)return;const cfg=settings();
