@@ -1,10 +1,10 @@
 (function(){
   'use strict';
   if(window.FuelTrackerVersionOwnerV16)return;
-  const REV='v16.4.5-version-owner-1';
-  const APP_VERSION='v16.4.5 Refuel OCR & Detection Fix DEV';
-  const DISPLAY_NUMBER='16.4.5';
-  const COMPAT_NUMBER='16.45';
+  const REV='v16.4.6-version-owner-1';
+  const APP_VERSION='v16.4.6 PWA Branding & Stabilization DEV';
+  const DISPLAY_NUMBER='16.4.6';
+  const COMPAT_NUMBER='16.46';
   function apply(){window.FUEL_TRACKER_VERSION=APP_VERSION;window.FUEL_TRACKER_VERSION_NUMBER=COMPAT_NUMBER;window.FUEL_TRACKER_DISPLAY_VERSION=DISPLAY_NUMBER;const badge=document.querySelector('.brand small');if(badge&&badge.textContent!==APP_VERSION)badge.textContent=APP_VERSION;const wanted='Fuel Tracker v'+DISPLAY_NUMBER;if(document.title!==wanted)document.title=wanted;}
   function ensure(id,flag,src){if(window[flag]||document.getElementById(id))return;const s=document.createElement('script');s.id=id;s.src=src;document.body.appendChild(s);}
   function ensureCss(id,href){if(document.getElementById(id))return;const l=document.createElement('link');l.id=id;l.rel='stylesheet';l.href=href;document.head.appendChild(l);}
