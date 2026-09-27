@@ -2,7 +2,7 @@
   'use strict';
   if(window.FuelTrackerSmartCaptureV16)return;
 
-  const REV='v16.4.0-smart-capture-2';
+  const REV='v16.4.5-smart-capture-3';
   const OCR_SRC='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
   let ocrPromise=null,lastOcrText='';
 
@@ -49,37 +49,72 @@
     if(window.Tesseract)return window.Tesseract;if(ocrPromise)return ocrPromise;
     ocrPromise=new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=OCR_SRC;s.async=true;s.onload=()=>window.Tesseract?resolve(window.Tesseract):reject(new Error('OCR unavailable'));s.onerror=()=>reject(new Error('Unable to load OCR engine'));document.head.appendChild(s);});return ocrPromise;
   }
-  async function normalizedImage(file){
-    let img,revoke=null;if(typeof createImageBitmap==='function')img=await createImageBitmap(file);else{const url=URL.createObjectURL(file);revoke=url;img=await new Promise((resolve,reject)=>{const el=new Image();el.onload=()=>resolve(el);el.onerror=reject;el.src=url;});}const max=1800,scale=Math.min(1,max/img.width),w=Math.max(1,Math.round(img.width*scale)),h=Math.max(1,Math.round(img.height*scale));const c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(img,0,0,w,h);const d=x.getImageData(0,0,w,h);for(let i=0;i<d.data.length;i+=4){const y=.299*d.data[i]+.587*d.data[i+1]+.114*d.data[i+2];const v=Math.max(0,Math.min(255,(y-128)*1.35+128));d.data[i]=d.data[i+1]=d.data[i+2]=v;}x.putImageData(d,0,0);img.close?.();if(revoke)URL.revokeObjectURL(revoke);return c;
+  async function normalizedImage(file,mode='contrast'){
+    let img,revoke=null;if(typeof createImageBitmap==='function')img=await createImageBitmap(file);else{const url=URL.createObjectURL(file);revoke=url;img=await new Promise((resolve,reject)=>{const el=new Image();el.onload=()=>resolve(el);el.onerror=reject;el.src=url;});}
+    const max=2200,scale=Math.min(1,max/img.width),w=Math.max(1,Math.round(img.width*scale)),h=Math.max(1,Math.round(img.height*scale));const c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(img,0,0,w,h);const d=x.getImageData(0,0,w,h);
+    for(let i=0;i<d.data.length;i+=4){const y=.299*d.data[i]+.587*d.data[i+1]+.114*d.data[i+2];let v;if(mode==='threshold')v=y>145?255:0;else v=Math.max(0,Math.min(255,(y-128)*1.75+128));d.data[i]=d.data[i+1]=d.data[i+2]=v;}
+    x.putImageData(d,0,0);img.close?.();if(revoke)URL.revokeObjectURL(revoke);return c;
   }
   async function scanImage(file,kind){
-    if(!file)return;try{setStatus('Preparing image…','',8);const T=await loadOcr();const image=await normalizedImage(file);setStatus('Reading image…','Keep this page open.',15);const res=await T.recognize(image,'eng',{logger:m=>{if(m?.status==='recognizing text')setStatus('Reading image…',Math.round((m.progress||0)*100)+'%',15+(m.progress||0)*75);}});lastOcrText=String(res?.data?.text||'');if(field('ftOcrText'))field('ftOcrText').textContent=lastOcrText||'No text detected.';if(kind==='pump')applyPump(parsePump(lastOcrText),res?.data?.confidence);else applyOdo(parseOdo(lastOcrText),res?.data?.confidence);}catch(e){setStatus('Scan failed.',e?.message||'Enter the values manually.',100);}
+    if(!file)return;
+    try{
+      setStatus('Preparing image…','',5);const T=await loadOcr();
+      const first=await normalizedImage(file,'contrast');setStatus('Reading image…','Pass 1 of 2',12);
+      const r1=await T.recognize(first,'eng',{logger:m=>{if(m?.status==='recognizing text')setStatus('Reading image…','Pass 1 of 2 · '+Math.round((m.progress||0)*100)+'%',12+(m.progress||0)*35);}});
+      const second=await normalizedImage(file,'threshold');setStatus('Reading image…','Pass 2 of 2',50);
+      const r2=await T.recognize(second,'eng',{logger:m=>{if(m?.status==='recognizing text')setStatus('Reading image…','Pass 2 of 2 · '+Math.round((m.progress||0)*100)+'%',50+(m.progress||0)*42);}});
+      const t1=String(r1?.data?.text||''),t2=String(r2?.data?.text||'');lastOcrText=[t1,t2].filter(Boolean).join('\n--- OCR PASS 2 ---\n');
+      if(field('ftOcrText'))field('ftOcrText').textContent=lastOcrText||'No text detected.';
+      const conf=Math.max(Number(r1?.data?.confidence)||0,Number(r2?.data?.confidence)||0);
+      if(kind==='pump')applyPump(parsePump(lastOcrText),conf);else applyOdo(parseOdo(lastOcrText),conf);
+    }catch(e){setStatus('Scan failed.',e?.message||'Enter the values manually.',100);}
     finally{const input=kind==='pump'?field('ftPumpScanInput'):field('ftOdoScanInput');if(input)input.value='';}
   }
 
   function numericTokens(text){return (String(text).match(/\b\d{1,7}(?:[.,]\d{1,3})?\b/g)||[]).map((raw,i)=>({raw,value:num(raw),i})).filter(x=>x.value!=null);}
+  function pricePerLitre(v){if(!(v>0))return null;if(v>=50&&v<=2000)return v/100;if(v>=.5&&v<=20)return v;return null;}
+  function labelledNumber(t,labels,maxGap=18){const re=new RegExp('(?:'+labels+')\\s*[:=]?\\s*(?:RM|SGD|S\\$)?\\s*([0-9]{1,7}(?:[.,][0-9]{1,3})?)','i'),m=re.exec(t);return m?num(m[1]):null;}
   function parsePump(text){
-    const t=String(text).toUpperCase(),tok=numericTokens(t).slice(0,60);let best=null;
-    for(const a of tok)for(const l of tok)for(const p of tok){if(a===l||a===p||l===p)continue;if(!(a.value>=1&&a.value<=1000&&l.value>=0.5&&l.value<=150&&p.value>=50&&p.value<=1000))continue;const expected=l.value*p.value/100,err=Math.abs(expected-a.value)/Math.max(a.value,.01);if(!best||err<best.err)best={amount:a.value,litres:l.value,senPerLitre:p.value,err};}
+    const t=String(text).toUpperCase(),tok=numericTokens(t).slice(0,90);let best=null;
+    const la=labelledNumber(t,'AMOUNT|TOTAL|SALE|PAYABLE|SUBTOTAL'),ll=labelledNumber(t,'LIT(?:RE|ER)S?|VOLUME|QTY'),lp=labelledNumber(t,'PRICE(?:\\s*\\/\\s*L)?|UNIT\\s*PRICE|RATE|SEN\\s*\\/\\s*LIT(?:RE|ER)');
+    const amounts=[...new Set([la,...tok.map(x=>x.value)].filter(v=>v>=1&&v<=2000))];
+    const litres=[...new Set([ll,...tok.map(x=>x.value)].filter(v=>v>=.5&&v<=200))];
+    const prices=[...new Set([lp,...tok.map(x=>x.value)].map(pricePerLitre).filter(v=>v!=null))];
+    for(const a of amounts)for(const l of litres)for(const p of prices){const expected=l*p,err=Math.abs(expected-a)/Math.max(a,.01);let score=err;if(la!=null&&Math.abs(a-la)<.01)score-=.025;if(ll!=null&&Math.abs(l-ll)<.001)score-=.025;if(lp!=null&&Math.abs(p-pricePerLitre(lp))<.001)score-=.025;if(!best||score<best.score)best={amount:a,litres:l,unitPrice:p,err,score};}
     const station=/(PETRONAS|PETRON\b|SHELL|CALTEX|BHPETROL|BHP\b|ESSO|SPC\b|SINOPEC)/i.exec(t)?.[1]||null;
-    let discount=null;const dm=/(?:DISCOUNT|REBATE|SAVING)[^\d]{0,12}(\d+(?:[.,]\d{1,2})?)/i.exec(t);if(dm)discount=num(dm[1]);
-    return best&&best.err<=0.08?{...best,unitPrice:best.senPerLitre/100,station,discount,currency:/RINGGIT|\bRM\b|SEN\s*\/\s*LITRE/i.test(t)?'MYR':null}:null;
+    let discount=null;const dm=/(?:DISCOUNT|REBATE|SAVING|LESS)[^\d]{0,18}(\d+(?:[.,]\d{1,2})?)/i.exec(t);if(dm)discount=num(dm[1]);
+    return best&&best.err<=0.10?{...best,station,discount,currency:/RINGGIT|\bRM\b|SEN\s*\/\s*LIT(?:RE|ER)/i.test(t)?'MYR':/SGD|S\$/i.test(t)?'SGD':null}:null;
+  }
+  function knownOdometer(){
+    try{
+      const mode=state?.mode||'bike',live=Number(state?.currentOdometer?.[mode]?.value);if(Number.isFinite(live)&&live>=0)return live;
+      const vals=records().map(r=>Number(r?.mileage)).filter(Number.isFinite);return vals.length?Math.max(...vals):null;
+    }catch(e){return null;}
   }
   function parseOdo(text){
-    const raw=String(text),t=raw.replace(/(?<=\d),(?=\d{3}\b)/g,'');let total=null,trip=null,consumption=null;
-    const tm=/(?:TOTAL|ODO(?:METER)?)\D{0,12}(\d{4,7})/i.exec(t);if(tm)total=num(tm[1]);
-    const tripm=/(?:TRIP(?:\s*CURRENT)?|CURRENT)\D{0,12}(\d{1,4}(?:[.,]\d)?)/i.exec(t);if(tripm)trip=num(tripm[1]);
-    const cm=/(?:CONSUM(?:P\.?|PTION)?|KM\s*\/\s*L)\D{0,15}(\d{1,3}(?:[.,]\d)?)/i.exec(t);if(cm)consumption=num(cm[1]);
-    const tok=numericTokens(t);if(total==null){const ints=tok.map(x=>x.value).filter(v=>Number.isInteger(v)&&v>=1000&&v<=9999999);if(ints.length)total=Math.max(...ints);}
-    return total!=null?{total,trip,consumption}:null;
+    const raw=String(text),t=raw.replace(/(?<=\d)[ ,](?=\d{3}\b)/g,'');let total=null,trip=null,consumption=null,labelled=false;
+    const tm=/(?:TOTAL|ODO(?:METER)?|MILEAGE)\D{0,18}(\d{1,3}(?:[., ]?\d{3}){1,2}|\d{4,7})/i.exec(t);if(tm){total=num(tm[1].replace(/[ ,](?=\d{3}\b)/g,''));labelled=true;}
+    const tripm=/(?:TRIP(?:\s*CURRENT)?|CURRENT)\D{0,18}(\d{1,4}(?:[.,]\d)?)/i.exec(t);if(tripm)trip=num(tripm[1]);
+    const cm=/(?:AVG(?:ERAGE)?\s*)?(?:CONSUM(?:P\.?|PTION)?|ECONOMY|KM\s*\/\s*L)\D{0,18}(\d{1,3}(?:[.,]\d)?)/i.exec(t);if(cm)consumption=num(cm[1]);
+    if(total==null){
+      const known=knownOdometer(),ints=numericTokens(t).map(x=>x.value).filter(v=>Number.isInteger(v)&&v>=1000&&v<=9999999);
+      if(ints.length){
+        if(known!=null){const plausible=ints.filter(v=>v>=known-20&&v<=known+5000).sort((a,b)=>Math.abs(a-known)-Math.abs(b-known));if(plausible.length)total=plausible[0];}
+        if(total==null&&ints.length===1)total=ints[0];
+      }
+    }
+    if(total==null)return null;
+    const known=knownOdometer(),delta=known==null?null:total-known;
+    const plausible=known==null?labelled:(delta>=-20&&delta<=5000);
+    return {total,trip,consumption,labelled,plausible,known};
   }
   function stationOption(name){if(!name)return null;const map={PETRONAS:'Petronas (MY)',PETRON:'Petron (MY)',SHELL:'Shell (MY)',CALTEX:'Caltex (MY)',BHPETROL:'BHPetrol (MY)',BHP:'BHPetrol (MY)',ESSO:'Esso (SG)',SPC:'SPC (SG)',SINOPEC:'Sinopec (SG)'};return map[String(name).toUpperCase()]||null;}
   function applyPump(data,confidence){
-    if(!data){setStatus('Values need review.','I could not confidently match amount × litres × unit price.',100);field('ftDiscountDetails').open=true;return;}
+    if(!data){setStatus('Values need review.','No validated amount × litres × unit-price combination was found. Nothing was overwritten.',100);field('ftDiscountDetails').open=true;return;}
     field('ftPumpAmount').value=data.amount.toFixed(2);field('volume').value=data.litres.toFixed(3);field('ftUnitPrice').value=data.unitPrice.toFixed(3);if(data.currency){field('currency').value=data.currency;field('currency').dispatchEvent(new Event('change',{bubbles:true}));}const opt=stationOption(data.station);if(opt&&[...field('station').options].some(o=>o.value===opt))field('station').value=opt;if(data.discount!=null){field('ftDiscountType').value='fixed';field('ftDiscountValue').value=data.discount.toFixed(2);field('ftDiscountDetails').open=true;}recalcPayment();const pct=Math.round(Number(confidence)||0);setStatus('Pump values prefilling complete.',`${data.litres.toFixed(3)} L · ${currencyPrefix()}${data.amount.toFixed(2)} · ${currencyPrefix()}${data.unitPrice.toFixed(3)}/L · OCR ${pct}%`,100);
   }
   function applyOdo(data,confidence){
-    if(!data){setStatus('Odometer needs review.','No reliable total odometer was detected.',100);return;}
+    if(!data||data.plausible===false){const hint=data?.known!=null?`Detected ${Math.round(data.total).toLocaleString()} km but latest known is ${Math.round(data.known).toLocaleString()} km.`:'No reliable total odometer was detected.';setStatus('Odometer needs review.',hint+' Nothing was overwritten.',100);return;}
     field('mileage').value=Math.round(data.total);field('mileage').dataset.ftScanned='1';field('mileage').dataset.ftTrip=data.trip??'';field('mileage').dataset.ftConsumption=data.consumption??'';const extra=[data.trip!=null?`Trip ${data.trip} km`:null,data.consumption!=null?`Avg ${data.consumption} km/L`:null].filter(Boolean).join(' · ');setStatus('Odometer prefilling complete.',`${Math.round(data.total).toLocaleString()} km${extra?' · '+extra:''} · OCR ${Math.round(Number(confidence)||0)}%`,100);
   }
 
@@ -93,8 +128,8 @@
   function hookSaving(){
     const form=field('fuelForm');if(!form||form.dataset.ftSmartSaveHook)return;form.dataset.ftSmartSaveHook='1';
     const baseSave=window.saveRecord;if(typeof baseSave==='function'){form.removeEventListener('submit',baseSave);form.addEventListener('submit',function(e){const editId=field('editId')?.value||'',before=new Set(records().map(r=>r.id)),meta=captureMeta();baseSave(e);const after=records();const r=editId?after.find(x=>x.id===editId):after.find(x=>!before.has(x.id));if(r){Object.assign(r,meta);save();try{renderHistory?.();renderDashboard?.();}catch(err){}}});}
-    const baseEdit=window.editRecord;if(typeof baseEdit==='function')window.editRecord=function(id){baseEdit(id);const r=records().find(x=>x.id===id);setTimeout(()=>loadExtras(r),0);};
-    const baseReset=window.resetForm;if(typeof baseReset==='function')window.resetForm=function(){baseReset();resetExtras();};
+    const baseEdit=window.editRecord;if(typeof baseEdit==='function')window.editRecord=function(id){const card=field('fuelForm')?.closest('.ft-collapsible');if(card?.classList.contains('ft-collapsed'))card.querySelector(':scope > .ft-collapse-bar .ft-collapse-toggle')?.click();baseEdit(id);const r=records().find(x=>x.id===id);const saveBtn=field('fuelForm')?.querySelector('button[type="submit"]');if(saveBtn)saveBtn.textContent='UPDATE REFUEL';setTimeout(()=>{loadExtras(r);field('fuelForm')?.scrollIntoView({behavior:'smooth',block:'start'});},20);};
+    const baseReset=window.resetForm;if(typeof baseReset==='function')window.resetForm=function(){baseReset();resetExtras();const saveBtn=field('fuelForm')?.querySelector('button[type="submit"]');if(saveBtn)saveBtn.textContent='SAVE REFUEL';};
   }
 
   function hookExport(){
