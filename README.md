@@ -1,14 +1,26 @@
 # Fuel Tracker
 
-Active validation version: **v16.4.4 Collapsible Sections DEV**
+Active validation version: **v16.4.5 Refuel OCR & Detection Fix DEV**
 
 Current approved production rollback baseline: **v16.3.8 iCloud Backup Target**  
 Pre-onboarding DEV checkpoint: **checkpoint/v16.4.0-pre-onboarding**  
 Pre-sanitization DEV checkpoint: **checkpoint/v16.4.1-pre-sanitize**  
 Pre-floating-menu DEV checkpoint: **checkpoint/v16.4.2-pre-floating-menu**  
-Pre-collapsible-sections DEV checkpoint: **checkpoint/v16.4.3-pre-collapsible-sections**
+Pre-collapsible-sections DEV checkpoint: **checkpoint/v16.4.3-pre-collapsible-sections**  
+Pre-refuel/OCR/detection fix checkpoint: **checkpoint/v16.4.4-pre-refuel-ocr-detection-fixes**
 
 ## Current DEV release
+### v16.4.5 — Refuel Edit, OCR & Detection Fix
+- Refuel **VIEW/EDIT** now automatically expands the Add Refuel section and changes the submit action to **UPDATE REFUEL** while editing.
+- Pump/receipt OCR now accepts both decimal unit prices such as 4.150/L and cent/sen displays such as 415 sen/L.
+- OCR runs two image-preprocessing passes and only prefills pump values when amount × litres × unit price passes consistency validation.
+- Odometer OCR prefers labelled TOTAL/ODO/MILEAGE readings and validates fallback readings against the latest known odometer before overwriting the form.
+- Low-confidence or implausible OCR no longer overwrites existing form values; the user is asked to review instead.
+- When Auto Detect completes while Fuel Tracker is visible, an in-app **Possible Refuel** prompt opens immediately.
+- Enabling detection also requests notification permission when still undecided and starts a fresh location-permission handshake.
+- When the PWA is backgrounded, the notification path remains the supported hand-off. iOS cannot be forced to auto-launch a closed/suspended web app from geofencing.
+- Active DEV PWA cache: `fueltracker-dev-v16-4-5-refuel-ocr-detection-fix-1`.
+
 ### v16.4.4 — Collapsible Sections
 - Major Dashboard sections can be expanded/collapsed individually.
 - Add Refuel and Refuel History cards can be expanded/collapsed independently.
