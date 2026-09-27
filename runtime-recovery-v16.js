@@ -1,10 +1,10 @@
 (function(){
   'use strict';
   if(window.FuelTrackerRuntimeRecoveryV16)return;
-  const REV='v16.3.8-runtime-recovery-1';
-  const VERSION='v16.3.8 iCloud Backup Target';
-  const DISPLAY='16.3.8';
-  const COMPAT='16.38';
+  const REV='v16.4.6-runtime-recovery-2';
+  const VERSION=window.FUEL_TRACKER_VERSION||'v16.4.6 PWA Branding & Stabilization DEV';
+  const DISPLAY=window.FUEL_TRACKER_DISPLAY_VERSION||'16.4.6';
+  const COMPAT=window.FUEL_TRACKER_VERSION_NUMBER||'16.46';
   const sleep=ms=>new Promise(r=>setTimeout(r,ms));
   function applyVersion(){window.FUEL_TRACKER_VERSION=VERSION;window.FUEL_TRACKER_VERSION_NUMBER=COMPAT;window.FUEL_TRACKER_DISPLAY_VERSION=DISPLAY;const badge=document.querySelector('.brand small');if(badge)badge.textContent=VERSION;document.title='Fuel Tracker v'+DISPLAY;}
   function hasGarage(){try{return typeof state!=='undefined'&&Array.isArray(state?.garageV15?.profiles)&&state.garageV15.profiles.length>0;}catch(e){return false;}}
