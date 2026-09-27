@@ -48,7 +48,7 @@ function dashboardSummary(){
   const distance=intervals.reduce((s,x)=>s+x.distance,0);
   const litres=rows.reduce((s,r)=>s+(+r.volume||0),0);
   const avg=intervals.length?intervals.reduce((s,x)=>s+x.distance,0)/intervals.reduce((s,x)=>s+x.litres,0):null;
-  const spendSgd=rows.reduce((s,r)=>s+(r.currency==='MYR'?(+r.cost||0)/3.16:(+r.cost||0)),0);
+  const spendSgd=rows.reduce((s,r)=>s+(r.currency==='MYR'?(+r.cost||0)/(+r.fxRate>0?+r.fxRate:3.16):(+r.cost||0)),0);
   return {rows,distance,litres,avg,spendSgd,refuels:rows.length};
 }
 function renderThemes(){
@@ -124,7 +124,7 @@ function renderHistory(){
       const pos=asc.findIndex(x=>x.id===r.id);
       if(pos<1)return '—';
       const dist=+r.mileage-(+asc[pos-1].mileage);
-      const sgd=r.currency==='MYR'?(+r.cost||0)/3.16:(+r.cost||0);
+      const sgd=r.currency==='MYR'?(+r.cost||0)/(+r.fxRate>0?+r.fxRate:3.16):(+r.cost||0);
       return dist>0?'S$'+(sgd/dist*100).toFixed(2):'—';
     })();
     return `<tr>
@@ -150,7 +150,7 @@ function resetForm(){
   const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());
   document.getElementById('dateTime').value=d.toISOString().slice(0,16);
   document.getElementById('currency').value='SGD';
-  document.getElementById('fuelGrade').value='95 RON';
+  document.getElementById('fuelGrade').value='RON 95';
 }
 function editRecord(id){
   const r=currentRecords().find(x=>x.id===id);if(!r)return;
@@ -161,7 +161,7 @@ function editRecord(id){
   document.getElementById('volume').value=r.volume;
   document.getElementById('cost').value=r.cost;
   document.getElementById('currency').value=r.currency;
-  document.getElementById('fuelGrade').value=r.fuelGrade||'95 RON';
+  document.getElementById('fuelGrade').value=r.fuelGrade||'RON 95';
   document.getElementById('notes').value=r.notes||'';
   document.getElementById('fuelForm').scrollIntoView({behavior:'smooth',block:'center'});
 }
@@ -180,7 +180,7 @@ function saveRecord(e){
     cost:+document.getElementById('cost').value,
     currency:document.getElementById('currency').value,
     fuelGrade:document.getElementById('fuelGrade').value,
-    notes:document.getElementById('notes').value.trim()
+    notes:document.getElementById('notes').value.trim(),\n    fxRate:document.getElementById('currency').value==='MYR'?(+document.getElementById('fxRate').value||null):null
   };
   if(!r.dateTime||!r.station||!(r.mileage>=0)||!(r.volume>0)||!(r.cost>=0)){alert('Please complete all required fields.');return;}
   const arr=currentRecords();const pos=arr.findIndex(x=>x.id===r.id);
