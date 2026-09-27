@@ -1,17 +1,18 @@
 {
-  "id": "./fueltracker-v14",
-  "name": "Fuel Tracker Unified",
-  "short_name": "Fuel Tracker",
-  "description": "Unified offline-first Bike and Car fuel tracker.",
-  "start_url": "./index.html",
+  "id": "./fueltracker-dev",
+  "name": "Fuel Tracker DEV",
+  "short_name": "FuelTracker DEV",
+  "description": "Fuel Tracker development environment for bike and car fuel, mileage and maintenance tracking.",
+  "start_url": "./#maintenance/dev",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#05070a",
-  "theme_color": "#05070a",
+  "background_color": "#02070d",
+  "theme_color": "#0879ff",
   "orientation": "any",
   "categories": ["utilities","lifestyle"],
   "icons": [
-    {"src":"./bikefueltracker/icons/icon-192.png","sizes":"192x192","type":"image/png","purpose":"any maskable"},
-    {"src":"./bikefueltracker/icons/icon-512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}
+    {"src":"./assets/branding/fueltracker-dev-icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any"},
+    {"src":"./bikefueltracker/icons/icon-192.png","sizes":"192x192","type":"image/png","purpose":"maskable"},
+    {"src":"./bikefueltracker/icons/icon-512.png","sizes":"512x512","type":"image/png","purpose":"maskable"}
   ]
 }
