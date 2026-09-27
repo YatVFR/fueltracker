@@ -2,7 +2,7 @@
   'use strict';
   if(window.FuelTrackerAutomation)return;
 
-  const REV='v16.0-refuel-automation-2';
+  const REV='v16.4.5-refuel-automation-3';
   const APP_VERSION='v16.0 Automation';
   const APP_NUMBER='16.0';
   const SETTINGS_KEY='fueltrackerV160AutomationSettings';
@@ -108,7 +108,15 @@
   }
 
   function bindCard(){
-    document.getElementById('v160Enabled')?.addEventListener('change',e=>{const cfg=settings();cfg.enabled=e.target.value==='1';save(SETTINGS_KEY,cfg);cfg.enabled?startMonitoring():stopMonitoring();updateAutoIndicator();renderCard();});
+    document.getElementById('v160Enabled')?.addEventListener('change',e=>{
+      const cfg=settings();cfg.enabled=e.target.value==='1';save(SETTINGS_KEY,cfg);
+      if(cfg.enabled){
+        startMonitoring();
+        if(typeof Notification!=='undefined'&&Notification.permission==='default')requestNotifications();
+        if(navigator.geolocation)navigator.geolocation.getCurrentPosition(()=>{},()=>{}, {enableHighAccuracy:true,maximumAge:0,timeout:12000});
+      }else stopMonitoring();
+      updateAutoIndicator();renderCard();
+    });
     document.getElementById('v160Radius')?.addEventListener('change',e=>{const cfg=settings();cfg.radius=Number(e.target.value)||150;save(SETTINGS_KEY,cfg);restartMonitoring();renderCard();});
     const dwell=document.getElementById('v160Dwell');
     const saveDwell=()=>{if(!dwell)return;const cfg=settings();const n=Math.round(Number(dwell.value));cfg.dwellMinutes=Number.isFinite(n)?Math.min(60,Math.max(1,n)):3;dwell.value=String(cfg.dwellMinutes);save(SETTINGS_KEY,cfg);if(currentVisit)restartMonitoring();};
@@ -185,10 +193,24 @@
     clearVisit();showStationConfirmation(nearby,key);
   }
 
+  function showDetectionPrompt(x){
+    if(!x||document.hidden)return false;
+    document.getElementById('v1645DetectionPrompt')?.remove();
+    const wrap=document.createElement('div');wrap.id='v1645DetectionPrompt';wrap.className='v160-station-confirm';wrap.setAttribute('role','dialog');wrap.setAttribute('aria-modal','true');wrap.setAttribute('aria-label','Possible refuel detected');
+    wrap.innerHTML=`<div class="v160-station-confirm-card"><h3>⛽ Possible Refuel</h3><p>Fuel Tracker detected a stop at <b>${esc(x.name||x.station||'a saved petrol station')}</b> for ${esc(x.dwellMinutes)} min.</p><button type="button" class="v160-station-choice" id="v1645EnterRefuel"><b>ENTER REFUEL</b><small>Open the pre-filled refuel form</small></button><button type="button" class="v160-station-cancel" id="v1645DismissRefuel">Dismiss</button></div>`;
+    document.body.appendChild(wrap);
+    document.getElementById('v1645EnterRefuel').onclick=()=>{wrap.remove();openDetection(x.id);};
+    document.getElementById('v1645DismissRefuel').onclick=()=>{wrap.remove();dismissDetection(x.id);};
+    return true;
+  }
+  function deliverDetection(x,message){
+    const shown=showDetectionPrompt(x);
+    if(!shown||Notification.permission==='granted')notify('⛽ Possible Refuel',message||`Possible refuel detected at ${x.name}.`,x.id);
+  }
   function completeDwell(visit){
     if(!visit||currentVisit?.stationId!==visit.stationId)return;const cfg=settings();
     const x={id:uid(),status:'pending',stationId:visit.stationId,name:visit.station.name,station:visit.station.station,lat:visit.station.lat,lng:visit.station.lng,detectedAt:new Date().toISOString(),enteredAt:new Date(visit.enteredAt).toISOString(),dwellMinutes:cfg.dwellMinutes};
-    const list=inbox();list.unshift(x);save(INBOX_KEY,list.slice(0,50));renderCard();notify('⛽ Possible Refuel',`You have been at ${visit.station.name} for ${cfg.dwellMinutes} minutes. Tap to enter refuel details.`,x.id);
+    const list=inbox();list.unshift(x);save(INBOX_KEY,list.slice(0,50));renderCard();deliverDetection(x,`You have been at ${visit.station.name} for ${cfg.dwellMinutes} minutes.`);
   }
 
   function clearVisit(){if(dwellTimer){clearTimeout(dwellTimer);dwellTimer=null;}currentVisit=null;}
@@ -213,7 +235,7 @@
 
   function receiveDetection(payload){
     const cfg=settings(),x={id:payload?.id||uid(),status:'pending',stationId:payload?.stationId||null,name:payload?.name||payload?.station||'Petrol station',station:payload?.station||'Other',lat:payload?.lat??null,lng:payload?.lng??null,detectedAt:payload?.detectedAt||new Date().toISOString(),enteredAt:payload?.enteredAt||null,dwellMinutes:Number(payload?.dwellMinutes||cfg.dwellMinutes)};
-    const list=inbox();if(!list.some(v=>v.id===x.id)){list.unshift(x);save(INBOX_KEY,list.slice(0,50));}renderCard();notify('⛽ Possible Refuel',`Possible refuel detected at ${x.name}. Tap to enter details.`,x.id);return x;
+    const list=inbox();if(!list.some(v=>v.id===x.id)){list.unshift(x);save(INBOX_KEY,list.slice(0,50));}renderCard();deliverDetection(x,`Possible refuel detected at ${x.name}.`);return x;
   }
 
   function handleLaunch(){const q=new URLSearchParams(location.search),page=q.get('page'),id=q.get('possibleRefuel');if(page&&window.FuelTrackerNavigation?.showPage)window.FuelTrackerNavigation.showPage(page,false);if(id)setTimeout(()=>openDetection(id),100);}
