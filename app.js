@@ -180,7 +180,8 @@ function saveRecord(e){
     cost:+document.getElementById('cost').value,
     currency:document.getElementById('currency').value,
     fuelGrade:document.getElementById('fuelGrade').value,
-    notes:document.getElementById('notes').value.trim(),\n    fxRate:document.getElementById('currency').value==='MYR'?(+document.getElementById('fxRate').value||null):null
+    notes:document.getElementById('notes').value.trim(),
+    fxRate:document.getElementById('currency').value==='MYR'?(+document.getElementById('fxRate').value||null):null
   };
   if(!r.dateTime||!r.station||!(r.mileage>=0)||!(r.volume>0)||!(r.cost>=0)){alert('Please complete all required fields.');return;}
   const arr=currentRecords();const pos=arr.findIndex(x=>x.id===r.id);
@@ -212,10 +213,22 @@ function importDb(file){
   };
   reader.readAsText(file);
 }
-function refreshUi(){
-  const btn=document.getElementById('refreshBtn');btn.textContent='Checking…';
-  setTimeout(()=>{state=loadState();renderAll();btn.textContent='Updated';},450);
-  setTimeout(()=>btn.textContent='Refresh',1200);
+async function refreshUi(){
+  const btn=document.getElementById('refreshBtn');
+  if(btn?.disabled)return;
+  if(btn)btn.disabled=true;
+  try{
+    window.FuelTrackerUpdateStatusV16?.paint?.('checking');
+    state=loadState();
+    renderAll();
+    await window.FuelTrackerUpdateStatusV16?.inspect?.({network:true,showChecking:true});
+  }catch(e){
+    console.warn('Fuel Tracker refresh recovery',e);
+    renderAll();
+  }finally{
+    if(btn)btn.disabled=false;
+    setTimeout(()=>window.FuelTrackerUpdateStatusV16?.inspect?.({network:false}),80);
+  }
 }
 function clearCurrent(){
   if(confirm('Clear all '+state.mode+' records?')){state.records[state.mode]=[];renderAll();}
