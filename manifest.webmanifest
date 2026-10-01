@@ -3,7 +3,7 @@
   "name": "Fuel Tracker DEV",
   "short_name": "FuelTracker DEV",
   "description": "Fuel Tracker development environment for bike and car fuel, mileage and maintenance tracking.",
-  "start_url": "./#maintenance/dev",
+  "start_url": "./#maintenance",
   "scope": "./",
   "display": "standalone",
   "background_color": "#02070d",
