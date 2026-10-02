@@ -1,4 +1,4 @@
-const CACHE_NAME='fueltracker-dev-v16-4-7-mgw-boot-6';
+const CACHE_NAME='fueltracker-dev-v16-4-7-mgw-boot-7';
 const APP_SHELL=[
   './','./index.html','./app.css','./dashboard-restored.css','./bike-alignment.css','./mobile-header-fix.css','./garage-v15.css','./floating-bottom-nav-v16.css','./collapsible-sections-v16.css','./pwa-branding-dev.css',
   './config.js','./app.js','./masterdb-compat.js','./dashboard-restored.js','./masterdb-seed.js','./schema-native.js','./bike-alignment.js','./garage-v15.js','./v15-hotfix.js','./masterdb-v15.js','./vehicle-model-v15.js','./user-guide-v15.js','./odometer-live-v15.js','./garage-overview-v15.js','./garage-analytics-v15.js','./garage-maintenance-v16.js','./maintenance-trial-v16.js','./maintenance-type-v16.js','./garage-backup-v15.js','./backup-integrity-v16.js','./data-context-v16.js','./masterdb-current-v16.js','./icloud-backup-target-v16.js','./stabilization-v15.js','./download-compat-v15.js','./navigation-v15-8.js','./automation-dwell-v16.js','./smart-stations-v16.js','./update-status-v16.js','./version-owner-v16.js','./runtime-recovery-v16.js','./pwa-branding-dev.js','./manifest.webmanifest','./assets/branding/fueltracker-dev-icon-192.png','./assets/branding/fueltracker-dev-loading.jpg'
@@ -26,5 +26,7 @@ self.addEventListener('fetch',event=>{
     event.respondWith((async()=>{try{const fresh=await fetch(request,{cache:'no-store'});if(fresh?.ok){const cache=await caches.open(CACHE_NAME);await cache.put('./index.html',fresh.clone());return fresh;}}catch(e){}return (await caches.match('./index.html'))||offlineResponse();})());
     return;
   }
-  event.respondWith((async()=>{const cached=await caches.match(request,{cacheName:CACHE_NAME});if(cached)return cached;try{const response=await fetch(request);if(response?.ok){const cache=await caches.open(CACHE_NAME);await cache.put(request,response.clone());}return response;}catch(e){return cached||Response.error();}})());
+  event.respondWith((async()=>{const url=new URL(request.url);const isRuntime=/\.(?:js|css)$/.test(url.pathname);
+    if(isRuntime){try{const fresh=await fetch(request,{cache:'no-store'});if(fresh?.ok){const cache=await caches.open(CACHE_NAME);await cache.put(request,fresh.clone());return fresh;}}catch(e){}}
+    const cached=await caches.match(request,{cacheName:CACHE_NAME});if(cached)return cached;try{const response=await fetch(request);if(response?.ok){const cache=await caches.open(CACHE_NAME);await cache.put(request,response.clone());}return response;}catch(e){return cached||Response.error();}})());
 });
