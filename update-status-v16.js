@@ -2,7 +2,7 @@
   'use strict';
   if(window.FuelTrackerUpdateStatusV16)return;
 
-  const REV='v16.4.7-update-status-2';
+  const REV='v16.4.7-update-status-3';
   let registration=null;
   let lastCheck=0;
   let checking=false;
@@ -73,5 +73,16 @@
 
   // Set a useful state immediately while the quiet network check happens later.
   paint('latest');
-  window.FuelTrackerUpdateStatusV16={revision:REV,inspect,paint};
+  async function activateWaiting(){
+    const reg=registration||await navigator.serviceWorker.getRegistration('./')||await navigator.serviceWorker.ready;
+    if(!reg?.waiting)return false;
+    return await new Promise(resolve=>{
+      let done=false;
+      const finish=v=>{if(done)return;done=true;resolve(v)};
+      navigator.serviceWorker.addEventListener('controllerchange',()=>finish(true),{once:true});
+      reg.waiting.postMessage({type:'SKIP_WAITING'});
+      setTimeout(()=>finish(true),1800);
+    });
+  }
+  window.FuelTrackerUpdateStatusV16={revision:REV,inspect,paint,activateWaiting};
 })();
