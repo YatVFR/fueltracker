@@ -1,19 +1,30 @@
 {
-  "id": "./fueltracker-dev",
-  "name": "Fuel Tracker DEV",
-  "short_name": "FuelTracker DEV",
-  "description": "Fuel Tracker development environment for bike and car fuel, mileage and maintenance tracking.",
-  "start_url": "./#maintenance",
+  "id": "./fueltracker-uat",
+  "name": "Fuel Tracker UAT",
+  "short_name": "FuelTracker UAT",
+  "description": "Fuel Tracker user acceptance testing environment for bike and car fuel, mileage and maintenance tracking.",
+  "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#02070d",
-  "theme_color": "#0879ff",
+  "background_color": "#120b02",
+  "theme_color": "#f59e0b",
   "orientation": "any",
-  "categories": ["utilities","lifestyle"],
+  "categories": [
+    "utilities",
+    "lifestyle"
+  ],
   "icons": [
-    {"src":"./assets/branding/fueltracker-dev-icon-192.png","sizes":"192x192","type":"image/png","purpose":"any"},
-    {"src":"./assets/branding/fueltracker-dev-icon-512.png","sizes":"512x512","type":"image/png","purpose":"any"},
-    {"src":"./assets/branding/fueltracker-dev-icon-192.png","sizes":"192x192","type":"image/png","purpose":"maskable"},
-    {"src":"./assets/branding/fueltracker-dev-icon-512.png","sizes":"512x512","type":"image/png","purpose":"maskable"}
+    {
+      "src": "./bikefueltracker/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./bikefueltracker/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
   ]
 }
