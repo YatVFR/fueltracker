@@ -1,8 +1,8 @@
 (function(){
   'use strict';
   if(window.FuelTrackerVersionOwnerV16)return;
-  const REV='v16.5.0-version-owner-1';
-  const APP_VERSION='v16.5.0 Data Health DEV';
+  const REV='v16.5.0-uat-version-owner-1';
+  const APP_VERSION='v16.5.0 Data Health UAT';
   const DISPLAY_NUMBER='16.5.0';
   const COMPAT_NUMBER='16.50';
   function apply(){window.FUEL_TRACKER_VERSION=APP_VERSION;window.FUEL_TRACKER_VERSION_NUMBER=COMPAT_NUMBER;window.FUEL_TRACKER_DISPLAY_VERSION=DISPLAY_NUMBER;const badge=document.querySelector('.brand small');if(badge&&badge.textContent!==APP_VERSION)badge.textContent=APP_VERSION;const wanted='Fuel Tracker v'+DISPLAY_NUMBER;if(document.title!==wanted)document.title=wanted;}
