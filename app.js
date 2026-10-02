@@ -222,7 +222,12 @@ async function refreshUi(){
       window.FuelTrackerUpdateStatusV16?.paint?.('checking');
       state=loadState();
       renderAll();
-      return await window.FuelTrackerUpdateStatusV16?.inspect?.({network:true,showChecking:true});
+      const status=await window.FuelTrackerUpdateStatusV16?.inspect?.({network:true,showChecking:true});
+      if(status==='available'){
+        const activated=await window.FuelTrackerUpdateStatusV16?.activateWaiting?.();
+        if(activated){sessionStorage.setItem('fueltracker:bootReason','update-refresh');location.reload();return 'reloading';}
+      }
+      return status;
     };
     if(window.FuelTrackerPwaBranding?.runRefresh)await window.FuelTrackerPwaBranding.runRefresh(refreshWork);
     else await refreshWork();
