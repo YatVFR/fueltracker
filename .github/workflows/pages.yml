@@ -47,16 +47,17 @@ jobs:
           rsync -a --delete --exclude='.git' --exclude='.github' uat-src/ site/uat/
           rsync -a --delete --exclude='.git' --exclude='.github' dev-src/ site/dev/
 
-      - name: Render DEV PWA icons from approved vector artwork
+      - name: Build DEV PWA icon sizes from approved artwork
         run: |
-          python3 -m pip install --disable-pip-version-check --quiet cairosvg
+          python3 -m pip install --disable-pip-version-check --quiet Pillow
           python3 - <<'PY'
-          import cairosvg
-          src="site/dev/assets/branding/fueltracker-dev-icon.svg"
+          from PIL import Image
+          src="site/dev/assets/branding/fueltracker-dev-icon-180.png"
+          master=Image.open(src).convert("RGB")
+          master.load()
           for size in (180,192,512):
-              cairosvg.svg2png(url=src,
-                  write_to=f"site/dev/assets/branding/fueltracker-dev-icon-{size}.png",
-                  output_width=size, output_height=size)
+              out=master if size == 180 else master.resize((size,size), Image.Resampling.LANCZOS)
+              out.save(f"site/dev/assets/branding/fueltracker-dev-icon-{size}.png", "PNG", optimize=True)
           PY
           test -s site/dev/assets/branding/fueltracker-dev-icon-180.png
           test -s site/dev/assets/branding/fueltracker-dev-icon-192.png
