@@ -244,7 +244,7 @@ document.getElementById('effBtn').onclick=()=>{state.dashMode='efficiency';rende
 document.getElementById('spendBtn').onclick=()=>{state.dashMode='spending';renderDashboard();saveState()};
 document.querySelectorAll('.period button').forEach((b,i)=>{b.dataset.period=['14','month','year','all'][i];b.onclick=()=>{state.period=b.dataset.period;renderDashboard();saveState()}});
 document.getElementById('settingsBtn').onclick=()=>document.getElementById('settingsBox').scrollIntoView({behavior:'smooth'});
-document.getElementById('refreshBtn').onclick=refreshUi;
+window.FuelTrackerRefreshUi=refreshUi;
 document.getElementById('fuelForm').addEventListener('submit',saveRecord);
 document.getElementById('vehicleRegInput').addEventListener('input',e=>{state.registrations[state.mode]=e.target.value.toUpperCase();document.getElementById('heroPlate').textContent=state.registrations[state.mode]||'Enter Registration No.';saveState()});
 document.getElementById('exportCsvBtn').onclick=exportCsv;
