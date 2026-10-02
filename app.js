@@ -218,10 +218,14 @@ async function refreshUi(){
   if(btn?.disabled)return;
   if(btn)btn.disabled=true;
   try{
-    window.FuelTrackerUpdateStatusV16?.paint?.('checking');
-    state=loadState();
-    renderAll();
-    await window.FuelTrackerUpdateStatusV16?.inspect?.({network:true,showChecking:true});
+    const refreshWork=async()=>{
+      window.FuelTrackerUpdateStatusV16?.paint?.('checking');
+      state=loadState();
+      renderAll();
+      return await window.FuelTrackerUpdateStatusV16?.inspect?.({network:true,showChecking:true});
+    };
+    if(window.FuelTrackerPwaBranding?.runRefresh)await window.FuelTrackerPwaBranding.runRefresh(refreshWork);
+    else await refreshWork();
   }catch(e){
     console.warn('Fuel Tracker refresh recovery',e);
     renderAll();
