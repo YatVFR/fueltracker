@@ -88,6 +88,7 @@ This remains foreground geofencing. It does not discover arbitrary petrol statio
 - Browser-side OCR needs network access the first time the OCR engine/language data is loaded.
 
 Production: https://yatvfr.github.io/fueltracker/  
+UAT validation: https://yatvfr.github.io/fueltracker/uat/  
 DEV validation: https://yatvfr.github.io/fueltracker/dev/
 
 v16.3.8 remains the approved production rollback point while v16.4.x is validated in DEV.
