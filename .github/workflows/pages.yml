@@ -47,6 +47,15 @@ jobs:
           rsync -a --delete --exclude='.git' --exclude='.github' uat-src/ site/uat/
           rsync -a --delete --exclude='.git' --exclude='.github' dev-src/ site/dev/
 
+      - name: Build DEV PWA icon set
+        run: |
+          ICON="site/dev/assets/branding/fueltracker-dev-icon-192.png"
+          TOOL="$(command -v magick || command -v convert)"
+          test -n "$TOOL"
+          "$TOOL" "$ICON" -fuzz 22% -fill '#02070d' -draw 'color 0,0 floodfill' -resize 180x180 site/dev/assets/branding/fueltracker-dev-icon-180.png
+          "$TOOL" "$ICON" -fuzz 22% -fill '#02070d' -draw 'color 0,0 floodfill' -resize 192x192 site/dev/assets/branding/fueltracker-dev-icon-192.png
+          "$TOOL" "$ICON" -fuzz 22% -fill '#02070d' -draw 'color 0,0 floodfill' -resize 512x512 site/dev/assets/branding/fueltracker-dev-icon-512.png
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
