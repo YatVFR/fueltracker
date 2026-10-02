@@ -63,6 +63,21 @@ jobs:
           test -s site/dev/assets/branding/fueltracker-dev-icon-192.png
           test -s site/dev/assets/branding/fueltracker-dev-icon-512.png
 
+      - name: Build UAT PWA icon sizes from approved artwork
+        run: |
+          python3 - <<'PY'
+          from PIL import Image
+          src="site/uat/assets/branding/fueltracker-uat-icon-180.png"
+          master=Image.open(src).convert("RGB")
+          master.load()
+          for size in (180,192,512):
+              out=master if size == 180 else master.resize((size,size), Image.Resampling.LANCZOS)
+              out.save(f"site/uat/assets/branding/fueltracker-uat-icon-{size}.png", "PNG", optimize=True)
+          PY
+          test -s site/uat/assets/branding/fueltracker-uat-icon-180.png
+          test -s site/uat/assets/branding/fueltracker-uat-icon-192.png
+          test -s site/uat/assets/branding/fueltracker-uat-icon-512.png
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
