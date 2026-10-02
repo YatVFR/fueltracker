@@ -2,14 +2,14 @@
   'use strict';
   if(window.FuelTrackerUpdateStatusV16)return;
 
-  const REV='v16.1.5-update-status-1';
+  const REV='v16.4.7-update-status-2';
   let registration=null;
   let lastCheck=0;
   let checking=false;
 
   function button(){return document.getElementById('refreshBtn');}
   function paint(status){
-    const btn=button();if(!btn||btn.disabled)return;
+    const btn=button();if(!btn)return;
     let text='Latest',color='#5add76';
     if(status==='available'){text='Updates Available';color='#f2bd54';}
     else if(status==='checking'){text='Checking…';color='#89949d';}
