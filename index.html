@@ -21,7 +21,24 @@
 <link rel="stylesheet" href="./pwa-branding-dev.css">
 </head>
 <body>
-<div id="fuelTrackerBoot" role="status" aria-label="Loading Fuel Tracker DEV"></div>
+<div id="fuelTrackerBoot" role="status" aria-live="polite" aria-label="Loading Fuel Tracker DEV">
+  <div class="ft-boot-card">
+    <div class="ft-boot-art" aria-hidden="true"></div>
+    <h2>Fuel <span>Tracker</span> <small>DEV</small></h2>
+    <p class="ft-boot-tagline">TRACK · MANAGE · OPTIMISE</p>
+    <div class="ft-boot-steps">
+      <div class="ft-boot-step is-active" data-step="ui"><i>⚙️</i><div><b>Initializing Fuel Tracker</b><small>Preparing the interface</small></div></div>
+      <div class="ft-boot-step" data-step="data"><i>⛽</i><div><b>Loading Garage data</b><small>Fuel, mileage &amp; vehicle profiles</small></div></div>
+      <div class="ft-boot-step" data-step="modules"><i>🔧</i><div><b>Starting tracker modules</b><small>Maintenance, backup &amp; navigation</small></div></div>
+      <div class="ft-boot-step" data-step="dashboard"><i>📊</i><div><b>Preparing dashboard</b><small>Rendering your latest vehicle view</small></div></div>
+      <div class="ft-boot-step" data-step="ready"><i>✓</i><div><b>Ready to drive</b><small>Fuel Tracker is ready</small></div></div>
+    </div>
+    <p class="ft-boot-live" id="ftBootMessage">Preparing interface…</p>
+    <div class="ft-boot-track"><i id="ftBootBar"></i></div>
+    <div class="ft-boot-progress"><span id="ftBootStage">Starting</span><b id="ftBootPercent">8%</b></div>
+    <div class="ft-boot-foot"><span>🛡️ LOCAL-FIRST</span><span>⚡ FAST</span><span>🔒 PRIVATE</span></div>
+  </div>
+</div>
 <div class="app">
 <header>
   <div class="brand"><h1>FUEL TRACKER</h1><small>v16.4.7 MGW Boot Architecture DEV</small></div>
