@@ -1,0 +1,15 @@
+/* v16.6 DEV: additive dashboard accordion; no existing chart selectors changed */
+.ft-v166-heading{font-size:11px;letter-spacing:.13em;font-weight:800;color:#83bfe0;margin:16px 0 10px}
+.ft-v166-groups{display:grid;gap:10px}
+.ft-v166-group{border:1px solid rgba(118,172,207,.23);border-radius:14px;background:rgba(13,31,50,.52);overflow:hidden}
+.ft-v166-group>summary{cursor:pointer;display:flex;align-items:center;gap:12px;padding:14px;list-style:none}
+.ft-v166-group>summary::-webkit-details-marker{display:none}
+.ft-v166-icon{font-size:20px;min-width:26px}
+.ft-v166-name{flex:1;display:grid;gap:3px}
+.ft-v166-name strong{color:#edf7ff;font-size:14px}
+.ft-v166-name small{color:#9ab3c8;font-size:11px}
+.ft-v166-chevron{color:#8ecde9;font-size:20px;transition:transform .18s}
+.ft-v166-group[open] .ft-v166-chevron{transform:rotate(180deg)}
+.ft-v166-body{padding:0 12px 14px}
+.ft-v166-shared .dashboard-top{display:flex;flex-wrap:wrap;gap:10px}
+.ft-v166-hint{color:#a8c2d5;font-size:13px;line-height:1.5;margin:4px}
