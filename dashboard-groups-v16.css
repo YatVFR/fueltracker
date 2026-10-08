@@ -13,3 +13,5 @@
 .ft-v166-body{padding:0 12px 14px}
 .ft-v166-shared .dashboard-top{display:flex;flex-wrap:wrap;gap:10px}
 .ft-v166-hint{color:#a8c2d5;font-size:13px;line-height:1.5;margin:4px}
+
+.ft-v166-shared .ft-v166-legacy-switch{display:none!important}
