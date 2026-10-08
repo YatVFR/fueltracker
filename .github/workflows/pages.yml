@@ -63,23 +63,30 @@ jobs:
           test -s site/dev/assets/branding/fueltracker-dev-icon-192.png
           test -s site/dev/assets/branding/fueltracker-dev-icon-512.png
 
-      - name: Build UAT PWA icon sizes from approved artwork (when available)
+      - name: Build UAT PWA icon sizes from valid approved artwork
         run: |
-          if [ -s site/uat/assets/branding/fueltracker-uat-icon-180.png ]; then
-            python3 - <<'PY'
-          from PIL import Image
-          src="site/uat/assets/branding/fueltracker-uat-icon-180.png"
-          master=Image.open(src).convert("RGB")
-          master.load()
-          for size in (180,192,512):
-              out=master if size == 180 else master.resize((size,size), Image.Resampling.LANCZOS)
-              out.save(f"site/uat/assets/branding/fueltracker-uat-icon-{size}.png", "PNG", optimize=True)
+          python3 - <<'PY'
+          from pathlib import Path
+          from PIL import Image, UnidentifiedImageError
+
+          src = Path("site/uat/assets/branding/fueltracker-uat-icon-180.png")
+          if not src.is_file():
+              print("::warning::UAT icon source missing; preserving existing UAT assets.")
+          else:
+              try:
+                  with Image.open(src) as image:
+                      image.verify()
+                  with Image.open(src) as image:
+                      master = image.convert("RGB")
+                      master.load()
+                  # Prepare outputs before replacing any source file.
+                  for size in (192, 512):
+                      out = master.resize((size, size), Image.Resampling.LANCZOS)
+                      out.save(src.with_name(f"fueltracker-uat-icon-{size}.png"), "PNG", optimize=True)
+                  print("UAT icon sizes generated successfully.")
+              except (UnidentifiedImageError, OSError, ValueError) as exc:
+                  print(f"::warning::UAT icon source invalid ({type(exc).__name__}); preserving existing UAT assets.")
           PY
-            test -s site/uat/assets/branding/fueltracker-uat-icon-192.png
-            test -s site/uat/assets/branding/fueltracker-uat-icon-512.png
-          else
-            echo "::notice::Approved UAT icon source not present; preserving existing UAT assets and continuing deployment."
-          fi
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
