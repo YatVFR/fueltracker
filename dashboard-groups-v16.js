@@ -19,6 +19,10 @@ function init(){
   const body=document.createElement('div');body.className='ft-v166-body';
   details.append(summary,body);shell.append(details);panels[id]={details,body};
  });
+ // Retain the legacy mode buttons for the existing app.js handlers, but hide the redundant switch.
+ // The accordion headings are now the only visible mode controls.
+ const legacySwitch=top.querySelector('.switch');
+ if(legacySwitch){legacySwitch.classList.add('ft-v166-legacy-switch');legacySwitch.hidden=true;legacySwitch.style.display='none';}
  // Keep the original period selector, metric element and data-health panel intact.
  const shared=document.createElement('div');shared.className='ft-v166-shared';
  shared.append(top,metrics);if(health)shared.append(health);
@@ -42,5 +46,5 @@ function init(){
  activate(prior==='spending'?'spending':'fuel',false);
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
-window.FuelTrackerDashboardGroupsV166={revision:'v16.6.0-dashboard-groups-1',init};
+window.FuelTrackerDashboardGroupsV166={revision:'v16.6.0-dashboard-groups-2',init};
 })();
