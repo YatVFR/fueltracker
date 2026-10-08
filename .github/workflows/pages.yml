@@ -63,9 +63,10 @@ jobs:
           test -s site/dev/assets/branding/fueltracker-dev-icon-192.png
           test -s site/dev/assets/branding/fueltracker-dev-icon-512.png
 
-      - name: Build UAT PWA icon sizes from approved artwork
+      - name: Build UAT PWA icon sizes from approved artwork (when available)
         run: |
-          python3 - <<'PY'
+          if [ -s site/uat/assets/branding/fueltracker-uat-icon-180.png ]; then
+            python3 - <<'PY'
           from PIL import Image
           src="site/uat/assets/branding/fueltracker-uat-icon-180.png"
           master=Image.open(src).convert("RGB")
@@ -74,9 +75,11 @@ jobs:
               out=master if size == 180 else master.resize((size,size), Image.Resampling.LANCZOS)
               out.save(f"site/uat/assets/branding/fueltracker-uat-icon-{size}.png", "PNG", optimize=True)
           PY
-          test -s site/uat/assets/branding/fueltracker-uat-icon-180.png
-          test -s site/uat/assets/branding/fueltracker-uat-icon-192.png
-          test -s site/uat/assets/branding/fueltracker-uat-icon-512.png
+            test -s site/uat/assets/branding/fueltracker-uat-icon-192.png
+            test -s site/uat/assets/branding/fueltracker-uat-icon-512.png
+          else
+            echo "::notice::Approved UAT icon source not present; preserving existing UAT assets and continuing deployment."
+          fi
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
